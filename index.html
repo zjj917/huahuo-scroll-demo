@@ -1,0 +1,381 @@
+<!doctype html>
+<html lang="zh-CN" data-mode="light" class="is-linear">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="花火官网动态交互 Demo：按滚动顺序展示品牌主张、合作服务、案例与合作指南。">
+  <meta name="color-scheme" content="light dark">
+  <title>花火 · 滚动叙事 Demo</title>
+  <link rel="stylesheet" href="scroll-demo-tokens.css">
+  <link rel="stylesheet" href="motion.css">
+  <link rel="stylesheet" href="scroll-demo.css">
+  <link rel="stylesheet" href="scroll-demo-tail.css">
+  <link rel="stylesheet" href="scroll-demo-nav.css">
+  <script src="scroll-demo.js" defer></script>
+  <script src="scroll-demo-tail.js" defer></script>
+  <script src="scroll-demo-nav.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#story">跳到主要内容</a>
+
+  <header class="demo-header" data-header>
+    <a class="demo-brand" href="#story" data-jump="hero" aria-label="花火首页">
+      <img class="demo-brand-logo" src="assets/huahuo-logo.svg" width="103" height="24" alt="bilibili 花火">
+    </a>
+    <nav class="demo-nav" id="demo-site-nav" aria-label="主要导航">
+      <a href="#story" data-jump="hero">首页</a>
+      <a href="#story" data-jump="cases">花火奖</a>
+      <a href="#tail-faq" data-jump="faq">帮助中心</a>
+      <button class="demo-contact-trigger" type="button" data-contact="service" aria-haspopup="dialog" aria-controls="demo-contact-dialog">联系客服</button>
+      <button class="demo-contact-trigger" type="button" data-contact="email" aria-haspopup="dialog" aria-controls="demo-contact-dialog">联系邮箱</button>
+    </nav>
+    <div class="demo-actions">
+      <button class="theme-toggle" type="button" data-theme-toggle aria-label="切换暗色主题">
+        <span aria-hidden="true">◐</span><span class="sr-only">切换暗色主题</span>
+      </button>
+      <button class="reading-toggle" type="button" data-reading-toggle aria-pressed="false">静态阅读</button>
+      <button class="demo-menu-toggle" type="button" data-menu-toggle aria-label="展开导航菜单" aria-controls="demo-site-nav" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h14M5 16h14"/></svg></button>
+    </div>
+  </header>
+
+  <dialog class="demo-contact-dialog" id="demo-contact-dialog" aria-labelledby="demo-contact-title" aria-describedby="demo-contact-message">
+    <div class="demo-contact-heading"><h2 id="demo-contact-title">联系客服</h2><button class="demo-contact-close" type="button" data-contact-close aria-label="关闭提示"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button></div>
+    <p id="demo-contact-message">客服入口待补充。</p>
+    <button class="demo-contact-confirm" type="button" data-contact-close>知道了</button>
+  </dialog>
+
+  <main id="story" tabindex="-1">
+    <section class="story-track" data-story-track aria-label="花火官网滚动叙事">
+      <div class="story-stage" data-story-stage>
+        
+
+        <section class="story-scene scene-hero is-active" data-scene="hero" aria-labelledby="hero-title">
+          <div class="hero-copy">
+            <p class="scene-kicker">UP 主商业合作 &amp; 服务平台</p>
+            <h1 id="hero-title">以内容为杠杆，<br><span>撬动品牌深度心智。</span></h1>
+            <p class="hero-note">让好内容，与好品牌相遇。花火绽放 UP 主内容营销价值。</p>
+            <div class="hero-actions">
+              <a class="primary-button" href="#story" data-jump="service">探索合作</a>
+              <a class="text-button" href="#story" data-jump="cases">查看案例 <span aria-hidden="true">↗</span></a>
+            </div>
+          </div>
+          <div class="hero-orbit" data-orbit aria-label="UP 主星球，鼠标悬停可暂停对应创作者">
+            <div class="orbit-ring orbit-ring-one" aria-hidden="true"></div>
+            <div class="orbit-ring orbit-ring-two" aria-hidden="true"></div>
+            <div class="orbit-ring orbit-ring-three" aria-hidden="true"></div>
+            
+            <div class="creator-nodes" data-creator-nodes></div>
+            <p class="orbit-caption" id="hero-hover-label">不同热爱，同频相遇</p>
+          </div>
+          <button type="button" class="orbit-pause" data-orbit-pause aria-pressed="false">暂停头像运转</button>
+          <p class="scroll-cue"><span aria-hidden="true">↓</span> 向下滚动，探索花火</p>
+        </section>
+
+        <section class="story-scene scene-values" data-scene="values" aria-labelledby="values-title">
+          <div class="section-heading">
+            <p class="scene-kicker">我们的主张</p>
+            <h2 id="values-title">以内容为杠杆，<br>撬动品牌深度心智。</h2>
+            <p>从一次合作开始，把内容变成可持续的品牌资产。</p>
+          </div>
+          <div class="value-grid" data-values>
+            <article class="value-card"><span class="value-index">01</span><div><h3>破圈共创</h3><p>跨圈层穿透，驱动品牌新增长</p></div></article>
+            <article class="value-card"><span class="value-index">02</span><div><h3>生态普惠</h3><p>肩腰部达人，释放真实影响力</p></div></article>
+            <article class="value-card"><span class="value-index">03</span><div><h3>深度定制</h3><p>打造契合度高、价值感强的内容表达</p></div></article>
+            <article class="value-card"><span class="value-index">04</span><div><h3>心智深耕</h3><p>内容资产，决定品牌生命周期</p></div></article>
+          </div>
+        </section>
+
+        <section class="story-scene scene-services-intro" data-scene="services-intro" aria-labelledby="services-title">
+          <div class="services-intro-copy">
+            <p class="scene-kicker">花火平台能力</p>
+            <h2 id="services-title">我们的服务</h2>
+            <p>从选人撮合，到订单履约，再到投后分析，陪伴每一次内容共创。</p>
+          </div>
+          <div class="service-beacon" aria-hidden="true"><svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="15" cy="13" r="5"/><circle cx="34" cy="13" r="5"/><path d="M7 39V28a8 8 0 0 1 16 0v11H7Zm19 0V28a8 8 0 0 1 16 0v11H26Z"/></svg></div>
+          <div class="chapter-line" aria-hidden="true"></div>
+        </section>
+
+        <section class="story-scene scene-service scene-service-service" data-scene="service" aria-labelledby="service-title">
+          <div class="service-copy">
+            <span class="service-symbol" aria-hidden="true"><svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="15" cy="13" r="5"/><circle cx="34" cy="13" r="5"/><path d="M7 39V28a8 8 0 0 1 16 0v11H7Zm19 0V28a8 8 0 0 1 16 0v11H26Z"/></svg></span>
+            <p class="scene-kicker">选人撮合</p>
+            <h2 id="service-title">找 UP 主</h2>
+            <p class="service-description">花火提供四种选人方式，连接品牌与合适的创作者。</p>
+            <nav class="service-steps" aria-label="选人撮合内容"><button type="button" data-step="0" aria-label="查看AI 智能托管式选人" aria-current="step"><span>01</span>AI 智能托管式选人</button><button type="button" data-step="1" aria-label="查看委托服务商协作模式"><span>02</span>委托服务商协作模式</button><button type="button" data-step="2" aria-label="查看产品自主化模式"><span>03</span>产品自主化模式</button><button type="button" data-step="3" aria-label="查看花火平台节点活动 / IP 选人模式"><span>04</span>花火平台节点活动 / IP 选人模式</button></nav>
+            <div class="phase-next" aria-hidden="true">合作履约<span>↓</span></div>
+          </div>
+          <div class="service-viewport"><div class="service-strip">
+                <article class="service-frame" id="service-frame-0" aria-labelledby="service-frame-title-0">
+                  <h3 id="service-frame-title-0">AI 智能托管式选人</h3>
+                  <div class="visual-placeholder" role="img" aria-label="AI 智能托管式选人示意图占位"><span>画面占位</span></div>
+                  <p>通过 AI 辅助选人，探索契合品牌需求的 UP 主。</p>
+                </article>
+                <article class="service-frame" id="service-frame-1" aria-labelledby="service-frame-title-1">
+                  <h3 id="service-frame-title-1">委托服务商协作模式</h3>
+                  <div class="visual-placeholder" role="img" aria-label="委托服务商协作模式示意图占位"><span>画面占位</span></div>
+                  <p>与服务商一起推进选人和内容合作。</p>
+                </article>
+                <article class="service-frame" id="service-frame-2" aria-labelledby="service-frame-title-2">
+                  <h3 id="service-frame-title-2">产品自主化模式</h3>
+                  <div class="visual-placeholder" role="img" aria-label="产品自主化模式示意图占位"><span>画面占位</span></div>
+                  <p>使用平台产品，自主寻找并联系 UP 主。</p>
+                </article>
+                <article class="service-frame" id="service-frame-3" aria-labelledby="service-frame-title-3">
+                  <h3 id="service-frame-title-3">花火平台节点活动 / IP 选人模式</h3>
+                  <div class="visual-placeholder" role="img" aria-label="花火平台节点活动 / IP 选人模式示意图占位"><span>画面占位</span></div>
+                  <p>围绕平台节点活动与 IP，发现合作机会。</p>
+                </article>
+          </div></div>
+        </section>
+        <section class="story-scene scene-service scene-service-delivery" data-scene="delivery" aria-labelledby="delivery-title">
+          <div class="service-copy">
+            <span class="service-symbol" aria-hidden="true"><svg viewBox="0 0 48 48"><rect x="10" y="8" width="28" height="32" rx="6"/><path d="M17 18h14M17 25h14M17 32h8"/></svg></span>
+            <p class="scene-kicker">订单履约</p>
+            <h2 id="delivery-title">合作履约</h2>
+            <p class="service-description">三项平台保障，陪伴每一次内容合作。</p>
+            <nav class="service-steps" aria-label="订单履约内容"><button type="button" data-step="0" aria-label="查看纠纷自助解决" aria-current="step"><span>01</span>纠纷自助解决</button><button type="button" data-step="1" aria-label="查看稿件保护"><span>02</span>稿件保护</button><button type="button" data-step="2" aria-label="查看风险管理"><span>03</span>风险管理</button></nav>
+            <div class="phase-next" aria-hidden="true">投后复盘<span>↓</span></div>
+          </div>
+          <div class="service-viewport"><div class="service-strip">
+                <article class="service-frame" id="delivery-frame-0" aria-labelledby="delivery-frame-title-0">
+                  <h3 id="delivery-frame-title-0">纠纷自助解决</h3>
+                  <div class="visual-placeholder" role="img" aria-label="纠纷自助解决示意图占位"><span>画面占位</span></div>
+                  <p>为合作中的争议提供自助解决路径。</p>
+                </article>
+                <article class="service-frame" id="delivery-frame-1" aria-labelledby="delivery-frame-title-1">
+                  <h3 id="delivery-frame-title-1">稿件保护</h3>
+                  <div class="visual-placeholder" role="img" aria-label="稿件保护示意图占位"><span>画面占位</span></div>
+                  <p>围绕合作稿件，提供保护支持。</p>
+                </article>
+                <article class="service-frame" id="delivery-frame-2" aria-labelledby="delivery-frame-title-2">
+                  <h3 id="delivery-frame-title-2">风险管理</h3>
+                  <div class="visual-placeholder" role="img" aria-label="风险管理示意图占位"><span>画面占位</span></div>
+                  <p>为订单履约提供风险管理支持。</p>
+                </article>
+          </div></div>
+        </section>
+        <section class="story-scene scene-service scene-service-analysis" data-scene="analysis" aria-labelledby="analysis-title">
+          <div class="service-copy">
+            <span class="service-symbol" aria-hidden="true"><svg viewBox="0 0 48 48"><rect x="10" y="8" width="28" height="32" rx="6"/><path d="M17 18h14M17 25h14M17 32h8"/></svg></span>
+            <p class="scene-kicker">投后分析</p>
+            <h2 id="analysis-title">投后复盘</h2>
+            <p class="service-description">用 metes 人群资产模型，让品牌资产清晰量化。</p>
+            <nav class="service-steps" aria-label="投后分析内容"><button type="button" data-step="0" aria-label="查看metes 人群资产模型" aria-current="step"><span>01</span>metes 人群资产模型</button></nav>
+            
+          </div>
+          <div class="service-viewport"><div class="service-strip">
+                <article class="service-frame" id="analysis-frame-0" aria-labelledby="analysis-frame-title-0">
+                  <h3 id="analysis-frame-title-0">metes 人群资产模型</h3>
+                  <div class="visual-placeholder" role="img" aria-label="metes 人群资产模型示意图占位"><span>画面占位</span></div>
+                  <p>看见内容价值，让下一次共创更有方向。</p>
+                </article>
+          </div></div>
+        </section>
+        <section class="story-scene scene-cases-intro" data-scene="cases-intro" aria-labelledby="cases-intro-title">
+          <div class="case-film" data-case-film><img src="assets/scroll-case-reference.jpg" alt="用户提供的案例封面参考：云海中的悬空场景，用于演示转场" width="1600" height="899"></div>
+          <svg class="case-type-mask" data-type-mask viewBox="0 0 1440 900" preserveAspectRatio="none" aria-hidden="true">
+            <defs><mask id="case-letter-mask" maskUnits="userSpaceOnUse" x="0" y="0" width="1440" height="900"><rect width="1440" height="900" fill="white"/><rect width="1440" height="900" fill="black" data-mask-aperture/><g data-mask-letters><text x="720" y="470" text-anchor="middle" dominant-baseline="middle" font-size="118" font-weight="750" fill="black">通过优秀案例</text></g></mask></defs>
+            <rect width="1440" height="900" class="mask-surface" mask="url(#case-letter-mask)"/>
+          </svg>
+          <h2 id="cases-intro-title" class="sr-only">通过优秀案例，了解真实效果。</h2>
+          <p class="portal-subtitle">了解真实效果。</p>
+          <p class="reference-note">转场参考画面 · 非播放视频</p>
+        </section>
+
+        <section class="story-scene scene-cases" data-scene="cases" aria-labelledby="cases-title">
+          <div class="cases-head"><div><p class="scene-kicker">精选内容</p><h2 id="cases-title">让每一次观看，<br>都靠近品牌一点。</h2></div><div class="case-controls"><button type="button" data-case-direction="-1" aria-label="上一个奖项">←</button><button type="button" data-case-direction="1" aria-label="下一个奖项">→</button></div></div>
+          <div class="case-rail" data-case-rail>
+            <article class="case-card case-card-large"><div class="case-placeholder"><span>年度最佳</span><small>视频占位 · 待接入案例素材</small></div><p>年度最佳 · 让内容成为品牌的高光时刻</p><small>案例视频占位</small></article>
+            <article class="case-card"><div class="case-placeholder"><span>标杆奖</span><small>视频占位 · 待接入案例素材</small></div><p>标杆奖 · 把一次共创做成长期记忆</p><small>案例视频占位</small></article>
+            <article class="case-card"><div class="case-placeholder"><span>新锐奖</span><small>视频占位 · 待接入案例素材</small></div><p>新锐奖 · 与新鲜表达一起破圈</p><small>案例视频占位</small></article>
+          </div>
+          <p class="case-footnote">向下继续，探索汽车、游戏与小家电行业案例。</p>
+        </section>
+
+      </div>
+    </section>
+<!-- Place this fragment after .story-track, inside main. Load motion.css, scroll-demo-tail.css and scroll-demo-tail.js. -->
+<div class="tail-content" data-tail-content>
+  <section class="tail-industries tail-shell" id="tail-industries" aria-labelledby="tail-industries-title">
+    <header class="tail-section-heading">
+      <p class="tail-kicker">走进每一个行业</p>
+      <h2 id="tail-industries-title">让好内容，<br>与品牌的世界相遇。</h2>
+      <p class="tail-description">从汽车、游戏到小家电，探索不同场景里的内容合作。</p>
+    </header>
+    <section class="tail-industry" aria-labelledby="tail-auto-title">
+      <header class="tail-industry-heading"><h3 id="tail-auto-title">汽车</h3><p>把出发的想象，变成有共鸣的表达。</p></header>
+      <div class="tail-video-grid">
+        <article class="tail-case-card">
+          <div class="tail-video-placeholder" role="img" aria-label="汽车行业案例 1，视频素材待补充">
+            <svg class="tail-video-icon" viewBox="0 0 32 32" aria-hidden="true"><rect x="3" y="6" width="26" height="20" rx="4"/><path d="m13 11 8 5-8 5Z"/></svg>
+            <span>视频素材待补充</span>
+          </div>
+          <h4>汽车行业案例 1</h4>
+          <p>品牌、UP 主及案例介绍待补充</p>
+        </article>
+        <article class="tail-case-card">
+          <div class="tail-video-placeholder" role="img" aria-label="汽车行业案例 2，视频素材待补充">
+            <svg class="tail-video-icon" viewBox="0 0 32 32" aria-hidden="true"><rect x="3" y="6" width="26" height="20" rx="4"/><path d="m13 11 8 5-8 5Z"/></svg>
+            <span>视频素材待补充</span>
+          </div>
+          <h4>汽车行业案例 2</h4>
+          <p>品牌、UP 主及案例介绍待补充</p>
+        </article>
+        <article class="tail-case-card">
+          <div class="tail-video-placeholder" role="img" aria-label="汽车行业案例 3，视频素材待补充">
+            <svg class="tail-video-icon" viewBox="0 0 32 32" aria-hidden="true"><rect x="3" y="6" width="26" height="20" rx="4"/><path d="m13 11 8 5-8 5Z"/></svg>
+            <span>视频素材待补充</span>
+          </div>
+          <h4>汽车行业案例 3</h4>
+          <p>品牌、UP 主及案例介绍待补充</p>
+        </article>
+      </div>
+    </section>
+    <section class="tail-industry" aria-labelledby="tail-game-title">
+      <header class="tail-industry-heading"><h3 id="tail-game-title">游戏</h3><p>让共同的热爱，连接每一次相遇。</p></header>
+      <div class="tail-video-grid">
+        <article class="tail-case-card">
+          <div class="tail-video-placeholder" role="img" aria-label="游戏行业案例 1，视频素材待补充">
+            <svg class="tail-video-icon" viewBox="0 0 32 32" aria-hidden="true"><rect x="3" y="6" width="26" height="20" rx="4"/><path d="m13 11 8 5-8 5Z"/></svg>
+            <span>视频素材待补充</span>
+          </div>
+          <h4>游戏行业案例 1</h4>
+          <p>品牌、UP 主及案例介绍待补充</p>
+        </article>
+        <article class="tail-case-card">
+          <div class="tail-video-placeholder" role="img" aria-label="游戏行业案例 2，视频素材待补充">
+            <svg class="tail-video-icon" viewBox="0 0 32 32" aria-hidden="true"><rect x="3" y="6" width="26" height="20" rx="4"/><path d="m13 11 8 5-8 5Z"/></svg>
+            <span>视频素材待补充</span>
+          </div>
+          <h4>游戏行业案例 2</h4>
+          <p>品牌、UP 主及案例介绍待补充</p>
+        </article>
+        <article class="tail-case-card">
+          <div class="tail-video-placeholder" role="img" aria-label="游戏行业案例 3，视频素材待补充">
+            <svg class="tail-video-icon" viewBox="0 0 32 32" aria-hidden="true"><rect x="3" y="6" width="26" height="20" rx="4"/><path d="m13 11 8 5-8 5Z"/></svg>
+            <span>视频素材待补充</span>
+          </div>
+          <h4>游戏行业案例 3</h4>
+          <p>品牌、UP 主及案例介绍待补充</p>
+        </article>
+      </div>
+    </section>
+    <section class="tail-industry" aria-labelledby="tail-home-title">
+      <header class="tail-industry-heading"><h3 id="tail-home-title">小家电</h3><p>在日常生活里，发现品牌的新可能。</p></header>
+      <div class="tail-video-grid">
+        <article class="tail-case-card">
+          <div class="tail-video-placeholder" role="img" aria-label="小家电行业案例 1，视频素材待补充">
+            <svg class="tail-video-icon" viewBox="0 0 32 32" aria-hidden="true"><rect x="3" y="6" width="26" height="20" rx="4"/><path d="m13 11 8 5-8 5Z"/></svg>
+            <span>视频素材待补充</span>
+          </div>
+          <h4>小家电行业案例 1</h4>
+          <p>品牌、UP 主及案例介绍待补充</p>
+        </article>
+        <article class="tail-case-card">
+          <div class="tail-video-placeholder" role="img" aria-label="小家电行业案例 2，视频素材待补充">
+            <svg class="tail-video-icon" viewBox="0 0 32 32" aria-hidden="true"><rect x="3" y="6" width="26" height="20" rx="4"/><path d="m13 11 8 5-8 5Z"/></svg>
+            <span>视频素材待补充</span>
+          </div>
+          <h4>小家电行业案例 2</h4>
+          <p>品牌、UP 主及案例介绍待补充</p>
+        </article>
+        <article class="tail-case-card">
+          <div class="tail-video-placeholder" role="img" aria-label="小家电行业案例 3，视频素材待补充">
+            <svg class="tail-video-icon" viewBox="0 0 32 32" aria-hidden="true"><rect x="3" y="6" width="26" height="20" rx="4"/><path d="m13 11 8 5-8 5Z"/></svg>
+            <span>视频素材待补充</span>
+          </div>
+          <h4>小家电行业案例 3</h4>
+          <p>品牌、UP 主及案例介绍待补充</p>
+        </article>
+      </div>
+    </section>
+  </section>
+
+  <section class="tail-faq tail-shell" id="tail-faq" aria-labelledby="tail-faq-title">
+    <header class="tail-section-heading">
+      <p class="tail-kicker">合作指南</p>
+      <h2 id="tail-faq-title">每一种角色，<br>都有你的答案。</h2>
+      <p class="tail-description">选择你的角色，了解开始合作前的常见问题。</p>
+    </header>
+    <div class="tail-faq-layout" data-tail-tabs>
+      <div class="tail-roles" role="tablist" aria-label="合作角色" aria-orientation="vertical">
+        <button class="tail-role" type="button" role="tab" id="tail-role-0" aria-controls="tail-role-panel-0" aria-selected="true" tabindex="0">代理商<span aria-hidden="true">↗</span></button>
+        <button class="tail-role" type="button" role="tab" id="tail-role-1" aria-controls="tail-role-panel-1" aria-selected="false" tabindex="-1">MCN / 直播工会<span aria-hidden="true">↗</span></button>
+        <button class="tail-role" type="button" role="tab" id="tail-role-2" aria-controls="tail-role-panel-2" aria-selected="false" tabindex="-1">服务商<span aria-hidden="true">↗</span></button>
+        <button class="tail-role" type="button" role="tab" id="tail-role-3" aria-controls="tail-role-panel-3" aria-selected="false" tabindex="-1">UP 主<span aria-hidden="true">↗</span></button>
+      </div>
+      <div class="tail-faq-panels">
+        <div class="tail-faq-panel" role="tabpanel" id="tail-role-panel-0" aria-labelledby="tail-role-0" tabindex="0">
+          <div class="tail-question t-acc" data-open="true">
+            <h3><button class="tail-question-button t-acc-head" type="button" id="tail-question-0-0" aria-controls="tail-answer-0-0" aria-expanded="true">合作前需要准备哪些信息？<span class="tail-chevron t-acc-chevron" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M4 6.5L8 10.5L12 6.5"/></svg></span></button></h3>
+            <div class="tail-answer t-acc-panel" id="tail-answer-0-0" role="region" aria-labelledby="tail-question-0-0" aria-hidden="false"><div class="tail-answer-inner t-acc-panel-inner"><p>建议先梳理品牌目标、目标人群、预算范围、内容方向和期望档期，方便后续选择合作方式。具体准入资料与流程待补充。</p></div></div>
+          </div>
+          <div class="tail-question t-acc" data-open="false">
+            <h3><button class="tail-question-button t-acc-head" type="button" id="tail-question-0-1" aria-controls="tail-answer-0-1" aria-expanded="false">如何选择适合项目的选人方式？<span class="tail-chevron t-acc-chevron" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M4 6.5L8 10.5L12 6.5"/></svg></span></button></h3>
+            <div class="tail-answer t-acc-panel" id="tail-answer-0-1" role="region" aria-labelledby="tail-question-0-1" aria-hidden="true" inert><div class="tail-answer-inner t-acc-panel-inner"><p>可根据自主操作需求、协作方式与项目性质，了解 AI 智能托管、服务商协作、产品自主化及节点活动 / IP 四种方式。各模式的适用条件与服务范围待补充。</p></div></div>
+          </div>
+          <div class="tail-question t-acc" data-open="false">
+            <h3><button class="tail-question-button t-acc-head" type="button" id="tail-question-0-2" aria-controls="tail-answer-0-2" aria-expanded="false">投放后可以了解哪些结果？<span class="tail-chevron t-acc-chevron" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M4 6.5L8 10.5L12 6.5"/></svg></span></button></h3>
+            <div class="tail-answer t-acc-panel" id="tail-answer-0-2" role="region" aria-labelledby="tail-question-0-2" aria-hidden="true" inert><div class="tail-answer-inner t-acc-panel-inner"><p>平台提供 metes 人群资产模型，帮助品牌理解内容营销所积累的品牌资产。具体指标定义、数据范围与查看权限待补充。</p></div></div>
+          </div>
+        </div>
+        <div class="tail-faq-panel" role="tabpanel" id="tail-role-panel-1" aria-labelledby="tail-role-1" tabindex="0" hidden>
+          <div class="tail-question t-acc" data-open="false">
+            <h3><button class="tail-question-button t-acc-head" type="button" id="tail-question-1-0" aria-controls="tail-answer-1-0" aria-expanded="false">机构如何了解合作与入驻要求？<span class="tail-chevron t-acc-chevron" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M4 6.5L8 10.5L12 6.5"/></svg></span></button></h3>
+            <div class="tail-answer t-acc-panel" id="tail-answer-1-0" role="region" aria-labelledby="tail-question-1-0" aria-hidden="true" inert><div class="tail-answer-inner t-acc-panel-inner"><p>合作前需确认适用的机构类型、主体资料与授权要求。具体入驻入口、审核条件与时间待补充。</p></div></div>
+          </div>
+          <div class="tail-question t-acc" data-open="false">
+            <h3><button class="tail-question-button t-acc-head" type="button" id="tail-question-1-1" aria-controls="tail-answer-1-1" aria-expanded="false">机构与 UP 主之间如何分工协作？<span class="tail-chevron t-acc-chevron" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M4 6.5L8 10.5L12 6.5"/></svg></span></button></h3>
+            <div class="tail-answer t-acc-panel" id="tail-answer-1-1" role="region" aria-labelledby="tail-question-1-1" aria-hidden="true" inert><div class="tail-answer-inner t-acc-panel-inner"><p>建议提前明确账号授权、商务沟通、内容制作和交付确认的责任人。平台支持的账号关系与权限配置待补充。</p></div></div>
+          </div>
+          <div class="tail-question t-acc" data-open="false">
+            <h3><button class="tail-question-button t-acc-head" type="button" id="tail-question-1-2" aria-controls="tail-answer-1-2" aria-expanded="false">合作发生分歧时如何处理？<span class="tail-chevron t-acc-chevron" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M4 6.5L8 10.5L12 6.5"/></svg></span></button></h3>
+            <div class="tail-answer t-acc-panel" id="tail-answer-1-2" role="region" aria-labelledby="tail-question-1-2" aria-hidden="true" inert><div class="tail-answer-inner t-acc-panel-inner"><p>建议保留需求确认、版本修改与交付沟通记录，便于厘清双方约定。纠纷自助解决的适用范围及操作流程待补充。</p></div></div>
+          </div>
+        </div>
+        <div class="tail-faq-panel" role="tabpanel" id="tail-role-panel-2" aria-labelledby="tail-role-2" tabindex="0" hidden>
+          <div class="tail-question t-acc" data-open="false">
+            <h3><button class="tail-question-button t-acc-head" type="button" id="tail-question-2-0" aria-controls="tail-answer-2-0" aria-expanded="false">如何参与花火项目协作？<span class="tail-chevron t-acc-chevron" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M4 6.5L8 10.5L12 6.5"/></svg></span></button></h3>
+            <div class="tail-answer t-acc-panel" id="tail-answer-2-0" role="region" aria-labelledby="tail-question-2-0" aria-hidden="true" inert><div class="tail-answer-inner t-acc-panel-inner"><p>平台提供委托服务商协作模式。服务商准入条件、合作入口和可承接的服务范围待补充。</p></div></div>
+          </div>
+          <div class="tail-question t-acc" data-open="false">
+            <h3><button class="tail-question-button t-acc-head" type="button" id="tail-question-2-1" aria-controls="tail-answer-2-1" aria-expanded="false">项目开始前需要确认什么？<span class="tail-chevron t-acc-chevron" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M4 6.5L8 10.5L12 6.5"/></svg></span></button></h3>
+            <div class="tail-answer t-acc-panel" id="tail-answer-2-1" role="region" aria-labelledby="tail-question-2-1" aria-hidden="true" inert><div class="tail-answer-inner t-acc-panel-inner"><p>建议明确项目目标、服务范围、交付物、时间节点及双方责任，减少协作中的信息偏差。具体协议与平台要求待补充。</p></div></div>
+          </div>
+          <div class="tail-question t-acc" data-open="false">
+            <h3><button class="tail-question-button t-acc-head" type="button" id="tail-question-2-2" aria-controls="tail-answer-2-2" aria-expanded="false">如何保障项目按约定推进？<span class="tail-chevron t-acc-chevron" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M4 6.5L8 10.5L12 6.5"/></svg></span></button></h3>
+            <div class="tail-answer t-acc-panel" id="tail-answer-2-2" role="region" aria-labelledby="tail-question-2-2" aria-hidden="true" inert><div class="tail-answer-inner t-acc-panel-inner"><p>平台提供纠纷自助解决、稿件保护与风险管理三项能力。具体适用条件与处理机制待补充。</p></div></div>
+          </div>
+        </div>
+        <div class="tail-faq-panel" role="tabpanel" id="tail-role-panel-3" aria-labelledby="tail-role-3" tabindex="0" hidden>
+          <div class="tail-question t-acc" data-open="false">
+            <h3><button class="tail-question-button t-acc-head" type="button" id="tail-question-3-0" aria-controls="tail-answer-3-0" aria-expanded="false">如何开始与品牌合作？<span class="tail-chevron t-acc-chevron" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M4 6.5L8 10.5L12 6.5"/></svg></span></button></h3>
+            <div class="tail-answer t-acc-panel" id="tail-answer-3-0" role="region" aria-labelledby="tail-question-3-0" aria-hidden="true" inert><div class="tail-answer-inner t-acc-panel-inner"><p>建议准备能够体现内容风格与受众特点的作品，并明确适合自己的合作方向。参与条件、操作入口和账号要求待补充。</p></div></div>
+          </div>
+          <div class="tail-question t-acc" data-open="false">
+            <h3><button class="tail-question-button t-acc-head" type="button" id="tail-question-3-1" aria-controls="tail-answer-3-1" aria-expanded="false">如何让品牌诉求与个人风格兼容？<span class="tail-chevron t-acc-chevron" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M4 6.5L8 10.5L12 6.5"/></svg></span></button></h3>
+            <div class="tail-answer t-acc-panel" id="tail-answer-3-1" role="region" aria-labelledby="tail-question-3-1" aria-hidden="true" inert><div class="tail-answer-inner t-acc-panel-inner"><p>创作前先确认品牌核心信息、内容边界与交付约定，再讨论适合自己的表达方式。具体审核与修改流程以双方确认的要求为准。</p></div></div>
+          </div>
+          <div class="tail-question t-acc" data-open="false">
+            <h3><button class="tail-question-button t-acc-head" type="button" id="tail-question-3-2" aria-controls="tail-answer-3-2" aria-expanded="false">稿件保护涵盖哪些内容？<span class="tail-chevron t-acc-chevron" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M4 6.5L8 10.5L12 6.5"/></svg></span></button></h3>
+            <div class="tail-answer t-acc-panel" id="tail-answer-3-2" role="region" aria-labelledby="tail-question-3-2" aria-hidden="true" inert><div class="tail-answer-inner t-acc-panel-inner"><p>平台提供稿件保护能力。保护对象、使用方式、适用条件与处理范围待补充。</p></div></div>
+          </div>
+        </div>
+        <p class="tail-faq-note">常见问题内容为首版建议稿，具体规则待业务确认。</p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="tail-footer">
+    <div class="tail-shell">
+      <div class="tail-footer-main"><div><p class="tail-footer-brand">花火</p><p>花火绽放 UP 主内容营销价值</p></div><a class="tail-back-top" href="#story">回到顶部 <span aria-hidden="true">↑</span></a></div>
+      <div class="tail-footer-legal"><p>花火官网 · 设计预览</p><div><span>运营主体待补充</span><span>备案信息待补充</span></div></div>
+    </div>
+  </footer>
+</div>
+
+  </main>
+
+  <div class="progress-rail" aria-hidden="true"><span data-progress-bar></span><b data-progress-label>认识花火</b></div>
+</body>
+</html>

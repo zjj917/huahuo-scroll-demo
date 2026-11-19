@@ -1,0 +1,41 @@
+/* Navigation content only; header placement and dimensions stay in scroll-demo.css. */
+.demo-brand-logo { display: block; width: 103px; height: 24px; max-width: none; flex: none; }
+#demo-site-nav { display: flex; align-items: center; gap: clamp(14px, 1.9vw, 28px); white-space: nowrap; }
+#demo-site-nav a, #demo-site-nav .demo-contact-trigger {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-height: 44px; padding: 12px 0; color: var(--muted); font: inherit;
+  background: transparent; border: 0; text-align: left; text-decoration: none;
+}
+#demo-site-nav a:hover, #demo-site-nav a[aria-current], #demo-site-nav .demo-contact-trigger:hover { color: var(--ink); }
+#demo-site-nav .demo-contact-trigger:active { transform: none; }
+.demo-menu-toggle { display: none; }
+.demo-menu-toggle svg, .demo-contact-close svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; }
+.demo-contact-dialog {
+  width: min(420px, calc(100% - 40px)); max-height: calc(100svh - 48px);
+  padding: 24px; border: 1px solid var(--line); border-radius: 20px;
+  background: var(--page); color: var(--ink); box-shadow: var(--shadow);
+}
+.demo-contact-dialog::backdrop { background: rgba(0, 0, 0, .42); backdrop-filter: blur(4px); }
+.demo-contact-heading { display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+.demo-contact-heading h2 { margin: 0; font-size: 22px; line-height: 1.4; letter-spacing: -.025em; }
+.demo-contact-close { display: grid; place-items: center; width: 44px; height: 44px; flex: none; border-radius: 50%; background: transparent; color: var(--ink); }
+.demo-contact-close:hover { background: var(--subtle); }
+.demo-contact-dialog > p { margin: 20px 0 28px; color: var(--muted); font-size: 15px; line-height: 1.75; }
+.demo-contact-confirm { min-height: 44px; padding: 10px 24px; border-radius: 10px; background: var(--ink); color: var(--page); font-size: 14px; }
+.demo-contact-confirm:hover { filter: brightness(.9); }
+@media (max-width: 900px) {
+  .demo-menu-toggle { width: 44px; height: 44px; display: grid; place-items: center; background: transparent; color: var(--ink); border-radius: 50%; }
+  .demo-menu-toggle:hover { background: var(--subtle); }
+  #demo-site-nav {
+    display: none; position: absolute; top: calc(100% + 10px); left: 0; right: 0;
+    margin: 0; padding: 12px; background: var(--page); border: 1px solid var(--line);
+    border-radius: 20px; box-shadow: var(--shadow); max-height: calc(100svh - 110px); overflow-y: auto;
+  }
+  #demo-site-nav.is-open { display: flex; flex-direction: column; align-items: stretch; gap: 4px; }
+  #demo-site-nav a, #demo-site-nav .demo-contact-trigger { justify-content: flex-start; min-height: 48px; padding: 12px 16px; font-size: 14px; border-radius: 10px; }
+  #demo-site-nav a:hover, #demo-site-nav a[aria-current], #demo-site-nav .demo-contact-trigger:hover { background: var(--subtle); }
+  #demo-site-nav a[aria-current]::after { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .demo-menu-toggle, #demo-site-nav *, .demo-contact-dialog * { transition: none !important; }
+}

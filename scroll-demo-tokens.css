@@ -1,0 +1,88 @@
+/* Reuse the existing website foundations; layout-specific overrides live in scroll-demo.css. */
+/* bilibili Web 2.0 foundations + marketing display tokens.
+   The larger type, spacing and creator-planet palette are specific to this website. */
+:root {
+  color-scheme: light;
+  --color-text-primary: rgba(24,25,28,1);
+  --color-text-secondary: rgba(97,102,109,1);
+  --color-text-tertiary: rgba(112,116,123,1);
+  --color-container-bg-module-solid: rgba(255,255,255,1);
+  --color-container-bg-page-default: rgba(246,247,248,1);
+  --color-container-bg-block-thick: rgba(227,229,231,1);
+  --color-container-border-default: rgba(24,25,28,.14);
+  --color-container-line-default: rgba(24,25,28,.1);
+  --color-container-bg-behavior-hover: rgba(47,50,56,.06);
+  --color-brand: rgba(255,102,153,1);
+  --color-brand-hover: rgba(255,140,176,1);
+  --color-brand-pressed: rgba(232,75,133,1);
+  --color-brand-soft: rgba(255,102,153,.09);
+  --color-brand-ink: rgba(173,28,91,1);
+  --color-focus: rgba(173,28,91,1);
+  --color-on-brand: rgba(24,25,28,1);
+  --color-button: rgba(24,25,28,1);
+  --color-button-text: rgba(255,255,255,1);
+  --color-header: rgba(255,255,255,.88);
+  --color-mask: rgba(0,0,0,.6);
+  --color-placeholder: rgba(238,239,241,1);
+  --color-placeholder-strong: rgba(227,229,231,1);
+  --color-placeholder-icon: rgba(148,153,160,1);
+  --font-sans: -apple-system, BlinkMacSystemFont, "Helvetica Neue", "PingFang SC", "Microsoft YaHei", sans-serif;
+  --font-display: 600 clamp(3.4rem,6.2vw,6rem)/1.14 var(--font-sans);
+  --font-heading: 500 clamp(2rem,3.7vw,3.5rem)/1.3 var(--font-sans);
+  --font-panel: 500 clamp(1.8rem,2.8vw,2.75rem)/1.35 var(--font-sans);
+  --text-xs: .75rem;
+  --text-sm: .875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.375rem;
+  --space-2: 2px;
+  --space-4: 4px;
+  --space-8: 8px;
+  --space-12: 12px;
+  --space-16: 16px;
+  --space-24: 24px;
+  --space-32: 32px;
+  --space-40: 40px;
+  --space-48: 48px;
+  --space-64: 64px;
+  --space-80: 80px;
+  --space-96: 96px;
+  --space-120: 120px;
+  --space-160: 160px;
+  --radius-s: 6px;
+  --radius-m: 8px;
+  --radius-l: 12px;
+  --radius-xl: 20px;
+  --radius-full: 999px;
+  --page-gutter: clamp(24px,5vw,80px);
+  --page-width: 1280px;
+  --header-height: 80px;
+  --border-width: 1px;
+  --focus-width: 2px;
+  --duration-quick: 150ms;
+  --duration-fast: 250ms;
+  --ease-smooth-out: cubic-bezier(.22,1,.36,1);
+  --shadow-dialog: 0 24px 80px rgba(0,0,0,.18);
+}
+html[data-mode="dark"] {
+  color-scheme: dark;
+  --color-text-primary: rgba(246,247,248,1);
+  --color-text-secondary: rgba(174,179,185,1);
+  --color-text-tertiary: rgba(156,161,170,1);
+  --color-container-bg-module-solid: rgba(24,25,28,1);
+  --color-container-bg-page-default: rgba(30,31,35,1);
+  --color-container-bg-block-thick: rgba(47,50,56,1);
+  --color-container-border-default: rgba(255,255,255,.16);
+  --color-container-line-default: rgba(255,255,255,.12);
+  --color-container-bg-behavior-hover: rgba(255,255,255,.06);
+  --color-brand-hover: rgba(232,75,133,1);
+  --color-brand-pressed: rgba(255,140,176,1);
+  --color-brand-ink: rgba(255,140,176,1);
+  --color-focus: rgba(255,140,176,1);
+  --color-button: rgba(246,247,248,1);
+  --color-button-text: rgba(24,25,28,1);
+  --color-header: rgba(24,25,28,.88);
+  --color-placeholder: rgba(40,42,47,1);
+  --color-placeholder-strong: rgba(49,52,59,1);
+  --color-placeholder-icon: rgba(120,125,135,1);
+}
