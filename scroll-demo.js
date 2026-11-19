@@ -7,7 +7,6 @@
   const progressBar = document.querySelector('[data-progress-bar]');
   const progressLabel = document.querySelector('[data-progress-label]');
   const themeButton = document.querySelector('[data-theme-toggle]');
-  const readingButton = document.querySelector('[data-reading-toggle]');
   const pauseButton = document.querySelector('[data-orbit-pause]');
   const reduced = matchMedia('(prefers-reduced-motion: reduce)');
   const compact = matchMedia('(max-width:760px), (max-height:620px)');
@@ -43,7 +42,6 @@
   const clamp = (value, min = 0, max = 1) => Math.min(max, Math.max(min, value));
   const smooth = value => { const t = clamp(value); return t * t * (3 - 2 * t); };
   let savedTheme;
-  let reading = false;
   let paused = false;
   let pinned = false;
   let frame = 0;
@@ -181,14 +179,11 @@
       });
     }
     const tailOffset = inTail ? tailAnchor.getBoundingClientRect().top : 0;
-    pinned = !reading && !reduced.matches && !compact.matches;
+    pinned = !reduced.matches && !compact.matches;
     root.classList.toggle('is-pinned', pinned);
     root.classList.toggle('is-linear', !pinned);
     height = window.innerHeight;
     track.style.height = pinned ? `${(total + 1) * height}px` : 'auto';
-    readingButton.setAttribute('aria-pressed', String(reading));
-    readingButton.textContent = reading ? '滚动演示' : '静态阅读';
-    readingButton.hidden = reduced.matches || compact.matches;
     serviceData.forEach(data => { const first = data.frames[0].offsetTop; data.offsets = data.frames.map(item => item.offsetTop - first); });
     const gutter = parseFloat(getComputedStyle(scenes[7]).paddingLeft);
     railTravel = Math.max(0, rail.scrollWidth - (window.innerWidth - 2 * gutter));
@@ -207,7 +202,6 @@
     positionCreators(0);
     dirty = true; lastTime = 0; requestUpdate();
   }
-  readingButton.addEventListener('click', () => { reading = !reading; configure(); });
 
   function jumpTo(index, offset = .22) {
     if (pinned) window.scrollTo({ top: (stops[index] + offset) * height, behavior: reduced.matches ? 'instant' : 'smooth' });

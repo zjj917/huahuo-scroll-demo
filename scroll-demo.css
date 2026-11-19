@@ -71,7 +71,8 @@ button:active, .primary-button:active { transform: scale(.98); }
 .demo-actions { display: flex; gap: 10px; align-items: center; }
 .theme-toggle { width: 44px; height: 44px; font-size: 25px; border-radius: 50%; background: transparent; }
 .theme-toggle:hover { background: var(--subtle); }
-.reading-toggle { min-height: 44px; padding: 0 18px; border-radius: 12px; background: var(--ink); color: var(--page); white-space: nowrap; font-size: 12px; }
+.login-button { min-height: 44px; padding: 0 18px; border-radius: 12px; background: var(--ink); color: var(--page); white-space: nowrap; font-size: var(--text-sm); }
+.login-button:hover { filter: brightness(.9); }
 .story-track { position: relative; }
 .story-stage { position: relative; overflow: clip; isolation: isolate; }
 /* Static document is the default. JavaScript opts in to the pinned sequence. */
@@ -218,7 +219,7 @@ html.is-linear .portal-subtitle { top: auto; bottom: 80px; width: auto; left: va
   .demo-brand-bilibili { font-size: 14px; }
   .demo-brand strong { font-size: 21px; }
   .demo-actions { gap: 4px; }
-  .reading-toggle { font-size: 12px; padding: 0 12px; border-radius: 10px; }
+  .login-button { padding: 0 12px; border-radius: 10px; }
   .theme-toggle { font-size: 23px; }
   .scene-kicker { font-size: 12px; margin-bottom: 18px; }
   .story-scene { padding-bottom: 72px; min-height: auto; }

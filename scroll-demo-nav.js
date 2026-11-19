@@ -41,12 +41,13 @@
     });
 
     if (!dialog || !title || !message) return;
-    nav.querySelectorAll('[data-contact]').forEach(button => {
+    document.querySelectorAll('.demo-header [data-contact]').forEach(button => {
       button.addEventListener('click', () => {
-        returnFocus = mobile.matches ? toggle : button;
+        returnFocus = mobile.matches && nav.contains(button) ? toggle : button;
         const email = button.dataset.contact === 'email';
-        title.textContent = email ? '联系邮箱' : '联系客服';
-        message.textContent = email ? '联系邮箱待补充。' : '客服入口待补充。';
+        const login = button.dataset.contact === 'login';
+        title.textContent = login ? '立即登录' : email ? '联系邮箱' : '联系客服';
+        message.textContent = login ? '登录入口待接入。' : email ? '联系邮箱待补充。' : '客服入口待补充。';
         setMenu(false);
         if (!dialog.open) dialog.showModal();
         dialog.querySelector('[data-contact-close]')?.focus();
