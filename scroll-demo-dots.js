@@ -68,6 +68,15 @@
     mask.width = 240;
     mask.height = 320;
     const pen = mask.getContext('2d');
+    const logoShape = canvas.dataset.heroShape !== 'flame';
+    if (logoShape) {
+      // Normalize to the sampling grid; the display restores the 502:552 ratio.
+      pen.setTransform(240/502, 0, 0, 320/552, 0, 0);
+      pen.fill(new Path2D('M44.9695 184.478C-14.9898 243.851 -14.9898 339.972 44.9695 399.194L153.387 506.551C93.4276 447.33 93.4276 351.057 153.387 291.836L240.182 205.889C270.151 176.213 285.141 137.357 285.152 98.5166C285.158 76.5817 280.387 54.6518 270.838 34.3832C266.903 26.0284 262.155 17.9559 256.596 10.2817C255.94 9.37695 255.193 8.39407 254.354 7.33305C247.741 -1.03141 235.598 -2.45051 227.234 4.16326C226.671 4.6082 226.134 5.08415 225.624 5.5889C221.456 9.71617 218.176 12.9647 215.782 15.3345C205.248 25.7655 197.114 33.8204 191.379 39.4993C171.449 59.2349 155.181 75.3436 142.576 87.8255C120.886 109.304 88.3501 141.521 44.9695 184.478Z'), 'evenodd');
+      pen.fill(new Path2D('M348.613 313.244L261.817 399.191C201.858 458.564 104.788 458.564 44.9824 399.191L153.4 506.548C213.359 565.922 310.429 565.922 370.235 506.548C389.523 487.449 403.989 473.125 413.632 463.575C423.276 454.025 437.742 439.701 457.03 420.601C516.989 361.228 516.989 265.107 457.03 205.886C432.937 182.029 414.868 164.136 402.821 152.207C395.821 145.275 386.786 136.328 375.717 125.367C374.126 123.792 372.203 121.888 369.947 119.654C369.365 119.079 368.427 119.084 367.852 119.665C367.355 120.167 367.281 120.951 367.677 121.536C373.323 129.901 378.043 138.698 381.835 147.784C389.583 166.349 393.461 186.123 393.467 205.893C393.48 244.764 378.528 283.62 348.613 313.244Z'), 'evenodd');
+      firePixels = pen.getImageData(0, 0, 240, 320).data;
+      return firePixels;
+    }
     pen.scale(2, 2);
     // A flame silhouette with an open inner tongue, deliberately not a glyph.
     const outline = new Path2D('M62 4 C68 30 101 49 98 77 C108 68 109 59 107 51 C123 73 124 108 108 131 C94 153 67 162 42 153 C16 144 4 123 8 99 C11 78 26 68 27 48 C38 66 35 83 43 93 C39 59 65 42 62 4 Z M64 84 C63 103 41 109 47 129 C50 141 68 146 80 134 C92 122 78 109 75 99 C74 112 69 115 67 116 C71 104 68 93 64 84 Z');
@@ -157,8 +166,9 @@
     const rightEdge = width - Math.max(32, width * .04);
     const regionWidth = Math.max(0, rightEdge - interactionLeft);
     const spaceAboveCopy = copyBounds.top - bounds.top - 120;
-    const fireHeight = desktop ? Math.max(0, Math.min(height - 200, regionWidth * 1.12)) : Math.max(0, Math.min(spaceAboveCopy - 24, height * .28, width * .6));
-    const fireWidth = fireHeight * .75;
+    const shapeRatio = canvas.dataset.heroShape === 'flame' ? .75 : 502/552;
+    const fireHeight = desktop ? Math.max(0, Math.min(height - 200, regionWidth * Math.min(1.12,.94/shapeRatio))) : Math.max(0, Math.min(spaceAboveCopy - 24, height * .28, width * .6));
+    const fireWidth = fireHeight * shapeRatio;
     const fireLeft = desktop ? interactionLeft + (regionWidth - fireWidth) / 2 : width * .68 - fireWidth / 2;
     const fireTop = desktop ? (height - fireHeight) / 2 : 120 + (spaceAboveCopy - fireHeight) / 2;
     fireArea = fireHeight >= 100 ? { x: fireLeft, y: fireTop, width: fireWidth, height: fireHeight } : null;
