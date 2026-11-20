@@ -6,15 +6,15 @@
   <meta name="description" content="花火官网动态交互 Demo：按滚动顺序展示品牌主张、合作服务、案例与合作指南。">
   <meta name="color-scheme" content="light dark">
   <title>花火 · 滚动叙事 Demo</title>
-  <link rel="stylesheet" href="scroll-demo-tokens.css?v=20261120-avatars">
+  <link rel="stylesheet" href="scroll-demo-tokens.css?v=20261120-fluid-flame">
   <link rel="stylesheet" href="motion.css">
-  <link rel="stylesheet" href="scroll-demo.css?v=20261120-avatars">
+  <link rel="stylesheet" href="scroll-demo.css?v=20261120-fluid-flame">
   <link rel="stylesheet" href="scroll-demo-tail.css">
-  <link rel="stylesheet" href="scroll-demo-nav.css?v=20261120-avatars">
-  <script src="scroll-demo.js?v=20261120-avatars" defer></script>
-  <script src="scroll-demo-dots.js?v=20261120-avatars" defer></script>
+  <link rel="stylesheet" href="scroll-demo-nav.css?v=20261120-fluid-flame">
+  <script src="scroll-demo.js?v=20261120-fluid-flame" defer></script>
+  <script src="scroll-demo-dots.js?v=20261120-fluid-flame" defer></script>
   <script src="scroll-demo-tail.js" defer></script>
-  <script src="scroll-demo-nav.js?v=20261120-avatars" defer></script>
+  <script src="scroll-demo-nav.js?v=20261120-fluid-flame" defer></script>
 </head>
 <body>
   <a class="skip-link" href="#story">跳到主要内容</a>
@@ -52,6 +52,13 @@
 
         <section class="story-scene scene-hero is-active" data-scene="hero" aria-labelledby="hero-title">
           <canvas class="hero-dots" data-hero-dots aria-hidden="true"></canvas>
+          <div class="hero-creator-card" data-hero-creator-card aria-hidden="true" hidden>
+            <img data-creator-portrait src="assets/creators/creator-01.svg" alt="" width="44" height="44">
+            <div class="hero-creator-card-copy">
+              <strong data-creator-name></strong>
+              <span data-creator-category></span>
+            </div>
+          </div>
           <div class="hero-copy">
             <p class="scene-kicker">UP 主商业合作 &amp; 服务平台</p>
             <h1 id="hero-title">以内容为杠杆，<br><span>撬动品牌深度心智。</span></h1>

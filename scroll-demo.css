@@ -81,9 +81,15 @@ html.is-pinned .story-scene { position: absolute; inset: 0; min-height: 0; opaci
 html.is-pinned .story-scene.is-active { visibility: visible; }
 html.is-pinned .story-scene.is-current { pointer-events: auto; }
 .scene-kicker { font-size: 14px; color: var(--muted); margin-bottom: 20px; }
-.scene-hero { display: flex; align-items: center; overflow: clip; }
+.scene-hero { display: flex; align-items: flex-end; padding-bottom: var(--hero-copy-bottom); overflow: clip; }
 .hero-dots { position: absolute; inset: 0; z-index: 0; width: 100%; height: 100%; pointer-events: none; mask-image: radial-gradient(ellipse at 55% 48%, #000 30%, rgba(0,0,0,.65) 70%, transparent 100%); }
-.hero-copy { position: relative; z-index: 4; padding-top: 5vh; pointer-events: none; }
+.hero-creator-card { position: absolute; left: 0; top: 0; z-index: 3; display: flex; align-items: center; gap: var(--space-12); width: 200px; max-width: calc(100% - var(--space-32)); padding: var(--space-12); pointer-events: none; background: var(--page); border: var(--border-width) solid var(--line); border-radius: var(--radius-l); box-shadow: var(--shadow); }
+.hero-creator-card img { display: block; flex: 0 0 44px; width: 44px; height: 44px; object-fit: cover; border-radius: var(--radius-full); }
+.hero-creator-card-copy { display: grid; gap: var(--space-2); min-width: 0; }
+.hero-creator-card strong, .hero-creator-card span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hero-creator-card strong { color: var(--ink); font-size: var(--text-sm); font-weight: var(--font-weight-navigation); line-height: 1.5; }
+.hero-creator-card span { color: var(--muted); font-size: var(--text-xs); line-height: 1.5; }
+.hero-copy { position: relative; z-index: 4; pointer-events: none; }
 .hero-copy a, .hero-copy button { pointer-events: auto; }
 .hero-copy h1 { font-size: var(--display); line-height: 1.38; letter-spacing: -.06em; }
 .hero-copy h1 span { white-space: nowrap; }
@@ -207,8 +213,8 @@ html.is-linear .portal-subtitle { color: inherit; transform: none !important; op
   .theme-toggle { font-size: 23px; }
   .scene-kicker { font-size: 12px; margin-bottom: 18px; }
   .story-scene { padding-bottom: 72px; min-height: auto; }
-  .scene-hero { min-height: 100svh; align-items: center; padding-top: var(--scene-top); padding-bottom: 72px; }
-  .hero-copy { padding-top: 0; }
+  /* A minimum height lets short screens grow with the copy and keep header clearance. */
+  .scene-hero { min-height: 100svh; padding-bottom: var(--hero-copy-bottom); }
   .hero-copy h1 { line-height: 1.4; }
   .hero-actions { margin-top: var(--space-32); gap: var(--space-12); }
   .hero-actions button { flex: 1; min-width: 0; height: var(--hero-action-mobile-height); min-height: var(--hero-action-mobile-height); padding: 0 var(--space-16); }

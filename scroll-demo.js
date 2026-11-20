@@ -261,7 +261,11 @@
       element.style.opacity = pinned ? String(heroFade) : '';
       element.style.transform = pinned ? `translateY(${-openingProgress * 36}px)` : '';
     });
-    heroDots.style.opacity = pinned ? String(heroFade) : '1';
+    const heroOpacity = pinned ? String(heroFade) : '1';
+    if (heroDots.style.opacity !== heroOpacity) {
+      heroDots.style.opacity = heroOpacity;
+      heroDots.dispatchEvent(new Event('hero-progress'));
+    }
     const unavailable = pinned && heroFade < .02;
     if (unavailable && heroActions.contains(document.activeElement)) document.getElementById('story').focus({ preventScroll: true });
     heroActions.toggleAttribute('inert', unavailable);
