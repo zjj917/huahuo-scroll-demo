@@ -10,6 +10,7 @@
   const compact = matchMedia('(max-width:760px), (max-height:620px)');
   const themePreference = matchMedia('(prefers-color-scheme: dark)');
   const rail = document.querySelector('[data-case-rail]');
+  const awards = document.querySelector('[data-case-awards]');
   const film = document.querySelector('[data-case-film]');
   const typeMask = document.querySelector('[data-type-mask]');
   const letters = document.querySelector('[data-mask-letters]');
@@ -33,7 +34,8 @@
   openingTitle.setAttribute('aria-hidden', 'true');
   openingTitle.innerHTML = heroTitle.innerHTML;
   stage.append(openingTitle);
-  const stops = [0, 1.1, 2.5, 4.8, 10.2, 14.3, 15.5, 18.15];
+  const stops = [0, 1.1, 2.5, 4.8, 10.2, 14.3, 15.5];
+  const awardsStart = 18.15;
   const total = 19.65;
   // Viewport-height distances keep every pose reversible and independent of time.
   const serviceIntro = { enterStart: 2.1, enterEnd: 2.9 };
@@ -159,7 +161,7 @@
     height = window.innerHeight;
     track.style.height = pinned ? `${(total + 1) * height}px` : 'auto';
     serviceData.forEach(data => { const first = data.frames[0].offsetTop; data.offsets = data.frames.map(item => item.offsetTop - first); });
-    const gutter = parseFloat(getComputedStyle(scenes[7]).paddingLeft);
+    const gutter = parseFloat(getComputedStyle(awards).paddingLeft);
     railTravel = Math.max(0, rail.scrollWidth - (window.innerWidth - 2 * gutter));
     measureOpening();
     measurePortal();
@@ -207,9 +209,9 @@
     });
   }));
   document.querySelectorAll('[data-case-direction]').forEach(button => button.addEventListener('click', () => {
-    const fraction = clamp((units - stops[7] - .15) / 1.15);
+    const fraction = clamp((units - awardsStart - .15) / 1.15);
     const target = clamp(fraction + Number(button.dataset.caseDirection) * .5);
-    jumpTo(7, .15 + target * 1.15);
+    jumpTo(6, awardsStart + .15 + target * 1.15 - stops[6]);
   }));
 
   function render() {
@@ -336,10 +338,16 @@
     if (aperture) aperture.style.opacity = String(1-smooth((portal-1.05)/.5));
     subtitle.style.opacity = pinned ? String(smooth((portal-2.35)/.25)) : '1';
     portalKicker.style.opacity = pinned ? String(smooth((portal-2.3)/.25)) : '1';
+    const awardsReveal = pinned ? smooth((portal - 2.05) / .6) : 1;
+    awards.style.opacity = String(awardsReveal);
+    awards.style.transform = pinned ? `translateY(${(1 - awardsReveal) * 90}px)` : 'none';
+    awards.toggleAttribute('inert', pinned && awardsReveal < .98);
+    if (pinned && awardsReveal < .98) awards.setAttribute('aria-hidden', 'true');
+    else awards.removeAttribute('aria-hidden');
     const immersive = pinned && portal > .35 && portal < 2.55;
     header.classList.toggle('is-submerged', immersive);
     root.classList.toggle('is-portal', immersive);
-    const railProgress = clamp((units - stops[7] - .15) / 1.15);
+    const railProgress = clamp((units - awardsStart - .15) / 1.15);
     rail.style.transform = pinned ? `translateX(${-railTravel*railProgress}px)` : 'none';
     document.querySelector('[data-case-direction="-1"]').disabled = railProgress <= .01;
     document.querySelector('[data-case-direction="1"]').disabled = railProgress >= .99;

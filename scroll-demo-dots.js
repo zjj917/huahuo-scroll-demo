@@ -108,7 +108,7 @@
     points = [];
     selected = null;
     const entrance = !hasBuilt && !reduced.matches && finePointer.matches;
-    const addPoint = (x, y, fire) => {
+    const addPoint = (x, y, fire, softness = 1) => {
       const spreadX = 24 + random() * Math.max(0, width - 48);
       const spreadY = 100 + random() * Math.max(0, height - 124);
       const depth = random();
@@ -116,7 +116,7 @@
       const point = {
         x: fire && entrance ? spreadX : x, y: fire && entrance ? spreadY : y,
         targetX: x, targetY: y, fire, spreadX, spreadY,
-        depth, center, phase: random() * Math.PI * 2,
+        depth, center, softness, phase: random() * Math.PI * 2,
         sizeFactor: fire ? .5 + random() ** 2 * 1.1 + depth * .15 : .45 + random() * .65,
         vx: 0, vy: 0, heat: 0,
         portrait: Math.floor(random() * profiles.length),
@@ -128,7 +128,7 @@
       points.push(point);
     };
     // Sparse, irregular stars surround the denser gathered flame.
-    const starCount = Math.min(700, Math.floor(width * height / (palette.spacing * palette.spacing * 3)));
+    const starCount = Math.min(900, Math.floor(width * height / (palette.spacing * palette.spacing * 2.3)));
     for (let i = 0; i < starCount; i++) addPoint(random() * width, 100 + random() * Math.max(0, height - 100), false);
     const desktop = width >= 900;
     const rightEdge = width - Math.max(32, width * .04);
@@ -145,7 +145,11 @@
       for (let y = step / 2; y < fireHeight; y += step) {
         for (let x = step / 2; x < fireWidth; x += step) {
           const pixel = (Math.floor(y / fireHeight * 320) * 240 + Math.floor(x / fireWidth * 240)) * 4;
-          if (pixels[pixel + 3] > 128) addPoint(fireLeft + x + (random() - .5) * step * 1.5, fireTop + y + (random() - .5) * step * 1.5, true);
+          if (pixels[pixel + 3] > 128 && random() > .08) {
+            const loose = random() < .24;
+            const scatter = step * (loose ? 5 + random() * 4 : 1.8 + random() * 1.6);
+            addPoint(fireLeft + x + (random() - .5) * scatter, fireTop + y + (random() - .5) * scatter, true, loose ? .5 + random() * .25 : 1);
+          }
         }
       }
     }
@@ -159,11 +163,11 @@
     let y = point.fire ? point.spreadY + (point.targetY - point.spreadY) * shapeBlend : point.targetY;
     if (!reduced.matches && finePointer.matches) {
       const depth = point.depth * 2 - 1;
-      const wave = flowTime * .48 + point.targetY * .012;
-      const strength = point.fire ? shapeBlend : .12;
+      const wave = flowTime * .55 + point.targetY * .012;
+      const strength = point.fire ? shapeBlend : .24;
       // Front and back layers drift at different amplitudes and phases.
-      x += (Math.sin(wave + depth * .7) * (5 + point.depth * 5) + Math.sin(flowTime * .23 + point.phase) * (3 + point.depth * 4)) * strength;
-      y += (Math.sin(flowTime * .35 + point.phase) * (3 + point.depth * 6) + Math.cos(wave) * depth * 3) * strength;
+      x += (Math.sin(wave + depth * .7) * (7 + point.depth * 7) + Math.sin(flowTime * .3 + point.phase) * (4 + point.depth * 5)) * strength;
+      y += (Math.sin(flowTime * .43 + point.phase) * (5 + point.depth * 7) + Math.cos(wave) * depth * 4) * strength;
     }
     return { x, y };
   }
@@ -269,7 +273,7 @@
       context.beginPath();
       context.arc(x, y, emberRadius, 0, Math.PI * 2);
       context.fillStyle = tone;
-      context.globalAlpha = Math.min(.82, palette.flameOpacity * (.75 + zone * 1.3) * pulse) * currentShape ** 2;
+      context.globalAlpha = Math.min(.82, palette.flameOpacity * (.75 + zone * 1.3) * pulse) * currentShape ** 2 * point.softness;
       context.fill();
     }
     if (point.heat > .1) {
@@ -282,7 +286,7 @@
       context.fillRect(x - haloRadius, y - haloRadius, haloRadius * 2, haloRadius * 2);
     }
     const portraitOpacity = point.fire ? palette.opacity + (palette.flameOpacity * .65 - palette.opacity) * currentShape : palette.opacity;
-    context.globalAlpha = portraitOpacity * (.28 + point.depth * .72) + .42 * point.heat;
+    context.globalAlpha = portraitOpacity * (.28 + point.depth * .72) * point.softness + .42 * point.heat;
     const portrait = portraits[point.portrait];
     if (portrait) context.drawImage(portrait, x - radius, y - radius, size, size);
     else {
@@ -293,7 +297,7 @@
     }
   }
   function updateCard(responsive, closest, closestDistance) {
-    if (!responsive || !closest || closestDistance > 32) { card.hidden = true; selected = null; return; }
+    if (!responsive || !closest || closestDistance > (closest.fire ? 32 : 42)) { card.hidden = true; selected = null; return; }
     // Hysteresis prevents names flickering when the pointer rests between cells.
     const selectedDistance = selected ? Math.hypot(pointer.x - selected.x, pointer.y - selected.y) : Infinity;
     if (!selected || selectedDistance > closestDistance + palette.spacing * .65) {
