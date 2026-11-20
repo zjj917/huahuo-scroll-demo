@@ -37,6 +37,16 @@
   --hero-action-font-size: 1.25rem;
   --hero-action-min-width: 168px;
   --hero-action-mobile-height: 56px;
+  /* Miniature creator portraits, enlarged only near a fine pointer. */
+  --hero-dot-spacing: 36;
+  --hero-dot-size: 5;
+  --hero-dot-hover-size: 36;
+  --hero-dot-reach: 190;
+  --hero-dot-pull: 14;
+  --hero-dot-opacity: .4;
+  --hero-dot-color: var(--color-text-secondary);
+  --hero-dot-glow: var(--color-brand);
+  --hero-dot-core: var(--color-brand-ink);
   --service-grid-columns: minmax(240px, .42fr) minmax(0, 1fr);
   --service-grid-gap: clamp(32px, 4vw, 64px);
   --text-base: 1rem;
@@ -73,6 +83,8 @@
 }
 html[data-mode="dark"] {
   color-scheme: dark;
+  --hero-dot-opacity: .55;
+  --hero-dot-core: var(--color-text-primary);
   --color-text-primary: rgba(246,247,248,1);
   --color-text-secondary: rgba(174,179,185,1);
   --color-text-tertiary: rgba(156,161,170,1);

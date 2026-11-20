@@ -9,8 +9,6 @@
   const reduced = matchMedia('(prefers-reduced-motion: reduce)');
   const compact = matchMedia('(max-width:760px), (max-height:620px)');
   const themePreference = matchMedia('(prefers-color-scheme: dark)');
-  const orbit = document.querySelector('[data-orbit]');
-  const orbitLabel = document.getElementById('hero-hover-label');
   const rail = document.querySelector('[data-case-rail]');
   const film = document.querySelector('[data-case-film]');
   const typeMask = document.querySelector('[data-type-mask]');
@@ -24,6 +22,7 @@
   const heroTitle = document.getElementById('hero-title');
   const valuesTitle = document.getElementById('values-title');
   const heroActions = document.querySelector('.hero-actions');
+  const heroDots = document.querySelector('[data-hero-dots]');
   const heroDetails = [...document.querySelectorAll('.hero-copy .scene-kicker, .hero-actions')];
   const valuesDetails = [...document.querySelectorAll('.scene-values .section-heading > p')];
   // Keep the original headings in the document for semantics and layout. One
@@ -51,22 +50,16 @@
     stage.append(element);
     return { ...transition, symbol, element, surface: element.querySelector('.service-morph-surface'), icon: element.querySelector('svg'), geometry: null };
   });
-  const topics = ['科技数码','生活记录','游戏实况','美食探店','汽车出行','音乐创作','知识分享','时尚穿搭','运动健身','动画创作','家居生活','旅行探索','摄影影像','舞蹈表演','手工创作','宠物日常','艺术设计','校园生活','影视解读','户外探索'];
   const clamp = (value, min = 0, max = 1) => Math.min(max, Math.max(min, value));
   const smooth = value => { const t = clamp(value); return t * t * (3 - 2 * t); };
   let savedTheme;
   let pinned = false;
   let frame = 0;
-  let lastTime = 0;
   let dirty = true;
   let currentIndex = 0;
   let units = 0;
   let height = window.innerHeight;
   let railTravel = 0;
-  let orbitWidth = 0;
-  let orbitHeight = 0;
-  let heroBottom = 0;
-  let keyboardInput = false;
   let openingGeometry = { startX: 0, startY: 0, endX: 0, endY: 0, scale: 1 };
   let portalGeometry = null;
   const serviceData = scenes.map((scene, index) => {
@@ -93,69 +86,6 @@
   setTheme(savedTheme || (themePreference.matches ? 'dark' : 'light'));
   themeButton.addEventListener('click', () => setTheme(root.dataset.mode === 'dark' ? 'light' : 'dark', true));
   themePreference.addEventListener('change', event => { if (!savedTheme) setTheme(event.matches ? 'dark' : 'light'); });
-  document.addEventListener('keydown', () => { keyboardInput = true; }, true);
-  document.addEventListener('pointerdown', () => { keyboardInput = false; }, true);
-
-  const creators = topics.map((topic, index) => {
-    const element = document.createElement('button');
-    element.className = 'hero-creator';
-    element.type = 'button';
-    element.dataset.topic = topic;
-    element.tabIndex = index === 0 ? 0 : -1;
-    element.setAttribute('aria-label', `${topic}创作者，原创示意头像；点击停留，方向键浏览`);
-    element.setAttribute('aria-pressed', 'false');
-    const image = document.createElement('img');
-    image.src = `assets/creators/creator-${String(index + 1).padStart(2, '0')}.svg`;
-    image.alt = ''; image.width = 80; image.height = 80;
-    element.append(image);
-    const person = { element, topic, orbit: Math.floor(index / 5), angle: index % 5 / 5 * Math.PI * 2 + Math.floor(index / 5) * .45, hovered: false, focused: false, locked: false };
-    element.addEventListener('pointerenter', event => { if (event.pointerType !== 'touch') { person.hovered = true; updateCreatorLabel(); } });
-    element.addEventListener('pointerleave', () => { person.hovered = false; updateCreatorLabel(); });
-    element.addEventListener('pointercancel', () => { person.hovered = false; updateCreatorLabel(); });
-    element.addEventListener('focus', () => {
-      person.focused = keyboardInput;
-      creators.forEach(other => { other.element.tabIndex = other === person ? 0 : -1; });
-      updateCreatorLabel();
-    });
-    element.addEventListener('blur', () => { person.focused = false; updateCreatorLabel(); });
-    element.addEventListener('click', () => {
-      const next = !person.locked;
-      creators.forEach(other => { other.locked = other === person && next; other.element.setAttribute('aria-pressed', String(other.locked)); });
-      updateCreatorLabel();
-    });
-    element.addEventListener('keydown', event => {
-      let next;
-      if (['ArrowRight','ArrowDown'].includes(event.key)) next = (index + 1) % topics.length;
-      if (['ArrowLeft','ArrowUp'].includes(event.key)) next = (index - 1 + topics.length) % topics.length;
-      if (event.key === 'Home') next = 0;
-      if (event.key === 'End') next = topics.length - 1;
-      if (event.key === 'Escape') { person.locked = false; element.setAttribute('aria-pressed','false'); updateCreatorLabel(); }
-      if (next !== undefined) { event.preventDefault(); creators[next].element.focus(); }
-    });
-    document.querySelector('[data-creator-nodes]').append(element);
-    return person;
-  });
-  function updateCreatorLabel() {
-    const person = creators.find(p => p.focused) || creators.find(p => p.hovered) || creators.find(p => p.locked);
-    orbitLabel.textContent = person ? `${person.topic} · 创作者示意` : '不同热爱，同频相遇';
-  }
-  function positionCreators(elapsed) {
-    for (const person of creators) {
-      if (!(person.hovered || person.focused || person.locked || reduced.matches)) person.angle += elapsed * (.04 + person.orbit * .006) * (person.orbit % 2 ? -1 : 1);
-      const rx = orbitWidth * (.30 + person.orbit * .022);
-      const ry = orbitHeight * (.20 + person.orbit * .045);
-      const rotation = [-.32, .32, 1.04, 2.13][person.orbit];
-      const x = Math.cos(person.angle) * rx;
-      const y = Math.sin(person.angle) * ry;
-      const depth = (Math.sin(person.angle) + 1) / 2;
-      const px = orbitWidth * .54 + x * Math.cos(rotation) - y * Math.sin(rotation);
-      const py = orbitHeight * .49 + x * Math.sin(rotation) + y * Math.cos(rotation);
-      person.element.style.transform = `translate(${px.toFixed(2)}px,${py.toFixed(2)}px) translate(-50%,-50%)`;
-      person.element.style.setProperty('--avatar-depth', String(.76 + depth * .24));
-      person.element.style.opacity = String(.28 + depth * .65);
-      person.element.style.zIndex = String(Math.round(depth * 20) + 1);
-    }
-  }
 
   function nearestScene() {
     let index = 0;
@@ -230,9 +160,6 @@
     serviceData.forEach(data => { const first = data.frames[0].offsetTop; data.offsets = data.frames.map(item => item.offsetTop - first); });
     const gutter = parseFloat(getComputedStyle(scenes[7]).paddingLeft);
     railTravel = Math.max(0, rail.scrollWidth - (window.innerWidth - 2 * gutter));
-    orbitWidth = orbit.clientWidth;
-    orbitHeight = orbit.clientHeight;
-    heroBottom = scenes[0].getBoundingClientRect().bottom + window.scrollY;
     measureOpening();
     measurePortal();
     if (pinned) {
@@ -255,8 +182,7 @@
       else if (oldPinned) top = scenes[oldIndex].offsetTop - 96;
       window.scrollTo({ top: Math.max(0, top), behavior: 'instant' });
     }
-    positionCreators(0);
-    dirty = true; lastTime = 0; requestUpdate();
+    requestUpdate();
   }
 
   function jumpTo(index, offset = .22) {
@@ -335,12 +261,10 @@
       element.style.opacity = pinned ? String(heroFade) : '';
       element.style.transform = pinned ? `translateY(${-openingProgress * 36}px)` : '';
     });
-    orbit.style.opacity = pinned ? String(heroFade * .66) : '';
-    [heroActions, orbit].forEach(element => {
-      const unavailable = pinned && heroFade < .02;
-      if (unavailable && element.contains(document.activeElement)) document.getElementById('story').focus({ preventScroll: true });
-      element.toggleAttribute('inert', unavailable);
-    });
+    heroDots.style.opacity = pinned ? String(heroFade) : '1';
+    const unavailable = pinned && heroFade < .02;
+    if (unavailable && heroActions.contains(document.activeElement)) document.getElementById('story').focus({ preventScroll: true });
+    heroActions.toggleAttribute('inert', unavailable);
     valuesDetails.forEach(element => { element.style.opacity = pinned ? String(smooth((units-.65)/.45)) : ''; });
     valueCards.forEach((card, i) => {
       const entry = smooth((units - .7 - i * .055) / .5);
@@ -412,22 +336,16 @@
     document.querySelector('[data-case-direction="-1"]').disabled = railProgress <= .01;
     document.querySelector('[data-case-direction="1"]').disabled = railProgress >= .99;
   }
-  function canOrbit() { return !reduced.matches && !document.hidden && (pinned ? units < 1.05 : window.scrollY < heroBottom); }
-  function tick(now) {
+  function tick() {
     frame = 0;
-    if (dirty) render();
-    if (canOrbit()) {
-      const elapsed = lastTime ? Math.min((now-lastTime)/1000,.04) : 0;
-      lastTime = now; positionCreators(elapsed);
-      frame = requestAnimationFrame(tick);
-    } else lastTime = 0;
+    if (!document.hidden && dirty) render();
   }
-  function requestUpdate() { dirty = true; if (!frame) frame = requestAnimationFrame(tick); }
+  function requestUpdate() { dirty = true; if (!frame && !document.hidden) frame = requestAnimationFrame(tick); }
   window.addEventListener('scroll', requestUpdate, { passive: true });
   window.addEventListener('resize', () => configure(), { passive: true });
   reduced.addEventListener('change', () => configure());
   compact.addEventListener('change', () => configure());
-  document.addEventListener('visibilitychange', () => { if (document.hidden) { cancelAnimationFrame(frame); frame = 0; } else { lastTime=0; requestUpdate(); } });
+  document.addEventListener('visibilitychange', () => { if (document.hidden) { cancelAnimationFrame(frame); frame = 0; } else requestUpdate(); });
   configure(false);
   if (document.fonts?.ready) document.fonts.ready.then(() => { measurePortal(); requestUpdate(); });
   if (location.hash.startsWith('#demo-')) {

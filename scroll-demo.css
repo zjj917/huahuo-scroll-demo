@@ -82,6 +82,7 @@ html.is-pinned .story-scene.is-active { visibility: visible; }
 html.is-pinned .story-scene.is-current { pointer-events: auto; }
 .scene-kicker { font-size: 14px; color: var(--muted); margin-bottom: 20px; }
 .scene-hero { display: flex; align-items: center; overflow: clip; }
+.hero-dots { position: absolute; inset: 0; z-index: 0; width: 100%; height: 100%; pointer-events: none; mask-image: radial-gradient(ellipse at 55% 48%, #000 30%, rgba(0,0,0,.65) 70%, transparent 100%); }
 .hero-copy { position: relative; z-index: 4; padding-top: 5vh; pointer-events: none; }
 .hero-copy a, .hero-copy button { pointer-events: auto; }
 .hero-copy h1 { font-size: var(--display); line-height: 1.38; letter-spacing: -.06em; }
@@ -98,17 +99,6 @@ html.is-pinned .scene-values h2 { font-size: clamp(32px, 3.1vw, 52px); line-heig
 .primary-button:hover { transform: translateY(-2px); }
 .secondary-button { background: var(--page); color: var(--ink); border: var(--border-width) solid var(--color-container-border-default); }
 .secondary-button:hover { background: var(--subtle); }
-.hero-orbit { position: absolute; width: 68vw; height: 90%; right: -6%; top: 5%; opacity: .66; }
-.orbit-ring { position: absolute; left: 12%; top: 14%; width: 76%; height: 70%; border: 1px solid var(--line); border-radius: 50%; opacity: .4; }
-.orbit-ring-one { transform: rotate(-27deg) scaleY(.58); }
-.orbit-ring-two { transform: rotate(27deg) scaleY(.75); }
-.orbit-ring-three { transform: rotate(76deg) scaleY(.6); }
-.hero-creator { position: absolute; left: 0; top: 0; width: clamp(48px,5vw,78px); height: clamp(48px,5vw,78px); padding: 0; background: none; border-radius: 18px; will-change: transform; }
-.hero-creator img { display: block; width: 100%; height: 100%; border-radius: inherit; transform: scale(var(--avatar-depth,1)); transition: scale var(--duration-fast) var(--ease-smooth-out); }
-.hero-creator::after { content: attr(data-topic); position: absolute; top: calc(100% + 8px); left: 50%; transform: translateX(-50%); color: var(--muted); font-size: 12px; white-space: nowrap; }
-.hero-creator:hover, .hero-creator:focus-visible, .hero-creator[aria-pressed="true"] { z-index: 30 !important; opacity: 1 !important; }
-.hero-creator:hover img, .hero-creator:focus-visible img, .hero-creator[aria-pressed="true"] img { scale: 1.1; box-shadow: 0 0 0 4px var(--page); }
-.orbit-caption { position: absolute; bottom: 10%; right: 19%; font-size: 12px; color: var(--muted); }
 .scene-values { display: flex; flex-direction: column; justify-content: center; }
 .section-heading h2 { font-size: var(--headline); line-height: 1.35; }
 .section-heading > p:last-child { font-size: 14px; color: var(--muted); margin-top: 20px; }
@@ -217,15 +207,11 @@ html.is-linear .portal-subtitle { color: inherit; transform: none !important; op
   .theme-toggle { font-size: 23px; }
   .scene-kicker { font-size: 12px; margin-bottom: 18px; }
   .story-scene { padding-bottom: 72px; min-height: auto; }
-  .scene-hero { min-height: 100svh; align-items: flex-end; padding-bottom: 128px; padding-top: 290px; }
+  .scene-hero { min-height: 100svh; align-items: center; padding-top: var(--scene-top); padding-bottom: 72px; }
   .hero-copy { padding-top: 0; }
   .hero-copy h1 { line-height: 1.4; }
   .hero-actions { margin-top: var(--space-32); gap: var(--space-12); }
   .hero-actions button { flex: 1; min-width: 0; height: var(--hero-action-mobile-height); min-height: var(--hero-action-mobile-height); padding: 0 var(--space-16); }
-  .hero-orbit { width: 112vw; height: 360px; top: 65px; right: -12%; opacity: .32; mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 35%, rgba(0,0,0,0) 95%); }
-  .hero-creator { width: 48px; height: 48px; border-radius: 12px; }
-  .hero-creator::after { font-size: 12px; }
-  .orbit-caption { display: none; }
   .value-grid { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 12px; margin-top: 28px; }
   .value-card { min-height: 232px; padding: 22px 18px; }
   .value-card h3 { font-size: 23px; margin-bottom: 14px; }
@@ -273,7 +259,6 @@ html.is-linear .portal-subtitle { color: inherit; transform: none !important; op
 @media (prefers-reduced-motion:reduce) {
   html { scroll-behavior: auto; }
   *, *::before, *::after { transition-duration: 0s !important; animation-duration: 0s !important; }
-  .hero-creator { will-change: auto; }
 }
 @media print {
   .opening-title, html.is-pinned .service-morph { display: none !important; }
