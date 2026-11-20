@@ -15,6 +15,7 @@
   const letters = document.querySelector('[data-mask-letters]');
   const aperture = document.querySelector('[data-mask-aperture]');
   const subtitle = document.querySelector('.portal-subtitle');
+  const portalKicker = document.querySelector('.portal-kicker');
   const portalHeading = document.getElementById('cases-intro-title');
   const portalCopy = document.querySelector('.portal-copy');
   const portalText = letters.querySelector('text');
@@ -32,8 +33,8 @@
   openingTitle.setAttribute('aria-hidden', 'true');
   openingTitle.innerHTML = heroTitle.innerHTML;
   stage.append(openingTitle);
-  const stops = [0, 1.1, 2.5, 4.8, 10.2, 14.3, 15.5, 18.7];
-  const total = 20.2;
+  const stops = [0, 1.1, 2.5, 4.8, 10.2, 14.3, 15.5, 18.15];
+  const total = 19.65;
   // Viewport-height distances keep every pose reversible and independent of time.
   const serviceIntro = { enterStart: 2.1, enterEnd: 2.9 };
   const serviceTransitions = [
@@ -315,7 +316,7 @@
     });
     const portal = units - stops[6];
     const cut = smooth((portal - 1.05) / 1.2);
-    const dock = smooth((portal - 1.9) / .95);
+    const dock = smooth((portal - 1.8) / .8);
     film.style.clipPath = 'none';
     typeMask.style.opacity = pinned && portalGeometry ? String(smooth((portal-1)/.3)) : '0';
     if (pinned && portalGeometry) {
@@ -333,8 +334,9 @@
       subtitle.style.transform = '';
     }
     if (aperture) aperture.style.opacity = String(1-smooth((portal-1.05)/.5));
-    subtitle.style.opacity = pinned ? String(smooth((portal-1.85)/.4)) : '1';
-    const immersive = pinned && portal > .35 && portal < 2.7;
+    subtitle.style.opacity = pinned ? String(smooth((portal-2.35)/.25)) : '1';
+    portalKicker.style.opacity = pinned ? String(smooth((portal-2.3)/.25)) : '1';
+    const immersive = pinned && portal > .35 && portal < 2.55;
     header.classList.toggle('is-submerged', immersive);
     root.classList.toggle('is-portal', immersive);
     const railProgress = clamp((units - stops[7] - .15) / 1.15);

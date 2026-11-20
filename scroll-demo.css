@@ -152,11 +152,13 @@ html.is-pinned .service-morph { display: block; }
 .mask-surface { fill: var(--page); }
 .case-type-mask text { font-family: var(--font-sans); letter-spacing: -.06em; }
 .portal-copy { position: absolute; z-index: 2; top: var(--scene-top); left: var(--gutter); right: var(--gutter); pointer-events: none; }
-.portal-heading { font-size: var(--headline); font-weight: 600; line-height: 1.3; letter-spacing: -.06em; }
+.portal-kicker { color: var(--muted); font-size: 14px; margin-bottom: 12px; }
+html.is-pinned .portal-kicker { opacity: 0; }
+.portal-heading { font-size: var(--headline); font-weight: 600; line-height: 1.25; letter-spacing: -.06em; }
 html.is-pinned .portal-heading { opacity: 0; }
 .portal-subtitle { position: relative; width: max-content; max-width: 100%; margin-top: 20px; font-size: clamp(18px,1.65vw,24px); line-height: 1.5; color: var(--muted); transform-origin: 0 0; }
-.scene-cases { display: flex; flex-direction: column; justify-content: center; overflow: clip; padding-right: 0; }
-.cases-head { display: flex; align-items: end; justify-content: space-between; margin-bottom: 36px; padding-right: var(--gutter); }
+.scene-cases { display: flex; flex-direction: column; justify-content: flex-start; overflow: clip; padding-right: 0; }
+.cases-head { display: flex; align-items: end; justify-content: space-between; margin-bottom: 20px; padding-right: var(--gutter); }
 .cases-head h2 { font-size: var(--headline); line-height: 1.3; }
 .case-controls { display: flex; gap: 10px; }
 .case-controls button { width: 44px; height: 44px; border-radius: 50%; background: var(--subtle); font-size: 20px; }
