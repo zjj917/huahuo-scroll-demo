@@ -146,16 +146,11 @@ html.is-pinned .service-morph { display: block; }
 .visual-placeholder span { color: var(--muted); font-size: 14px; }
 .service-frame > p { color: var(--muted); font-size: 14px; margin-bottom: 16px; line-height: 1.8; }
 .scene-cases-intro { --case-cover-height: 75svh; min-height: 100svh; padding: 0; overflow: clip; background: var(--page); }
-.case-film { position: absolute; inset: 0; overflow: clip; }
+.case-film { position: absolute; inset: 0 auto auto 0; width: 100%; height: 100%; z-index: 4; overflow: clip; pointer-events: none; }
 .case-film img { display: block; width: 100%; height: 100%; object-fit: cover; }
-.case-type-mask { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
-.mask-surface { fill: var(--page); }
-.case-type-mask text { font-family: var(--font-sans); letter-spacing: -.06em; }
-.portal-copy { position: absolute; z-index: 2; top: var(--scene-top); left: var(--gutter); right: var(--gutter); pointer-events: none; }
+.portal-copy { position: absolute; z-index: 5; top: var(--scene-top); left: var(--gutter); right: var(--gutter); pointer-events: none; }
 .portal-kicker { color: var(--muted); font-size: 14px; margin-bottom: 12px; }
-html.is-pinned .portal-kicker { opacity: 0; }
 .portal-heading { font-size: var(--headline); font-weight: 600; line-height: 1.25; letter-spacing: -.06em; }
-html.is-pinned .portal-heading { opacity: 0; }
 .portal-subtitle { position: relative; width: max-content; max-width: 100%; margin-top: 20px; font-size: clamp(18px,1.65vw,24px); line-height: 1.5; color: var(--muted); transform-origin: 0 0; }
 .case-awards { --case-awards-top: max(clamp(300px,39vh,450px),calc(var(--case-copy-bottom,0px) + var(--space-32))); position: absolute; inset: 0; z-index: 3; display: flex; flex-direction: column; justify-content: flex-start; overflow: clip; padding: var(--case-awards-top) 0 64px var(--gutter); opacity: 0; pointer-events: none; }
 .portal-summary { display: flex; align-items: center; justify-content: space-between; gap: var(--space-24); margin-top: var(--space-24); }
@@ -168,12 +163,15 @@ html.is-pinned .portal-heading { opacity: 0; }
 .case-card[data-award="benchmark"] { --award-start: var(--case-award-blue-start); --award-end: var(--case-award-blue-end); }
 .case-card[data-award="rising"] { --award-start: var(--case-award-pink-start); --award-end: var(--case-award-pink-end); }
 .case-placeholder { width: 100%; aspect-ratio: 1.78; max-height: calc(100svh - var(--case-awards-top) - var(--space-96)); background: var(--panel); border-radius: 24px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; color: var(--muted); }
-.case-placeholder > span { font-size: var(--case-award-font-size); font-weight: var(--case-award-font-weight); color: var(--award-start); }
+.case-cover { position: relative; overflow: hidden; }
+.case-cover img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.case-cover > span { position: absolute; bottom: var(--space-24); left: var(--space-24); z-index: 1; padding: var(--space-8) var(--space-16); background: var(--color-container-bg-module-solid); border-radius: var(--radius-m); }
+.case-placeholder > span:not(.case-award-badge), .case-award-title { font-size: var(--case-award-font-size); font-weight: var(--case-award-font-weight); color: var(--award-start); }
 @supports (background-clip: text) or (-webkit-background-clip: text) {
-  .case-placeholder > span { background: linear-gradient(115deg,var(--award-start),var(--award-end)); background-clip: text; -webkit-background-clip: text; color: transparent; }
+  .case-placeholder > span:not(.case-award-badge), .case-award-title { background: linear-gradient(115deg,var(--award-start),var(--award-end)); background-clip: text; -webkit-background-clip: text; color: transparent; }
 }
 @media (forced-colors: active) {
-  .case-placeholder > span { background: none; color: CanvasText; }
+  .case-placeholder > span:not(.case-award-badge), .case-award-title { background: none; color: CanvasText; }
 }
 .case-placeholder > small { font-size: 12px; }
 .case-card > p { font-size: 14px; font-weight: 500; margin-top: 16px; }
@@ -187,13 +185,10 @@ html.is-linear .case-rail { width: auto; display: grid; grid-template-columns: r
 html.is-linear .case-card { width: auto; }
 html.is-linear .case-placeholder { max-height: none; }
 html.is-linear .case-controls { display: none; }
-html.is-linear .case-type-mask { display: none; }
 html.is-linear .scene-cases-intro { height: auto; min-height: 0; overflow: visible; }
-html.is-linear .scene-cases-intro .case-film { inset: 0 0 auto; height: var(--case-cover-height); }
-html.is-linear .case-film::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(0,0,0,.72), rgba(0,0,0,.22) 65%, transparent); }
-html.is-linear .portal-copy { color: var(--portal-ink); }
-html.is-linear .portal-subtitle { color: inherit; transform: none !important; opacity: 1 !important; }
-html.is-linear .case-awards { position: relative; inset: auto; margin-top: var(--case-cover-height); padding: var(--scene-top) 0 64px var(--gutter); opacity: 1 !important; transform: none !important; }
+html.is-linear .scene-cases-intro .case-film { display: none; }
+html.is-linear .portal-copy { position: relative; inset: auto; padding: var(--scene-top) var(--gutter) var(--space-32); opacity: 1 !important; transform: none !important; }
+html.is-linear .case-awards { position: relative; inset: auto; padding: 0 0 var(--space-64) var(--gutter); opacity: 1 !important; transform: none !important; }
 @media (max-width:1100px) {
   :root { --gutter: 40px; --display: 52px; --headline: 40px; }
   .demo-header { gap: 20px; --header-inset: var(--gutter); --header-padding-collapsed: 20px; }
@@ -255,7 +250,7 @@ html.is-linear .case-awards { position: relative; inset: auto; margin-top: var(-
   .case-film img { object-position: 50% 50%; }
   html.is-linear .case-rail { grid-template-columns: 1fr; gap: 32px; }
   .case-placeholder { border-radius: 22px; }
-  .case-placeholder > span { font-size: var(--case-award-font-size); }
+  .case-placeholder > span:not(.case-award-badge), .case-award-title { font-size: var(--case-award-font-size); }
   .case-card > p { font-size: 14px; }
   .case-footnote { max-width: 280px; font-size: 12px; line-height: 1.8; }
 }

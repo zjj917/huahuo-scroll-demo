@@ -8,10 +8,10 @@
   <title>花火 · 滚动叙事 Demo</title>
   <link rel="stylesheet" href="scroll-demo-tokens.css?v=20261120-featured-creators-v1">
   <link rel="stylesheet" href="motion.css">
-  <link rel="stylesheet" href="scroll-demo.css?v=20261120-awards-large-v2">
+  <link rel="stylesheet" href="scroll-demo.css?v=20261120-cover-morph-v1">
   <link rel="stylesheet" href="scroll-demo-tail.css">
   <link rel="stylesheet" href="scroll-demo-nav.css?v=20261120-fire-depth-v3">
-  <script src="scroll-demo.js?v=20261120-cases-continuous-v3" defer></script>
+  <script src="scroll-demo.js?v=20261120-cover-morph-v1" defer></script>
   <script src="scroll-demo-dots.js?v=20261120-featured-creators-v1" defer></script>
   <script src="scroll-demo-tail.js" defer></script>
   <script src="scroll-demo-nav.js?v=20261120-fire-depth-v3" defer></script>
@@ -166,11 +166,7 @@
           </div></div>
         </section>
         <section class="story-scene scene-cases-intro" data-scene="cases-intro" aria-labelledby="cases-intro-title">
-          <div class="case-film" data-case-film><img src="assets/scroll-case-reference.jpg" alt="用户提供的案例封面参考：云海中的悬空场景，用于演示转场" width="1600" height="899"></div>
-          <svg class="case-type-mask" data-type-mask viewBox="0 0 1440 900" preserveAspectRatio="none" aria-hidden="true">
-            <defs><mask id="case-letter-mask" maskUnits="userSpaceOnUse" x="0" y="0" width="1440" height="900"><rect width="1440" height="900" fill="white"/><rect width="1440" height="900" fill="black" data-mask-aperture/><g data-mask-letters><text x="0" y="0" text-anchor="start" font-size="118" font-weight="600" fill="black"><tspan x="0">让每一次观看，</tspan><tspan x="0" dy="1.28em">都靠近品牌一点。</tspan></text></g></mask></defs>
-            <rect width="1440" height="900" class="mask-surface" mask="url(#case-letter-mask)"/>
-          </svg>
+          <div class="case-film" data-case-film aria-hidden="true"><img src="assets/scroll-case-reference.jpg" alt="用户提供的案例封面参考：云海中的悬空场景，用于演示转场" width="1600" height="899"></div>
           <div class="portal-copy">
             <p class="portal-kicker">通过优秀案例</p>
             <h2 id="cases-intro-title" class="portal-heading">让每一次观看，<br>都靠近品牌一点。</h2>
@@ -182,7 +178,7 @@
           <section class="case-awards" data-case-awards aria-labelledby="cases-title">
           <h2 id="cases-title" class="sr-only">花火奖优秀案例</h2>
           <div class="case-rail" data-case-rail>
-            <article class="case-card case-card-large" data-award="annual"><div class="case-placeholder"><span>年度最佳</span><small>视频占位 · 待接入案例素材</small></div><p>年度最佳 · 让内容成为品牌的高光时刻</p><small>案例视频占位</small></article>
+            <article class="case-card case-card-large" data-award="annual"><div class="case-placeholder case-cover" data-case-cover><img src="assets/scroll-case-reference.jpg" alt="年度最佳案例封面：云海中的悬空场景" width="1600" height="899"><span class="case-award-badge"><span class="case-award-title">年度最佳</span></span></div><p>年度最佳 · 让内容成为品牌的高光时刻</p><small>案例视频占位</small></article>
             <article class="case-card" data-award="benchmark"><div class="case-placeholder"><span>标杆奖</span><small>视频占位 · 待接入案例素材</small></div><p>标杆奖 · 把一次共创做成长期记忆</p><small>案例视频占位</small></article>
             <article class="case-card" data-award="rising"><div class="case-placeholder"><span>新锐奖</span><small>视频占位 · 待接入案例素材</small></div><p>新锐奖 · 与新鲜表达一起破圈</p><small>案例视频占位</small></article>
           </div>

@@ -12,15 +12,12 @@
   const rail = document.querySelector('[data-case-rail]');
   const awards = document.querySelector('[data-case-awards]');
   const film = document.querySelector('[data-case-film]');
-  const typeMask = document.querySelector('[data-type-mask]');
-  const letters = document.querySelector('[data-mask-letters]');
-  const aperture = document.querySelector('[data-mask-aperture]');
+  const firstCover = document.querySelector('[data-case-cover]');
   const subtitle = document.querySelector('.portal-subtitle');
   const caseControls = document.querySelector('.case-controls');
   const portalKicker = document.querySelector('.portal-kicker');
   const portalHeading = document.getElementById('cases-intro-title');
   const portalCopy = document.querySelector('.portal-copy');
-  const portalText = letters.querySelector('text');
   const valueCards = [...document.querySelectorAll('.value-card')];
   const heroTitle = document.getElementById('hero-title');
   const valuesTitle = document.getElementById('values-title');
@@ -113,37 +110,23 @@
   }
   function measurePortal() {
     if (!pinned) return;
-    const width = stage.clientWidth;
-    const viewportHeight = stage.clientHeight;
-    const fontSize = Math.min(118, width * 118 / 1440);
-    typeMask.setAttribute('viewBox', `0 0 ${width} ${viewportHeight}`);
-    typeMask.querySelectorAll('mask, rect').forEach(element => {
-      element.setAttribute('width', String(width));
-      element.setAttribute('height', String(viewportHeight));
-    });
-    portalText.setAttribute('font-size', String(fontSize));
-    // getBBox is local to the text; the group's current scrub transform does
-    // not contaminate these coordinates during resize or reverse scrolling.
-    const bounds = portalText.getBBox();
-    if (!bounds.width || !bounds.height) return;
+    awards.style.setProperty('--case-copy-bottom', `${portalCopy.offsetTop + portalCopy.offsetHeight}px`);
+    // Measure the resting card, excluding current scroll transforms. Restore
+    // immediately before paint so resize/reverse cannot contaminate the target.
+    const railTransform = rail.style.transform;
+    const awardsTransform = awards.style.transform;
+    rail.style.transform = 'none';
+    awards.style.transform = 'none';
     const scene = scenes[6].getBoundingClientRect();
-    const heading = portalHeading.getBoundingClientRect();
-    const copy = portalCopy.getBoundingClientRect();
-    awards.style.setProperty('--case-copy-bottom', `${portalCopy.offsetTop + subtitle.offsetTop + Math.max(subtitle.offsetHeight, caseControls.offsetHeight)}px`);
-    const scale = parseFloat(getComputedStyle(portalHeading).fontSize) / fontSize;
-    const subtitleSize = parseFloat(getComputedStyle(subtitle).fontSize);
-    const subtitleScale = Math.min(36, Math.max(20, width * .025)) / subtitleSize;
+    const cover = firstCover.getBoundingClientRect();
     portalGeometry = {
-      width, height: viewportHeight, bounds, scale,
-      endX: heading.left - scene.left,
-      endY: heading.top - scene.top + (portalHeading.offsetHeight - bounds.height * scale) / 2,
-      subtitleScale,
-      subtitleStartX: (width - subtitle.offsetWidth * subtitleScale) / 2,
-      subtitleStartY: viewportHeight * .64,
-      // Layout offsets exclude the subtitle's animated transform.
-      subtitleEndX: copy.left - scene.left + subtitle.offsetLeft,
-      subtitleEndY: copy.top - scene.top + subtitle.offsetTop,
+      width: stage.clientWidth, height: stage.clientHeight,
+      x: cover.left - scene.left, y: cover.top - scene.top,
+      coverWidth: cover.width, coverHeight: cover.height,
+      radius: parseFloat(getComputedStyle(firstCover).borderRadius) || 0,
     };
+    rail.style.transform = railTransform;
+    awards.style.transform = awardsTransform;
   }
   function configure(preserve = true) {
     const oldPinned = pinned;
@@ -319,38 +302,31 @@
       transition.icon.style.transform = `translate(${x+(width-iconWidth)/2}px,${y+(blockHeight-iconHeight)/2}px) scale(${iconWidth/48},${iconHeight/48})`;
     });
     const portal = units - stops[6];
-    const cut = smooth((portal - 1.05) / 1.2);
-    const dock = smooth((portal - 1.8) / .8);
-    film.style.clipPath = 'none';
-    typeMask.style.opacity = pinned && portalGeometry ? String(smooth((portal-1)/.3)) : '0';
+    const shrink = smooth((portal - .65) / 1.8);
+    const copyReveal = pinned ? smooth((portal - 1.25) / .95) : 1;
+    portalCopy.style.opacity = String(copyReveal);
+    portalCopy.style.transform = pinned ? `translateY(${(1-copyReveal) * 72}px)` : '';
+    caseControls.toggleAttribute('inert', pinned && shrink < 1);
+    const awardsReveal = pinned ? smooth((portal - 1.65) / .8) : 1;
+    awards.style.opacity = String(awardsReveal);
+    awards.style.transform = 'none';
+    awards.toggleAttribute('inert', pinned && shrink < 1);
+    if (pinned && shrink < 1) awards.setAttribute('aria-hidden', 'true');
+    else awards.removeAttribute('aria-hidden');
     if (pinned && portalGeometry) {
       const p = portalGeometry;
-      const zoom = Math.exp((1-cut) * Math.log(18));
-      const scale = zoom * (1 + (p.scale-1) * dock);
-      const centerX = p.width / 2 + (p.endX + p.bounds.width*p.scale/2 - p.width/2) * dock;
-      const centerY = p.height * .52 + (p.endY + p.bounds.height*p.scale/2 - p.height*.52) * dock;
-      const x = centerX - (p.bounds.x + p.bounds.width/2) * scale;
-      const y = centerY - (p.bounds.y + p.bounds.height/2) * scale;
-      letters.setAttribute('transform', `translate(${x} ${y}) scale(${scale})`);
-      subtitle.style.transform = `translate(${(p.subtitleStartX-p.subtitleEndX)*(1-dock)}px,${(p.subtitleStartY-p.subtitleEndY)*(1-dock)}px) scale(${p.subtitleScale+(1-p.subtitleScale)*dock})`;
+      film.style.left = `${p.x * shrink}px`;
+      film.style.top = `${p.y * shrink}px`;
+      film.style.width = `${p.width + (p.coverWidth-p.width) * shrink}px`;
+      film.style.height = `${p.height + (p.coverHeight-p.height) * shrink}px`;
+      film.style.borderRadius = `${p.radius * shrink}px`;
+      // At the exact endpoint the matching image inside the rail takes over.
+      film.style.visibility = shrink < 1 ? 'visible' : 'hidden';
     } else {
-      letters.removeAttribute('transform');
-      subtitle.style.transform = '';
+      ['left','top','width','height','borderRadius','visibility'].forEach(key => { film.style[key] = ''; });
     }
-    if (aperture) aperture.style.opacity = String(1-smooth((portal-1.05)/.5));
-    subtitle.style.opacity = pinned ? String(smooth((portal-2.35)/.25)) : '1';
-    caseControls.style.opacity = subtitle.style.opacity;
-    caseControls.toggleAttribute('inert', pinned && Number(subtitle.style.opacity) < .98);
-    portalKicker.style.opacity = pinned ? String(smooth((portal-2.3)/.25)) : '1';
-    const awardsReveal = pinned ? smooth((portal - 2.05) / .6) : 1;
-    awards.style.opacity = String(awardsReveal);
-    awards.style.transform = pinned ? `translateY(${(1 - awardsReveal) * 90}px)` : 'none';
-    awards.toggleAttribute('inert', pinned && awardsReveal < .98);
-    if (pinned && awardsReveal < .98) awards.setAttribute('aria-hidden', 'true');
-    else awards.removeAttribute('aria-hidden');
-    const immersive = pinned && portal > .35 && portal < 2.55;
-    header.classList.toggle('is-submerged', immersive);
-    root.classList.toggle('is-portal', immersive);
+    header.classList.remove('is-submerged');
+    root.classList.remove('is-portal');
     const railProgress = clamp((units - awardsStart - .15) / 1.15);
     rail.style.transform = pinned ? `translateX(${-railTravel*railProgress}px)` : 'none';
     document.querySelector('[data-case-direction="-1"]').disabled = railProgress <= .01;
