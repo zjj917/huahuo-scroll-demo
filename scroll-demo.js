@@ -17,7 +17,6 @@
   const letters = document.querySelector('[data-mask-letters]');
   const aperture = document.querySelector('[data-mask-aperture]');
   const subtitle = document.querySelector('.portal-subtitle');
-  const serviceSymbol = document.querySelector('.scene-service-service .service-symbol');
   const valueCards = [...document.querySelectorAll('.value-card')];
   const heroTitle = document.getElementById('hero-title');
   const valuesTitle = document.getElementById('values-title');
@@ -31,17 +30,23 @@
   openingTitle.setAttribute('aria-hidden', 'true');
   openingTitle.innerHTML = heroTitle.innerHTML;
   stage.append(openingTitle);
-  const serviceMorph = document.createElement('div');
-  serviceMorph.className = 'service-morph';
-  serviceMorph.setAttribute('aria-hidden', 'true');
-  serviceMorph.innerHTML = `<div class="service-morph-surface"></div>${serviceSymbol.innerHTML}`;
-  stage.append(serviceMorph);
-  const morphSurface = serviceMorph.querySelector('.service-morph-surface');
-  const morphIcon = serviceMorph.querySelector('svg');
-  const stops = [0, 1.1, 2.5, 4.8, 8.6, 11.1, 12.3, 15.5];
-  const total = 17;
+  const stops = [0, 1.1, 2.5, 4.8, 10.2, 12.7, 13.9, 17.1];
+  const total = 18.6;
   // Viewport-height distances keep every pose reversible and independent of time.
-  const serviceTransition = { enterStart: 2.1, enterEnd: 2.9, bandStart: 3, bandEnd: 3.5, morphStart: 3.6, morphEnd: stops[3] };
+  const serviceIntro = { enterStart: 2.1, enterEnd: 2.9 };
+  const serviceTransitions = [
+    { from: 2, to: 3, color: 'var(--brand)', bandStart: 3, bandEnd: 3.5, morphStart: 3.6, morphEnd: stops[3] },
+    { from: 3, to: 4, color: 'var(--phase-green)', bandStart: 8.4, bandEnd: 8.9, morphStart: 9, morphEnd: stops[4] },
+  ].map(transition => {
+    const symbol = scenes[transition.to].querySelector('.service-symbol');
+    const element = document.createElement('div');
+    element.className = 'service-morph';
+    element.setAttribute('aria-hidden', 'true');
+    element.style.setProperty('--morph-color', transition.color);
+    element.innerHTML = `<div class="service-morph-surface"></div>${symbol.innerHTML}`;
+    stage.append(element);
+    return { ...transition, symbol, element, surface: element.querySelector('.service-morph-surface'), icon: element.querySelector('svg'), geometry: null };
+  });
   const topics = ['科技数码','生活记录','游戏实况','美食探店','汽车出行','音乐创作','知识分享','时尚穿搭','运动健身','动画创作','家居生活','旅行探索','摄影影像','舞蹈表演','手工创作','宠物日常','艺术设计','校园生活','影视解读','户外探索'];
   const clamp = (value, min = 0, max = 1) => Math.min(max, Math.max(min, value));
   const smooth = value => { const t = clamp(value); return t * t * (3 - 2 * t); };
@@ -59,11 +64,14 @@
   let heroBottom = 0;
   let keyboardInput = false;
   let openingGeometry = { startX: 0, startY: 0, endX: 0, endY: 0, scale: 1 };
-  let serviceGeometry = { x: 0, y: 0, width: 44, height: 44, radius: 12, iconWidth: 28, iconHeight: 28, viewportWidth: window.innerWidth };
   const serviceData = scenes.map((scene, index) => {
     scene.id = `demo-${scene.dataset.scene}`;
     const strip = scene.querySelector('.service-strip');
-    return strip ? { scene, index, strip, frames: [...strip.children], buttons: [...scene.querySelectorAll('[data-step]')], offsets: [] } : null;
+    if (!strip) return null;
+    // Preserve the four matching frames' original reading window. The later
+    // delivery stop adds transition space, not more distance between frames.
+    const contentEnd = index === 3 ? 8.6 : stops[index + 1];
+    return { scene, index, strip, frames: [...strip.children], buttons: [...scene.querySelectorAll('[data-step]')], offsets: [], frameStart: stops[index] + .18, frameEnd: contentEnd - .37 };
   }).filter(Boolean);
 
   try { savedTheme = localStorage.getItem('huahuo-theme'); } catch { savedTheme = null; }
@@ -190,15 +198,17 @@
     heroBottom = scenes[0].getBoundingClientRect().bottom + window.scrollY;
     measureOpening();
     if (pinned) {
-      const target = serviceSymbol.getBoundingClientRect();
-      const targetScene = scenes[3].getBoundingClientRect();
-      const icon = serviceSymbol.querySelector('svg').getBoundingClientRect();
-      serviceGeometry = {
-        x: target.left - targetScene.left, y: target.top - targetScene.top,
-        width: target.width, height: target.height,
-        radius: parseFloat(getComputedStyle(serviceSymbol).borderRadius),
-        iconWidth: icon.width, iconHeight: icon.height, viewportWidth: stage.clientWidth,
-      };
+      serviceTransitions.forEach(transition => {
+        const target = transition.symbol.getBoundingClientRect();
+        const targetScene = scenes[transition.to].getBoundingClientRect();
+        const icon = transition.symbol.querySelector('svg').getBoundingClientRect();
+        transition.geometry = {
+          x: target.left - targetScene.left, y: target.top - targetScene.top,
+          width: target.width, height: target.height,
+          radius: parseFloat(getComputedStyle(transition.symbol).borderRadius),
+          iconWidth: icon.width, iconHeight: icon.height, viewportWidth: stage.clientWidth,
+        };
+      });
     }
     if (preserve) {
       let top = window.scrollY;
@@ -227,9 +237,8 @@
   serviceData.forEach(data => data.buttons.forEach((button, index) => {
     button.addEventListener('click', () => {
       if (!pinned) { data.frames[index].scrollIntoView({ behavior: reduced.matches ? 'instant' : 'smooth', block: 'start' }); return; }
-      const duration = stops[data.index + 1] - stops[data.index];
-      const offset = .18 + (duration - .55) * index / Math.max(1, data.frames.length - 1);
-      jumpTo(data.index, offset);
+      const target = data.frameStart + (data.frameEnd - data.frameStart) * index / Math.max(1, data.frames.length - 1);
+      jumpTo(data.index, target - stops[data.index]);
     });
   }));
   document.querySelectorAll('[data-case-direction]').forEach(button => button.addEventListener('click', () => {
@@ -244,17 +253,18 @@
     const headerProgress = reduced.matches ? Number(window.scrollY > 0) : smooth(window.scrollY / Math.min(280, height * .32));
     header.style.setProperty('--header-progress', String(headerProgress));
     const openingProgress = smooth((units - .06) / 1.04);
-    const introEnter = smooth((units - serviceTransition.enterStart) / (serviceTransition.enterEnd - serviceTransition.enterStart));
-    const serviceReveal = smooth((units - serviceTransition.morphStart) / (serviceTransition.morphEnd - serviceTransition.morphStart));
-    const introExit = serviceReveal;
+    const introEnter = smooth((units - serviceIntro.enterStart) / (serviceIntro.enterEnd - serviceIntro.enterStart));
+    const serviceProgress = serviceTransitions.map(transition => smooth((units - transition.morphStart) / (transition.morphEnd - transition.morphStart)));
     const openingExit = introEnter;
     const openingShift = -openingExit * height;
     const heroFade = 1 - smooth((units - .08) / .67);
     let nextIndex = 0;
     let bestOpacity = -1;
     scenes.forEach((scene, i) => {
-      const enter = i === 0 ? 1 : i === 2 ? introEnter : i === 3 ? serviceReveal : smooth((units - stops[i] + .17) / .34);
-      const exit = i === scenes.length - 1 ? 1 : i === 1 ? 1 - introEnter : i === 2 ? 1 - introExit : 1 - smooth((units - stops[i+1] + .17) / .34);
+      const incoming = serviceTransitions.findIndex(transition => transition.to === i);
+      const outgoing = serviceTransitions.findIndex(transition => transition.from === i);
+      const enter = i === 0 ? 1 : i === 2 ? introEnter : incoming >= 0 ? serviceProgress[incoming] : smooth((units - stops[i] + .17) / .34);
+      const exit = i === scenes.length - 1 ? 1 : i === 1 ? 1 - introEnter : outgoing >= 0 ? 1 - serviceProgress[outgoing] : 1 - smooth((units - stops[i+1] + .17) / .34);
       const opacity = enter * exit;
       if (opacity > bestOpacity) { bestOpacity = opacity; nextIndex = i; }
       scene.classList.toggle('is-active', !pinned || (i < 2 ? openingExit < 1 : opacity > .002));
@@ -300,8 +310,7 @@
       card.style.transform = pinned ? `translateY(${(1 - entry) * 120}px)` : 'none';
     });
     serviceData.forEach(data => {
-      const duration = stops[data.index + 1] - stops[data.index];
-      const position = clamp((units - stops[data.index] - .18) / (duration - .55)) * (data.frames.length - 1);
+      const position = clamp((units - data.frameStart) / (data.frameEnd - data.frameStart)) * (data.frames.length - 1);
       const base = Math.floor(position);
       const blend = smooth((position - base - .12) / .76);
       const start = data.offsets[base] || 0;
@@ -317,13 +326,14 @@
       data.buttons.forEach((button, index) => { if (index === active) button.setAttribute('aria-current','step'); else button.removeAttribute('aria-current'); });
       // Preserve all service text in the accessibility tree; only the visual track moves.
     });
-    const morphActive = pinned && units > serviceTransition.bandStart && units < serviceTransition.morphEnd;
-    serviceMorph.style.visibility = morphActive ? 'visible' : 'hidden';
-    serviceSymbol.style.visibility = pinned && units < serviceTransition.morphEnd ? 'hidden' : '';
-    if (morphActive) {
-      const rise = smooth((units - serviceTransition.bandStart) / (serviceTransition.bandEnd - serviceTransition.bandStart));
-      const morph = smooth((units - serviceTransition.morphStart) / (serviceTransition.morphEnd - serviceTransition.morphStart));
-      const target = serviceGeometry;
+    serviceTransitions.forEach((transition, index) => {
+      const morphActive = pinned && units > transition.bandStart && units < transition.morphEnd;
+      transition.element.style.visibility = morphActive ? 'visible' : 'hidden';
+      transition.symbol.style.visibility = pinned && units < transition.morphEnd ? 'hidden' : '';
+      if (!morphActive) return;
+      const rise = smooth((units - transition.bandStart) / (transition.bandEnd - transition.bandStart));
+      const morph = serviceProgress[index];
+      const target = transition.geometry;
       const bandHeight = height * .44;
       const x = target.x * morph;
       const y = (height - bandHeight * rise) * (1 - morph) + target.y * morph;
@@ -332,9 +342,9 @@
       const iconStart = Math.min(112, bandHeight * .3);
       const iconWidth = iconStart * (1 - morph) + target.iconWidth * morph;
       const iconHeight = iconStart * (1 - morph) + target.iconHeight * morph;
-      morphSurface.style.clipPath = `inset(${y}px ${target.viewportWidth-x-width}px ${height-y-blockHeight}px ${x}px round ${target.radius*morph}px)`;
-      morphIcon.style.transform = `translate(${x+(width-iconWidth)/2}px,${y+(blockHeight-iconHeight)/2}px) scale(${iconWidth/48},${iconHeight/48})`;
-    }
+      transition.surface.style.clipPath = `inset(${y}px ${target.viewportWidth-x-width}px ${height-y-blockHeight}px ${x}px round ${target.radius*morph}px)`;
+      transition.icon.style.transform = `translate(${x+(width-iconWidth)/2}px,${y+(blockHeight-iconHeight)/2}px) scale(${iconWidth/48},${iconHeight/48})`;
+    });
     const portal = units - stops[6];
     const expand = smooth(portal / .8);
     const cut = smooth((portal - 1.05) / 1.4);

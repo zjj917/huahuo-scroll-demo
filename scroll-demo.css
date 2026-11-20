@@ -124,7 +124,7 @@ html.is-pinned .scene-values h2 { font-size: clamp(32px, 3.1vw, 52px); line-heig
 .services-intro-copy > p:last-child { margin-top: 30px; max-width: 430px; font-size: 18px; color: var(--muted); }
 .service-morph { display: none; position: absolute; inset: 0; z-index: 9; pointer-events: none; color: var(--portal-ink); }
 html.is-pinned .service-morph { display: block; }
-.service-morph-surface { position: absolute; inset: 0; background: var(--brand); will-change: clip-path; }
+.service-morph-surface { position: absolute; inset: 0; background: var(--morph-color, var(--brand)); will-change: clip-path; }
 .service-morph svg { position: absolute; inset: 0 auto auto 0; width: 48px; height: 48px; stroke: currentColor; fill: none; stroke-width: 2.5; transform-origin: 0 0; will-change: transform; }
 .scene-service { display: grid; grid-template-columns: var(--service-grid-columns); gap: var(--service-grid-gap); }
 .service-copy { align-self: start; padding-top: 16px; }
