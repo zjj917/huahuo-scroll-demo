@@ -23,6 +23,9 @@
   --color-button-text: rgba(255,255,255,1);
   --color-header: rgba(255,255,255,.64);
   --header-backdrop-blur: 24px;
+  --header-glass-highlight: rgba(255,255,255,.24);
+  --header-glass-shade: rgba(24,25,28,.04);
+  --header-glass-tint: rgba(170,191,235,.07);
   --color-mask: rgba(0,0,0,.6);
   --color-placeholder: rgba(238,239,241,1);
   --color-placeholder-strong: rgba(227,229,231,1);
@@ -39,6 +42,10 @@
   --hero-action-font-size: 1.25rem;
   --hero-action-min-width: 168px;
   --hero-action-mobile-height: 56px;
+  --hero-title-weight: 900;
+  --service-intro-description-size: 20px;
+  --service-intro-description-weight: 600;
+  --service-intro-description-muted: rgba(90,94,101,1);
   --hero-kicker-font-size: 18px;
   --tilt-perspective: 1000px;
   --tilt-return: 700ms;
@@ -147,6 +154,8 @@
   --shadow-dialog: 0 24px 80px rgba(0,0,0,.18);
 }
 html[data-mode="dark"] {
+  --header-glass-highlight: rgba(255,255,255,.09);
+  --header-glass-shade: rgba(0,0,0,.08);
   color-scheme: dark;
   --case-award-gold-start: rgba(255,229,170,1);
   --case-award-gold-end: rgba(241,166,94,1);

@@ -99,6 +99,7 @@
     const surface = outer.querySelector('.t-tilt-card');
     if (!surface) return () => {};
     const reset = () => {
+      if (!outer.classList.contains('is-hover')) return;
       outer.classList.remove('is-hover');
       surface.classList.remove('is-tilting');
       surface.style.setProperty('--tilt-rx', '0deg');

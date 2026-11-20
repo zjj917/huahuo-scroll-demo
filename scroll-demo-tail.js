@@ -4,6 +4,26 @@
   function initTail() {
     const tail = document.querySelector('[data-tail-content]');
     if (!tail) return;
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)');
+    const revealTargets = [...tail.querySelectorAll('.tail-section-heading > *, .tail-industry-heading > *, .tail-case-card, .tail-roles, .tail-faq-panels')];
+    if ('IntersectionObserver' in window && !reduce.matches) {
+      const observer = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+          if (!entry.isIntersecting) return;
+          entry.target.classList.add('is-revealed');
+          observer.unobserve(entry.target);
+        });
+      }, { threshold:.08, rootMargin:'0px 0px -24px 0px' });
+      revealTargets.forEach((element,index) => {
+        element.classList.add('tail-reveal');
+        element.style.setProperty('--tail-reveal-delay', `${index%3*60}ms`);
+        observer.observe(element);
+      });
+      tail.addEventListener('focusin', event => event.target.closest('.tail-reveal')?.classList.add('is-revealed'));
+      reduce.addEventListener('change', () => {
+        if (reduce.matches) { observer.disconnect(); revealTargets.forEach(element => element.classList.add('is-revealed')); }
+      });
+    }
     const tabs = [...tail.querySelectorAll('.tail-role[role="tab"]')];
     const tablist = tail.querySelector('.tail-roles[role="tablist"]');
     const compactLayout = window.matchMedia('(max-width: 900px)');

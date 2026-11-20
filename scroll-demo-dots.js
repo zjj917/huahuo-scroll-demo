@@ -16,6 +16,7 @@
   const featuredPortraits = [];
   const softPortraits = [];
   let starSprites = [];
+  let ambientSprite;
   // Verified public accounts; representative leading creators, not a ranking.
   const featuredProfiles = [
     { mid: 546195, name: '老番茄', category: '游戏创作' },
@@ -124,6 +125,12 @@
       pen.fillStyle = glow; pen.fillRect(0,0,64,64);
       return sprite;
     });
+    ambientSprite = document.createElement('canvas');
+    ambientSprite.width = ambientSprite.height = 128;
+    const ambientPen = ambientSprite.getContext('2d');
+    const ambient = ambientPen.createRadialGradient(64,64,0,64,64,64);
+    ambient.addColorStop(0,palette.underlight); ambient.addColorStop(.35,palette.underlight); ambient.addColorStop(1,'transparent');
+    ambientPen.fillStyle=ambient; ambientPen.fillRect(0,0,128,128);
   }
   function resetPoints() {
     pointer.active = false;
@@ -138,7 +145,7 @@
   function resize() {
     const nextWidth = canvas.clientWidth;
     const nextHeight = canvas.clientHeight;
-    const ratio = Math.min(window.devicePixelRatio || 1, 2);
+    const ratio = Math.min(window.devicePixelRatio || 1, 1.5);
     resizeNeeded = false;
     if (hasBuilt && nextWidth === width && nextHeight === height && ratio === pixelRatio) { viewNeeded = true; return; }
     resetPoints();
@@ -191,7 +198,7 @@
     fireArea = fireHeight >= 100 ? { x: fireLeft, y: fireTop, width: fireWidth, height: fireHeight } : null;
     if (fireHeight >= 100) {
       const pixels = flameMask();
-      const step = Math.max(7, Math.min(11, fireWidth / 40));
+      const step = Math.max(9, Math.sqrt(fireWidth * fireHeight / 1900));
       for (let y = step / 2; y < fireHeight; y += step) {
         for (let x = step / 2; x < fireWidth; x += step) {
           const pixel = (Math.floor(y / fireHeight * 320) * 240 + Math.floor(x / fireWidth * 240)) * 4;
@@ -295,8 +302,10 @@
     return entryAmount * (1 - Number(canvas.style.getPropertyValue('--fire-scroll') || 0));
   }
   function readView() {
-    bounds = canvas.getBoundingClientRect();
-    copyBounds = hero.querySelector('.hero-copy').getBoundingClientRect();
+    if (!root.classList.contains('is-pinned')) {
+      bounds = canvas.getBoundingClientRect();
+      copyBounds = hero.querySelector('.hero-copy').getBoundingClientRect();
+    }
     visible = bounds.bottom > 0 && bounds.top < innerHeight &&
       Number(canvas.style.opacity || 1) > .002 &&
       (!root.classList.contains('is-pinned') || hero.classList.contains('is-current'));
@@ -327,27 +336,10 @@
     currentShape = shapeBlend;
     let moving = !staticField;
     context.clearRect(0, 0, width, height);
-    if (fireArea) {
-      const x = fireArea.x + fireArea.width * .52;
-      const y = fireArea.y + fireArea.height * .91;
+    if (fireArea && shapeBlend > .002) {
       const radius = fireArea.width * .8;
-      const ambient = context.createRadialGradient(x,y,0,x,y,radius);
-      ambient.addColorStop(0,palette.underlight);
-      ambient.addColorStop(.35,palette.underlight);
-      ambient.addColorStop(1,'transparent');
       context.globalAlpha = palette.underlightOpacity * shapeBlend;
-      context.fillStyle = ambient;
-      context.fillRect(0,0,width,height);
-    }
-    if (fireArea) {
-      const x = fireArea.x + fireArea.width * .5;
-      const y = fireArea.y + fireArea.height * .63;
-      const glow = context.createRadialGradient(x, y, fireArea.width * .08, x, y, fireArea.width * .72);
-      glow.addColorStop(0, palette.flameGlow);
-      glow.addColorStop(1, 'transparent');
-      context.fillStyle = glow;
-      context.globalAlpha = palette.glowOpacity * shapeBlend ** 3 * (.84 + Math.sin(flowTime * 1.1) * .16);
-      context.fillRect(0, 0, width, height);
+      context.drawImage(ambientSprite,fireArea.x+fireArea.width*.52-radius,fireArea.y+fireArea.height*.91-radius,radius*2,radius*2);
     }
     const enlarged = [];
     let closest = null;
@@ -366,7 +358,7 @@
       }
       const dx = pointer.x - point.x;
       const dy = pointer.y - point.y;
-      const distance = Math.hypot(dx, dy);
+      const distance = responsive ? Math.hypot(dx, dy) : Infinity;
       if (distance < closestDistance) { closest = point; closestDistance = distance; }
       if ((point.featured || point.tier) && currentShape > .75 && distance < portraitSize(point) / 2 + 6 && distance < featuredDistance) {
         featuredClosest = point; featuredDistance = distance;
@@ -386,11 +378,17 @@
       if (staticField) { point.x = goalX; point.y = goalY; point.vx = 0; point.vy = 0; point.heat = 0; }
       else if (Math.abs(point.vx) + Math.abs(point.vy) > .08 || Math.abs(force - point.heat) > .002 || (!responsive && Math.hypot(goalX - point.x, goalY - point.y) > .12)) moving = true;
       else if (!responsive) { point.x = goalX; point.y = goalY; point.vx = 0; point.vy = 0; point.heat = 0; }
-      if (point.heat > .02 || point.featured || point.tier) enlarged.push(point);
-      else paintPortrait(point);
+      enlarged.push(point);
     }
-    // Paint the closest faces last, keeping each enlarged portrait legible.
-    enlarged.sort((a, b) => (a.heat > .1) - (b.heat > .1) || a.depth - b.depth).forEach(paintPortrait);
+    // One additive pass, rather than two blend-mode changes per particle.
+    context.globalCompositeOperation = 'lighter';
+    for (const point of points) {
+      if (!point.featured && !point.tier && (point.fire ? point.depth > .64 : point.depth > .98)) paintStar(point);
+    }
+    context.globalCompositeOperation = 'source-over';
+    // Particle depth is sorted once on resize. Only hovered faces need promotion.
+    if (responsive) enlarged.sort((a, b) => (a.heat > .1) - (b.heat > .1) || a.depth - b.depth);
+    enlarged.forEach(paintPortrait);
     updateCard(responsive, featuredClosest || closest, featuredClosest ? featuredDistance : closestDistance);
     context.globalAlpha = 1;
     if (moving) frame = requestAnimationFrame(draw);
@@ -400,6 +398,23 @@
     const size = point.featured ? palette.featuredSize : point.tier==='medium' ? palette.mediumSize : palette.smallSize;
     const perspective = 1 + (point.depth - .5) * palette.depthSize;
     return Math.min(size, fireArea.width * .2) * point.featuredScale * perspective;
+  }
+  function paintStar(point) {
+    const x=point.x, y=point.y;
+    // Cached light sprites give a bright core and wide bloom without per-point
+    // shadowBlur. A sparse foreground population carries the strongest light.
+    if ((!point.featured && !point.tier) && (point.fire || point.depth > .94)) {
+      const pulse = reduced.matches || !finePointer.matches ? 1 : .82 + .18*Math.sin(flowTime*(.6+point.depth*.6)+point.phase);
+      const gathered = point.fire ? .12 + currentShape*.88 : .15;
+      const bright = point.depth > .84;
+      const glowSize = (bright ? 18+point.depth*10 : 6+point.depth*7) * (point.fire ? 1 : .65);
+      context.globalAlpha = palette.starGlow * (bright ? .9 : .18) * gathered * pulse;
+      context.drawImage(starSprites[point.portrait%2],x-glowSize/2,y-glowSize/2,glowSize,glowSize);
+      if (bright) {
+        context.beginPath(); context.arc(x,y,.65+point.depth*.5,0,Math.PI*2);
+        context.fillStyle=palette.starCore; context.globalAlpha=palette.starGlow*gathered*pulse; context.fill();
+      }
+    }
   }
   function paintPortrait(point) {
     const x = point.x;
@@ -411,22 +426,6 @@
     const baseSize = smallSize + (featuredSize - smallSize) * featuredBlend;
     const size = baseSize + (Math.max(baseSize, palette.hoverSize * (.8 + point.depth * .3)) - baseSize) * emphasis;
     const radius = size / 2;
-    // Cached light sprites give a bright core and wide bloom without per-point
-    // shadowBlur. A sparse foreground population carries the strongest light.
-    if ((!point.featured && !point.tier) && (point.fire || point.depth > .94)) {
-      const pulse = reduced.matches || !finePointer.matches ? 1 : .82 + .18*Math.sin(flowTime*(.6+point.depth*.6)+point.phase);
-      const gathered = point.fire ? .12 + currentShape*.88 : .15;
-      const bright = point.depth > .84;
-      const glowSize = (bright ? 18+point.depth*10 : 6+point.depth*7) * (point.fire ? 1 : .65);
-      context.globalCompositeOperation = 'lighter';
-      context.globalAlpha = palette.starGlow * (bright ? .9 : .18) * gathered * pulse;
-      context.drawImage(starSprites[point.portrait%2],x-glowSize/2,y-glowSize/2,glowSize,glowSize);
-      if (bright) {
-        context.beginPath(); context.arc(x,y,.65+point.depth*.5,0,Math.PI*2);
-        context.fillStyle=palette.starCore; context.globalAlpha=palette.starGlow*gathered*pulse; context.fill();
-      }
-      context.globalCompositeOperation = 'source-over';
-    }
     if (point.fire && currentShape > .08) {
       const zone = point.center * .6 + point.depth * .4;
       const tone = zone > .77 ? palette.fireCore : zone > .54 ? palette.fireFront : zone > .28 ? palette.fireMid : palette.fireBack;
@@ -440,12 +439,8 @@
     }
     if (point.heat > .1) {
       const haloRadius = radius + 7;
-      const halo = context.createRadialGradient(x, y, radius * .7, x, y, haloRadius);
-      halo.addColorStop(0, palette.glow);
-      halo.addColorStop(1, 'transparent');
       context.globalAlpha = emphasis * .28;
-      context.fillStyle = halo;
-      context.fillRect(x - haloRadius, y - haloRadius, haloRadius * 2, haloRadius * 2);
+      context.drawImage(starSprites[point.portrait%2],x-haloRadius,y-haloRadius,haloRadius*2,haloRadius*2);
     }
     const portraitOpacity = point.fire ? palette.opacity + (palette.flameOpacity * .65 - palette.opacity) * currentShape : palette.opacity;
     const smallOpacity = portraitOpacity * (.28 + point.depth * .72) * point.softness;

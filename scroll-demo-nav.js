@@ -43,6 +43,8 @@
     if (!dialog || !title || !message) return;
     const pendingPages = {
       home: ['首页', '首页链接待接入。'],
+      agreement: ['花火平台服务协议', '服务协议页面待接入。'],
+      creatorRules: ['UP主公约', 'UP主公约页面待接入。'],
       awards: ['花火奖', '花火奖页面链接待接入。'],
       help: ['帮助中心', '帮助中心链接待接入。'],
       service: ['联系客服', '客服入口待补充。'],
@@ -50,7 +52,7 @@
       login: ['立即登录', '登录入口待接入。'],
       join: ['立即入驻', '入驻入口待接入。'],
     };
-    document.querySelectorAll('.demo-header [data-contact], .hero-actions [data-contact]').forEach(button => {
+    document.querySelectorAll('.demo-header [data-contact], .hero-actions [data-contact], .tail-footer [data-contact]').forEach(button => {
       button.addEventListener('click', () => {
         returnFocus = mobile.matches && nav.contains(button) ? toggle : button;
         const [heading, description] = pendingPages[button.dataset.contact];

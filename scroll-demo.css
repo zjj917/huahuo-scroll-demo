@@ -54,11 +54,12 @@ button:active, .primary-button:active { transform: scale(.98); }
   padding: 0 calc(var(--header-padding-expanded) + (var(--header-padding-collapsed) - var(--header-padding-expanded)) * var(--header-progress));
   display: flex; align-items: center; gap: 28px;
   border-radius: calc(40px * var(--header-progress));
-  backdrop-filter: blur(calc(var(--header-backdrop-blur) * var(--header-progress)));
-  -webkit-backdrop-filter: blur(calc(var(--header-backdrop-blur) * var(--header-progress)));
+  backdrop-filter: blur(calc(var(--header-backdrop-blur) * var(--header-progress))) saturate(135%);
+  -webkit-backdrop-filter: blur(calc(var(--header-backdrop-blur) * var(--header-progress))) saturate(135%);
   transition: opacity var(--duration-fast), transform var(--duration-fast);
 }
 .demo-header::before { content: ''; position: absolute; inset: 0; z-index: -1; pointer-events: none; background: var(--glass); border: 0; border-radius: inherit; opacity: var(--header-progress); }
+.demo-header::after { content: ''; position: absolute; inset: 0; z-index: -1; pointer-events: none; border-radius: inherit; opacity: var(--header-progress); background: radial-gradient(ellipse at 15% 0%,var(--header-glass-highlight),transparent 48%),radial-gradient(ellipse at 85% 100%,var(--header-glass-tint),transparent 50%),linear-gradient(180deg,var(--header-glass-highlight),transparent 35%,var(--header-glass-shade)); }
 .demo-header.is-submerged { opacity: 0; transform: translateY(-110px); pointer-events: none; }
 .demo-header:focus-within { opacity: 1; transform: none; pointer-events: auto; }
 .demo-brand { display: flex; align-items: center; gap: 7px; color: var(--brand-ink); white-space: nowrap; }
@@ -98,10 +99,10 @@ html.is-pinned .story-scene.is-current { pointer-events: auto; }
 @keyframes hero-underline-draw { to { stroke-dashoffset: 0; } }
 @media (prefers-reduced-motion: reduce) { .hero-underline path { animation: none; stroke-dashoffset: 0; } }
 .hero-copy a, .hero-copy button { pointer-events: auto; }
-.hero-copy h1 { font-size: var(--display); line-height: 1.38; letter-spacing: -.06em; }
+.hero-copy h1 { font-weight: var(--hero-title-weight); font-size: var(--display); line-height: 1.38; letter-spacing: -.06em; }
 .hero-copy h1 span { white-space: nowrap; }
 .opening-title { display: none; }
-html.is-pinned .opening-title { display: block; position: absolute; top: 0; left: 0; z-index: 8; font-size: var(--display); font-weight: 600; line-height: 1.38; letter-spacing: -.06em; transform-origin: 0 0; pointer-events: none; will-change: transform; }
+html.is-pinned .opening-title { display: block; position: absolute; top: 0; left: 0; z-index: 8; font-size: var(--display); font-weight: var(--hero-title-weight); line-height: 1.38; letter-spacing: -.06em; transform-origin: 0 0; pointer-events: none; will-change: transform; }
 html.is-pinned .opening-title span { white-space: nowrap; }
 html.is-pinned .scene-hero h1, html.is-pinned .scene-values h2 { opacity: 0; }
 html.is-pinned .scene-values { background: transparent; }
@@ -126,7 +127,7 @@ html.is-pinned .scene-values h2 { font-size: clamp(32px, 3.1vw, 52px); line-heig
 .scene-services-intro { display: flex; align-items: flex-start; justify-content: flex-start; flex-direction: column; padding-top: clamp(160px,22vh,220px); overflow: clip; }
 .services-intro-copy { position: relative; z-index: 2; }
 .services-intro-copy h2 { font-size: clamp(64px,7vw,112px); line-height: 1.15; }
-.services-intro-copy > p:last-child { margin-top: 30px; max-width: 430px; font-size: 18px; color: var(--muted); }
+.services-intro-copy > p:last-child { margin-top: 30px; max-width: 430px; font-size: var(--service-intro-description-size); font-weight: var(--service-intro-description-weight); color: var(--service-intro-description-muted); }
 .service-morph { display: none; position: absolute; inset: 0; z-index: 9; pointer-events: none; color: var(--portal-ink); }
 html.is-pinned .service-morph { display: block; }
 .service-morph-surface { position: absolute; inset: 0; background: var(--morph-color, var(--brand)); will-change: clip-path; }
@@ -301,3 +302,6 @@ html.is-linear .case-awards { position: relative; inset: auto; padding: 0 0 var(
 @media (prefers-reduced-motion:reduce), (hover:none), (pointer:coarse) { .value-card .t-tilt-glare { display:none; } .value-card-surface.t-tilt-card { transform:none; } }
 
 .service-steps button { overflow-wrap: anywhere; line-height: 1.5; }
+
+.services-intro-copy > p:last-child strong { color:var(--muted); font-weight:inherit; }
+html.is-pinned .scene-values h2 { font-weight:var(--hero-title-weight); }
