@@ -59,7 +59,7 @@ button:active, .primary-button:active { transform: scale(.98); }
   transition: opacity var(--duration-fast), transform var(--duration-fast);
 }
 .demo-header::before { content: ''; position: absolute; inset: 0; z-index: -1; pointer-events: none; background: var(--glass); border: 0; border-radius: inherit; opacity: var(--header-progress); }
-.demo-header::after { content: ''; position: absolute; inset: 0; z-index: -1; pointer-events: none; border-radius: inherit; opacity: var(--header-progress); background: radial-gradient(ellipse at 15% 0%,var(--header-glass-highlight),transparent 48%),radial-gradient(ellipse at 85% 100%,var(--header-glass-tint),transparent 50%),linear-gradient(180deg,var(--header-glass-highlight),transparent 35%,var(--header-glass-shade)); }
+.demo-header::after { content: ''; position: absolute; inset: 0; z-index: -1; pointer-events: none; border-radius: inherit; opacity: var(--header-progress); border-top: var(--header-top-border-width) solid var(--header-top-border-color); }
 .demo-header.is-submerged { opacity: 0; transform: translateY(-110px); pointer-events: none; }
 .demo-header:focus-within { opacity: 1; transform: none; pointer-events: auto; }
 .demo-brand { display: flex; align-items: center; gap: 7px; color: var(--brand-ink); white-space: nowrap; }
