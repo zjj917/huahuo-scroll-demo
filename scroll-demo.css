@@ -167,7 +167,7 @@ html.is-pinned .portal-heading { opacity: 0; }
 .case-card { --award-start: var(--case-award-gold-start); --award-end: var(--case-award-gold-end); width: var(--case-card-width); flex: none; }
 .case-card[data-award="benchmark"] { --award-start: var(--case-award-blue-start); --award-end: var(--case-award-blue-end); }
 .case-card[data-award="rising"] { --award-start: var(--case-award-pink-start); --award-end: var(--case-award-pink-end); }
-.case-placeholder { aspect-ratio: 1.78; max-height: calc(100svh - var(--case-awards-top) - var(--space-96)); background: var(--panel); border-radius: 24px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; color: var(--muted); }
+.case-placeholder { width: 100%; aspect-ratio: 1.78; max-height: calc(100svh - var(--case-awards-top) - var(--space-96)); background: var(--panel); border-radius: 24px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; color: var(--muted); }
 .case-placeholder > span { font-size: var(--case-award-font-size); font-weight: var(--case-award-font-weight); color: var(--award-start); }
 @supports (background-clip: text) or (-webkit-background-clip: text) {
   .case-placeholder > span { background: linear-gradient(115deg,var(--award-start),var(--award-end)); background-clip: text; -webkit-background-clip: text; color: transparent; }
