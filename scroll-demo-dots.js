@@ -11,7 +11,7 @@
   const root = document.documentElement;
   const reduced = matchMedia('(prefers-reduced-motion: reduce)');
   const finePointer = matchMedia('(hover: hover) and (pointer: fine)');
-  const pointer = { x: 0, y: 0, active: false };
+  const pointer = { x: 0, y: 0, vx: 0, vy: 0, time: 0, active: false };
   const portraits = [];
   const featuredPortraits = [];
   const softPortraits = [];
@@ -51,6 +51,7 @@
   let height = 0;
   let pixelRatio = 0;
   let flowTime = 0;
+  let interactionFlow = 0;
   let entryElapsed = 0;
   let entryAmount = 0;
   let frame = 0;
@@ -105,6 +106,10 @@
       entryDuration: Number(token('entry-duration')),
       featuredDrift: Number(token('featured-drift')),
       reach: Number(token('reach')),
+      flowBoost: Number(token('flow-boost')) || 1.5,
+      flowSpeed: Number(token('flow-speed')) || 1.2,
+      swirl: Number(token('swirl')) || 240,
+      attraction: Number(token('attraction')) || 180,
       opacity: Number(token('opacity')), flameOpacity: Number(token('flame-opacity')), color: token('color'),
       glow: token('glow'), core: token('core'),
       flameGlow: token('flame-glow'), glowOpacity: Number(token('glow-opacity')),
@@ -134,6 +139,7 @@
   }
   function resetPoints() {
     pointer.active = false;
+    pointer.vx = pointer.vy = pointer.time = interactionFlow = 0;
     card.hidden = true;
     selected = null;
     const shapeBlend = shapeAmount();
@@ -282,7 +288,7 @@
     if (!reduced.matches && finePointer.matches) {
       const depth = point.depth * 2 - 1;
       const wave = flowTime * .55 + point.targetY * .012;
-      const strength = point.fire ? .18 + shapeBlend * .82 : .24;
+      const strength = (point.fire ? .18 + shapeBlend * .82 : .24) * (1 + (point.fire ? interactionFlow * palette.flowBoost : 0));
       // Front and back layers drift at different amplitudes and phases.
       x += (Math.sin(wave + depth * .7) * (7 + point.depth * 7) + Math.sin(flowTime * .3 + point.phase) * (4 + point.depth * 5)) * strength;
       y += (Math.sin(flowTime * .43 + point.phase) * (5 + point.depth * 7) + Math.cos(wave) * depth * 4) * strength;
@@ -338,9 +344,14 @@
     const responsive = pointer.active && !reduced.matches && finePointer.matches;
     const scrollProgress = Number(canvas.style.getPropertyValue('--fire-scroll') || 0);
     const staticField = reduced.matches || !finePointer.matches;
-    if (staticField) { entryElapsed = palette.entryDuration; entryAmount = 1; }
+    // Hover builds a whole-field current; release takes longer to settle.
+    const flowTarget = responsive ? 1 : 0;
+    interactionFlow += (flowTarget - interactionFlow) * (1 - Math.exp(-elapsed / (responsive ? .35 : .9)));
+    pointer.vx *= Math.exp(-elapsed / .18);
+    pointer.vy *= Math.exp(-elapsed / .18);
+    if (staticField) { interactionFlow = 0; entryElapsed = palette.entryDuration; entryAmount = 1; }
     else {
-      flowTime += elapsed;
+      flowTime += elapsed * (1 + interactionFlow * palette.flowSpeed);
       entryElapsed = Math.min(palette.entryDuration, entryElapsed + elapsed);
       const progress = entryElapsed / palette.entryDuration;
       entryAmount = progress * progress * (3 - 2 * progress);
@@ -376,15 +387,19 @@
       if ((point.featured || point.tier) && currentShape > .75 && distance < portraitSize(point) / 2 + 6 && distance < featuredDistance) {
         featuredClosest = point; featuredDistance = distance;
       }
-      const proximity = responsive ? Math.max(0, 1 - distance / palette.reach) : 0;
+      const proximity = responsive ? Math.max(0, 1 - distance / (palette.reach * (1 + interactionFlow * .3))) : 0;
       const force = proximity * proximity * (3 - 2 * proximity);
-      // Spring acceleration plus strong drag gives the slow, water-like wake.
-      // Pointer attraction keeps velocity after release, then eases back.
+      // Tangential flow makes a visible eddy; cursor motion adds a short wake.
+      // Large faces react less so profile hover remains easy to target.
       const towardX = distance > .01 ? dx / distance : 0;
       const towardY = distance > .01 ? dy / distance : 0;
       const spring = 3.6 + (1 - entryAmount) * 3.4;
-      point.vx = (point.vx + ((goalX - point.x) * spring + towardX * force * 105) * elapsed) * damping;
-      point.vy = (point.vy + ((goalY - point.y) * spring + towardY * force * 105) * elapsed) * damping;
+      const response = point.featured ? .4 : point.tier ? .65 : 1;
+      const swirl = palette.swirl * interactionFlow;
+      const flowX = (towardX * palette.attraction - towardY * swirl + pointer.vx * .65) * force * response;
+      const flowY = (towardY * palette.attraction + towardX * swirl + pointer.vy * .65) * force * response;
+      point.vx = (point.vx + ((goalX - point.x) * spring + flowX) * elapsed) * damping;
+      point.vy = (point.vy + ((goalY - point.y) * spring + flowY) * elapsed) * damping;
       point.x += point.vx * elapsed;
       point.y += point.vy * elapsed;
       point.heat += (force - point.heat) * blend;
@@ -506,6 +521,7 @@
   }
   function release() {
     pointer.active = false;
+    pointer.vx = pointer.vy = pointer.time = 0;
     card.hidden = true;
     requestDraw();
   }
@@ -521,7 +537,12 @@
     if (!finePointer.matches || reduced.matches || !visible) return;
     const x = event.clientX - bounds.left;
     const y = event.clientY - bounds.top;
+    const wasActive = pointer.active;
     pointer.active = width >= 900 && interactionLeft + cardWidth + 20 < width && x >= interactionLeft && x <= width && y >= 100 && y <= height && !event.target.closest('header, dialog');
+    const interval = Math.max(16, Math.min(80, (event.timeStamp || 0) - pointer.time || 16.7)) / 1000;
+    pointer.vx = pointer.active && wasActive ? Math.max(-900, Math.min(900, (x-pointer.x)/interval)) : 0;
+    pointer.vy = pointer.active && wasActive ? Math.max(-900, Math.min(900, (y-pointer.y)/interval)) : 0;
+    pointer.time = event.timeStamp || 0;
     pointer.x = x;
     pointer.y = y;
     requestDraw();

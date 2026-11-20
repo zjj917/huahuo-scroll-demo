@@ -27,7 +27,7 @@
   --values-title-increase: 8px;
   --values-card-height-increase: var(--space-32);
   --values-gap-increase: var(--space-24);
-  --values-card-bg: rgba(248,249,250,1);
+  --values-card-bg: rgba(255,255,255,.04);
   --header-top-border-width: 1.5px;
   --header-top-border-color: rgba(255,255,255,.08);
   --color-mask: rgba(0,0,0,.6);
@@ -97,7 +97,11 @@
   --hero-dot-underlight-opacity: .055;
   --hero-dot-entry-duration: 2.6;
   --hero-dot-featured-drift: 64;
-  --hero-dot-reach: 185;
+  --hero-dot-reach: 225;
+  --hero-dot-flow-boost: 1.5;
+  --hero-dot-flow-speed: 1.2;
+  --hero-dot-swirl: 240;
+  --hero-dot-attraction: 180;
   --hero-dot-opacity: .14;
   --hero-dot-flame-opacity: .22;
   --hero-dot-flame-glow: rgba(255,137,85,1);
@@ -164,7 +168,6 @@
   --shadow-dialog: 0 24px 80px rgba(0,0,0,.18);
 }
 html[data-mode="dark"] {
-  --values-card-bg: rgba(35,36,40,1);
   color-scheme: dark;
   --case-award-gold-start: rgba(255,229,170,1);
   --case-award-gold-end: rgba(241,166,94,1);
