@@ -226,7 +226,7 @@
       flowTime += elapsed;
       entryElapsed = Math.min(palette.entryDuration, entryElapsed + elapsed);
       const progress = entryElapsed / palette.entryDuration;
-      entryAmount = 1 - (1 - progress) ** 3;
+      entryAmount = progress * progress * (3 - 2 * progress);
     }
     const shapeBlend = shapeAmount();
     currentShape = shapeBlend;
@@ -270,7 +270,7 @@
       // Pointer attraction keeps velocity after release, then eases back.
       const towardX = distance > .01 ? dx / distance : 0;
       const towardY = distance > .01 ? dy / distance : 0;
-      const spring = entryAmount < 1 ? 12 : 3.6;
+      const spring = 3.6 + (1 - entryAmount) * 3.4;
       point.vx = (point.vx + ((goalX - point.x) * spring + towardX * force * 105) * elapsed) * damping;
       point.vy = (point.vy + ((goalY - point.y) * spring + towardY * force * 105) * elapsed) * damping;
       point.x += point.vx * elapsed;
