@@ -16,6 +16,7 @@
   const letters = document.querySelector('[data-mask-letters]');
   const aperture = document.querySelector('[data-mask-aperture]');
   const subtitle = document.querySelector('.portal-subtitle');
+  const caseControls = document.querySelector('.case-controls');
   const portalKicker = document.querySelector('.portal-kicker');
   const portalHeading = document.getElementById('cases-intro-title');
   const portalCopy = document.querySelector('.portal-copy');
@@ -128,6 +129,7 @@
     const scene = scenes[6].getBoundingClientRect();
     const heading = portalHeading.getBoundingClientRect();
     const copy = portalCopy.getBoundingClientRect();
+    awards.style.setProperty('--case-copy-bottom', `${portalCopy.offsetTop + subtitle.offsetTop + Math.max(subtitle.offsetHeight, caseControls.offsetHeight)}px`);
     const scale = parseFloat(getComputedStyle(portalHeading).fontSize) / fontSize;
     const subtitleSize = parseFloat(getComputedStyle(subtitle).fontSize);
     const subtitleScale = Math.min(36, Math.max(20, width * .025)) / subtitleSize;
@@ -337,6 +339,8 @@
     }
     if (aperture) aperture.style.opacity = String(1-smooth((portal-1.05)/.5));
     subtitle.style.opacity = pinned ? String(smooth((portal-2.35)/.25)) : '1';
+    caseControls.style.opacity = subtitle.style.opacity;
+    caseControls.toggleAttribute('inert', pinned && Number(subtitle.style.opacity) < .98);
     portalKicker.style.opacity = pinned ? String(smooth((portal-2.3)/.25)) : '1';
     const awardsReveal = pinned ? smooth((portal - 2.05) / .6) : 1;
     awards.style.opacity = String(awardsReveal);

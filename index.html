@@ -8,10 +8,10 @@
   <title>花火 · 滚动叙事 Demo</title>
   <link rel="stylesheet" href="scroll-demo-tokens.css?v=20261120-fire-loose-gap-v1">
   <link rel="stylesheet" href="motion.css">
-  <link rel="stylesheet" href="scroll-demo.css?v=20261120-cases-continuous-v1">
+  <link rel="stylesheet" href="scroll-demo.css?v=20261120-cases-continuous-v3">
   <link rel="stylesheet" href="scroll-demo-tail.css">
   <link rel="stylesheet" href="scroll-demo-nav.css?v=20261120-fire-depth-v3">
-  <script src="scroll-demo.js?v=20261120-cases-continuous-v2" defer></script>
+  <script src="scroll-demo.js?v=20261120-cases-continuous-v3" defer></script>
   <script src="scroll-demo-dots.js?v=20261120-fire-loose-gap-v1" defer></script>
   <script src="scroll-demo-tail.js" defer></script>
   <script src="scroll-demo-nav.js?v=20261120-fire-depth-v3" defer></script>
@@ -174,16 +174,18 @@
           <div class="portal-copy">
             <p class="portal-kicker">通过优秀案例</p>
             <h2 id="cases-intro-title" class="portal-heading">让每一次观看，<br>都靠近品牌一点。</h2>
-            <p class="portal-subtitle">了解真实效果。</p>
+            <div class="portal-summary">
+              <p class="portal-subtitle">了解真实效果。</p>
+              <div class="case-controls"><button type="button" data-case-direction="-1" aria-label="上一个奖项">←</button><button type="button" data-case-direction="1" aria-label="下一个奖项">→</button></div>
+            </div>
           </div>
           <section class="case-awards" data-case-awards aria-labelledby="cases-title">
-          <div class="cases-head"><div><p class="scene-kicker">精选内容</p><h2 id="cases-title" class="sr-only">花火奖优秀案例</h2></div><div class="case-controls"><button type="button" data-case-direction="-1" aria-label="上一个奖项">←</button><button type="button" data-case-direction="1" aria-label="下一个奖项">→</button></div></div>
+          <h2 id="cases-title" class="sr-only">花火奖优秀案例</h2>
           <div class="case-rail" data-case-rail>
             <article class="case-card case-card-large"><div class="case-placeholder"><span>年度最佳</span><small>视频占位 · 待接入案例素材</small></div><p>年度最佳 · 让内容成为品牌的高光时刻</p><small>案例视频占位</small></article>
             <article class="case-card"><div class="case-placeholder"><span>标杆奖</span><small>视频占位 · 待接入案例素材</small></div><p>标杆奖 · 把一次共创做成长期记忆</p><small>案例视频占位</small></article>
             <article class="case-card"><div class="case-placeholder"><span>新锐奖</span><small>视频占位 · 待接入案例素材</small></div><p>新锐奖 · 与新鲜表达一起破圈</p><small>案例视频占位</small></article>
           </div>
-          <p class="case-footnote">向下继续，探索汽车、游戏与小家电行业案例。</p>
           </section>
         </section>
 
