@@ -100,6 +100,7 @@
       depthFade: Number(token('depth-fade')), rearBlur: Number(token('rear-blur')),
       shapeScale: Number(token('shape-scale')), starGlow: Number(token('star-glow')),
       starCore: token('star-core'), starPink: token('star-pink'), starBlue: token('star-blue'),
+      underlight: token('underlight'), underlightOpacity: Number(token('underlight-opacity')),
       entryDuration: Number(token('entry-duration')),
       featuredDrift: Number(token('featured-drift')),
       reach: Number(token('reach')),
@@ -326,6 +327,18 @@
     currentShape = shapeBlend;
     let moving = !staticField;
     context.clearRect(0, 0, width, height);
+    if (fireArea) {
+      const x = fireArea.x + fireArea.width * .52;
+      const y = fireArea.y + fireArea.height * .91;
+      const radius = fireArea.width * .8;
+      const ambient = context.createRadialGradient(x,y,0,x,y,radius);
+      ambient.addColorStop(0,palette.underlight);
+      ambient.addColorStop(.35,palette.underlight);
+      ambient.addColorStop(1,'transparent');
+      context.globalAlpha = palette.underlightOpacity * shapeBlend;
+      context.fillStyle = ambient;
+      context.fillRect(0,0,width,height);
+    }
     if (fireArea) {
       const x = fireArea.x + fireArea.width * .5;
       const y = fireArea.y + fireArea.height * .63;
