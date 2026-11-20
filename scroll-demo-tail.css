@@ -26,13 +26,13 @@
 .tail-video-placeholder { aspect-ratio: 16/10; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 16px; padding: 24px; background: var(--panel); color: var(--ink); border: 0; border-radius: var(--tail-radius); text-align: center; }
 .tail-video-placeholder span { font-size: 12px; line-height: 1.6; }
 .tail-video-icon { width: 32px; height: 32px; fill: none; stroke: currentColor; stroke-width: 1.2; stroke-linejoin: round; }
-.tail-case-card h4 { margin: 22px 0 8px; font-size: 17px; font-weight: 550; line-height: 1.5; letter-spacing: -.01em; }
+.tail-case-card h4 { margin: 22px 0 8px; font-size: var(--content-title-size); font-weight: var(--content-title-weight); line-height: 1.5; letter-spacing: -.01em; }
 .tail-case-card p { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.75; }
 .tail-faq-layout { display: grid; grid-template-columns: 250px minmax(0, 1fr); gap: clamp(40px, 8vw, 120px); margin-top: 56px; align-items: start; }
 .tail-roles { display: flex; flex-direction: column; gap: 8px; }
-.tail-role { width: 100%; min-height: 52px; padding: 14px 20px; display: flex; align-items: center; justify-content: space-between; gap: 20px; background: transparent; color: var(--muted); font-size: 15px; line-height: 1.6; text-align: left; border: 1px solid transparent; border-radius: 12px; }
+.tail-role { width: 100%; min-height: 52px; padding: 14px 20px; display: flex; align-items: center; justify-content: space-between; gap: 20px; background: transparent; color: var(--muted); font-size: 15px; line-height: 1.6; text-align: left; border: 0; border-radius: 12px; }
 .tail-role span { visibility: hidden; font-size: 18px; }
-.tail-role[aria-selected="true"] { background: var(--subtle); color: var(--ink); border-color: var(--line); font-weight: 600; }
+.tail-role[aria-selected="true"] { background: var(--subtle); color: var(--ink); font-weight: 600; }
 .tail-role[aria-selected="true"] span { visibility: visible; }
 .tail-role:hover { background: var(--subtle); color: var(--ink); }
 .tail-role:active { transform: none; }
@@ -41,7 +41,7 @@
 .tail-question { border-bottom: 1px solid var(--line); }
 .tail-question:first-child { border-top: 1px solid var(--line); }
 .tail-question h3 { margin: 0; }
-.tail-question-button { width: 100%; min-height: 64px; display: flex; justify-content: space-between; align-items: center; gap: 24px; padding: 24px 0; background: transparent; color: var(--ink); font-size: 16px; line-height: 1.65; font-weight: 500; text-align: left; }
+.tail-question-button { width: 100%; min-height: 64px; display: flex; justify-content: space-between; align-items: center; gap: 24px; padding: 24px 0; background: transparent; color: var(--ink); font-size: var(--content-title-size); line-height: 1.65; font-weight: var(--content-title-weight); text-align: left; }
 .tail-question-button:hover { color: var(--muted); }
 .tail-question-button:active { transform: none; }
 .tail-chevron { flex: none; }
@@ -53,7 +53,7 @@
 .tail-footer-main .tail-footer-brand { margin-bottom: 12px; font-size: 32px; font-weight: 700; line-height: 1.25; color: var(--ink); letter-spacing: -.04em; }
 .tail-back-top { min-height: 44px; display: inline-flex; align-items: center; gap: 20px; padding: 10px 0 10px 16px; font-size: 14px; flex: none; }
 .tail-back-top:hover { text-decoration: underline; text-underline-offset: 5px; }
-.tail-footer-legal { display: flex; justify-content: space-between; align-items: baseline; gap: 16px 32px; flex-wrap: wrap; padding-top: 24px; border-top: 1px solid var(--line); color: var(--muted); font-size: 12px; line-height: 1.7; }
+.tail-footer-legal { display: flex; justify-content: space-between; align-items: baseline; gap: 16px 32px; flex-wrap: wrap; padding-top: 24px; border-top: var(--footer-divider-width) solid var(--line); color: var(--muted); font-size: 12px; line-height: 1.7; }
 .tail-footer-legal p { margin: 0; }
 .tail-footer-legal > div { display: flex; gap: 16px 24px; flex-wrap: wrap; }
 .tail-content button:focus-visible, .tail-content a:focus-visible { outline: 2px solid var(--ink); outline-offset: 5px; }
@@ -73,10 +73,10 @@
   .tail-industry-heading p { margin-top: 12px; font-size: 13px; }
   .tail-video-grid { grid-template-columns: 1fr; gap: 36px; }
   .tail-video-placeholder { aspect-ratio: 16/10; }
-  .tail-case-card h4 { margin-top: 18px; font-size: 16px; }
+  .tail-case-card h4 { margin-top: 18px; }
   .tail-faq-layout { margin-top: 36px; }
   .tail-role { padding: 10px 12px; font-size: 12px; min-height: 44px; }
-  .tail-question-button { font-size: 15px; gap: 18px; padding-block: 22px; }
+  .tail-question-button { gap: 18px; padding-block: 22px; }
   .tail-answer-inner p { font-size: 13px; padding-right: 16px; }
   .tail-footer { padding-block: 40px 28px; }
   .tail-footer-main { align-items: flex-start; flex-direction: column; gap: 24px; padding-bottom: 24px; }

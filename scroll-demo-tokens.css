@@ -127,6 +127,10 @@
   --case-award-blue-end: rgba(113,69,183,1);
   --case-award-pink-start: rgba(168,56,114,1);
   --case-award-pink-end: rgba(116,69,177,1);
+  --content-title-size: 20px;
+  --content-title-mobile-size: 18px;
+  --content-title-weight: 600;
+  --footer-divider-width: .5px;
   --text-base: 1rem;
   --text-lg: 1.125rem;
   --text-xl: 1.375rem;

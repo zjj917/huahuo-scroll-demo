@@ -184,7 +184,7 @@ html.is-pinned .service-morph { display: block; }
   .case-placeholder > span:not(.case-award-badge), .case-award-title { background: none; color: CanvasText; }
 }
 .case-placeholder > small { font-size: 12px; }
-.case-card > p { font-size: 14px; font-weight: 500; margin-top: 16px; }
+.case-card > p { font-size: var(--content-title-size); font-weight: var(--content-title-weight); margin-top: 16px; }
 .case-card > small { display: block; font-size: 12px; color: var(--muted); margin-top: 8px; }
 html.is-linear .story-track { height: auto !important; }
 html.is-linear .story-scene { opacity: 1 !important; transform: none !important; visibility: visible !important; pointer-events: auto !important; }
@@ -218,7 +218,7 @@ html.is-linear .case-awards { position: relative; inset: auto; padding: 0 0 var(
   .services-intro-copy > p:last-child { max-width: 340px; font-size: 16px; }
 }
 @media (max-width:760px) {
-  :root { --gutter: 24px; --scene-top: 112px; --display: clamp(31px,8vw,52px); --headline: clamp(30px,7vw,44px); --card-radius: 22px; --service-frame-gap: 54px; }
+  :root { --content-title-size: var(--content-title-mobile-size); --gutter: 24px; --scene-top: 112px; --display: clamp(31px,8vw,52px); --headline: clamp(30px,7vw,44px); --card-radius: 22px; --service-frame-gap: 54px; }
   html { scroll-padding-top: 100px; }
   .demo-header { --header-inset: 14px; --header-top: 14px; --header-height-expanded: 88px; --header-height-collapsed: 60px; --header-padding-expanded: 24px; --header-padding-collapsed: 14px; gap: 12px; }
   .demo-brand { gap: 5px; }
@@ -260,7 +260,6 @@ html.is-linear .case-awards { position: relative; inset: auto; padding: 0 0 var(
   html.is-linear .case-rail { grid-template-columns: 1fr; gap: 32px; }
   .case-placeholder { border-radius: 22px; }
   .case-placeholder > span:not(.case-award-badge), .case-award-title { font-size: var(--case-award-font-size); }
-  .case-card > p { font-size: 14px; }
   .case-footnote { max-width: 280px; font-size: 12px; line-height: 1.8; }
 }
 @media (max-height:740px) and (min-width:761px) {
