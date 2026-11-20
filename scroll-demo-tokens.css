@@ -65,10 +65,16 @@
   --hero-dot-hover-size: 7;
   --hero-dot-featured-size: 52;
   --hero-dot-featured-opacity: .9;
-  --hero-dot-medium-size: 22;
-  --hero-dot-small-size: 12;
+  --hero-dot-medium-size: 26;
+  --hero-dot-small-size: 14;
   --hero-dot-medium-opacity: .74;
   --hero-dot-small-opacity: .56;
+  --hero-dot-medium-count: 15;
+  --hero-dot-small-count: 34;
+  --hero-dot-volume-spread: .12;
+  --hero-dot-depth-size: .3;
+  --hero-dot-depth-fade: .42;
+  --hero-dot-rear-blur: 5;
   --hero-dot-entry-duration: 2.6;
   --hero-dot-featured-drift: 64;
   --hero-dot-reach: 185;

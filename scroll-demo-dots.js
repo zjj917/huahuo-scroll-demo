@@ -14,6 +14,7 @@
   const pointer = { x: 0, y: 0, active: false };
   const portraits = [];
   const featuredPortraits = [];
+  const softPortraits = [];
   // Verified public accounts; representative leading creators, not a ranking.
   const featuredProfiles = [
     { mid: 546195, name: '老番茄', category: '游戏创作' },
@@ -84,6 +85,9 @@
       featuredSize: Number(token('featured-size')), featuredOpacity: Number(token('featured-opacity')),
       mediumSize: Number(token('medium-size')), smallSize: Number(token('small-size')),
       mediumOpacity: Number(token('medium-opacity')), smallOpacity: Number(token('small-opacity')),
+      mediumCount: Number(token('medium-count')), smallCount: Number(token('small-count')),
+      volumeSpread: Number(token('volume-spread')), depthSize: Number(token('depth-size')),
+      depthFade: Number(token('depth-fade')), rearBlur: Number(token('rear-blur')),
       entryDuration: Number(token('entry-duration')),
       featuredDrift: Number(token('featured-drift')),
       reach: Number(token('reach')),
@@ -189,6 +193,7 @@
         }
         if (nearest) {
           nearest.featured = true;
+          nearest.depth = .72 + random() * .28;
           nearest.featuredProfile = index;
           nearest.featuredScale = [.5,1,.62,.85,.43][index];
           nearest.portrait = [0,3,7,12,18][index];
@@ -199,9 +204,9 @@
     }
     if (fireArea) {
       const occupied = points.filter(point => point.featured);
-      const layers = desktop ? [{ tier:'medium', count:9, gap:34 },{ tier:'small', count:20, gap:20 }] : [{ tier:'medium', count:3, gap:18 },{ tier:'small', count:6, gap:12 }];
+      const layers = desktop ? [{ tier:'medium', count:palette.mediumCount, gap:28 },{ tier:'small', count:palette.smallCount, gap:15 }] : [{ tier:'medium', count:3, gap:18 },{ tier:'small', count:6, gap:12 }];
       for (const layer of layers) {
-        const candidates = points.filter(point => point.fire && !point.featured && point.softness > .8);
+        const candidates = points.filter(point => point.fire && !point.featured && !point.tier && point.softness > .8);
         for (let i=0; i<layer.count; i++) {
           let chosen = null;
           for (let attempt=0; attempt<120 && candidates.length; attempt++) {
@@ -210,6 +215,8 @@
           }
           if (!chosen) continue;
           chosen.tier = layer.tier;
+          // Interleave rear, middle and front faces across both size tiers.
+          chosen.depth = (i % 3 + random() * .65) / 3;
           chosen.featuredProfile = (i + (layer.tier==='small' ? 3 : 5)) % featuredProfiles.length;
           chosen.featuredScale = .72 + random()*.28;
           chosen.wander = { fromX:0, fromY:0, toX:random()*2-1, toY:random()*2-1, start:flowTime, duration:6+random()*5 };
@@ -246,6 +253,10 @@
         const driftY = Math.min(palette.featuredDrift, fireArea.height * .16) * driftScale;
         x += (wander.fromX+(wander.toX-wander.fromX)*ease) * driftX * shapeBlend;
         y += (wander.fromY+(wander.toY-wander.fromY)*ease) * driftY * shapeBlend;
+        const volume = point.depth * 2 - 1;
+        const orbit = flowTime * .18 + point.phase;
+        x += Math.cos(orbit) * volume * fireArea.width * palette.volumeSpread * shapeBlend;
+        y += Math.sin(orbit) * volume * fireArea.height * palette.volumeSpread * .45 * shapeBlend;
         const edge = Math.min(palette.featuredSize, fireArea.width*.2)/2 + 12;
         if (width >= 900) x = Math.max(interactionLeft+edge, Math.min(width-edge, x));
         y = Math.max(100+edge, Math.min(height-edge, y));
@@ -340,7 +351,7 @@
       else paintPortrait(point);
     }
     // Paint the closest faces last, keeping each enlarged portrait legible.
-    enlarged.sort((a, b) => a.heat - b.heat).forEach(paintPortrait);
+    enlarged.sort((a, b) => (a.heat > .1) - (b.heat > .1) || a.depth - b.depth).forEach(paintPortrait);
     updateCard(responsive, featuredClosest || closest, featuredClosest ? featuredDistance : closestDistance);
     context.globalAlpha = 1;
     if (moving) frame = requestAnimationFrame(draw);
@@ -348,7 +359,8 @@
   }
   function portraitSize(point) {
     const size = point.featured ? palette.featuredSize : point.tier==='medium' ? palette.mediumSize : palette.smallSize;
-    return Math.min(size, fireArea.width * .2) * point.featuredScale;
+    const perspective = 1 + (point.depth - .5) * palette.depthSize;
+    return Math.min(size, fireArea.width * .2) * point.featuredScale * perspective;
   }
   function paintPortrait(point) {
     const x = point.x;
@@ -382,8 +394,11 @@
     }
     const portraitOpacity = point.fire ? palette.opacity + (palette.flameOpacity * .65 - palette.opacity) * currentShape : palette.opacity;
     const smallOpacity = portraitOpacity * (.28 + point.depth * .72) * point.softness;
-    context.globalAlpha = Math.min(1, smallOpacity + ((point.featured ? palette.featuredOpacity : point.tier==='medium' ? palette.mediumOpacity : palette.smallOpacity) - smallOpacity) * featuredBlend + .42 * point.heat);
-    const portrait = ((point.featured || point.tier) && featuredPortraits[point.featuredProfile]) || portraits[point.portrait];
+    const depthOpacity = 1 - (1-point.depth) * palette.depthFade;
+    const faceOpacity = (point.featured ? palette.featuredOpacity : point.tier==='medium' ? palette.mediumOpacity : palette.smallOpacity) * depthOpacity;
+    context.globalAlpha = Math.min(1, smallOpacity + (faceOpacity - smallOpacity) * featuredBlend + .42 * point.heat);
+    const rear = point.tier && point.depth < .3 && point.heat < .1 && currentShape > .5;
+    const portrait = ((point.featured || point.tier) && ((rear && softPortraits[point.featuredProfile]) || featuredPortraits[point.featuredProfile])) || portraits[point.portrait];
     if (portrait) context.drawImage(portrait, x - radius, y - radius, size, size);
     else {
       context.beginPath();
@@ -481,6 +496,17 @@
       pen.beginPath(); pen.arc(80, 80, 79, 0, Math.PI*2); pen.clip();
       pen.drawImage(image, 0, 0, 160, 160);
       target[index] = sprite;
+      // Cache the distant layer once; avoid a live blur for every animated face.
+      if (target === featuredPortraits) {
+        const soft = document.createElement('canvas');
+        soft.width = soft.height = 160;
+        const softPen = soft.getContext('2d');
+        if (softPen) {
+          softPen.filter = `blur(${palette.rearBlur}px)`;
+          softPen.drawImage(sprite, 0, 0);
+          softPortraits[index] = soft;
+        }
+      }
       requestDraw();
     };
     image.src = path;
