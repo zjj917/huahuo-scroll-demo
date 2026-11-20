@@ -43,6 +43,8 @@
   --hero-action-min-width: 168px;
   --hero-action-mobile-height: 56px;
   --hero-title-weight: 900;
+  --service-intro-title-size: clamp(56px,6.1vw,80px);
+  --service-intro-title-weight: 900;
   --service-intro-description-size: 20px;
   --service-intro-description-weight: 600;
   --service-intro-description-muted: rgba(90,94,101,1);

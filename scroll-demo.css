@@ -126,7 +126,7 @@ html.is-pinned .scene-values h2 { font-size: clamp(32px, 3.1vw, 52px); line-heig
 .value-card p > span { display: block; }
 .scene-services-intro { display: flex; align-items: flex-start; justify-content: flex-start; flex-direction: column; padding-top: clamp(160px,22vh,220px); overflow: clip; }
 .services-intro-copy { position: relative; z-index: 2; }
-.services-intro-copy h2 { font-size: clamp(64px,7vw,112px); line-height: 1.15; }
+.services-intro-copy h2 { font-size: var(--service-intro-title-size); font-weight: var(--service-intro-title-weight); line-height: 1.15; }
 .services-intro-copy > p:last-child { margin-top: 30px; max-width: 430px; font-size: var(--service-intro-description-size); font-weight: var(--service-intro-description-weight); color: var(--service-intro-description-muted); }
 .service-morph { display: none; position: absolute; inset: 0; z-index: 9; pointer-events: none; color: var(--portal-ink); }
 html.is-pinned .service-morph { display: block; }
