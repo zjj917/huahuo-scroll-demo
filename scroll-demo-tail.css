@@ -88,7 +88,7 @@
   .tail-content *, .tail-content *::before, .tail-content *::after { transition: none !important; animation: none !important; }
 }
 
-.tail-reveal { opacity: 0; transform: translateY(var(--space-16)); transition: opacity var(--stagger-dur) var(--ease-smooth-out) var(--tail-reveal-delay,0ms), transform var(--stagger-dur) var(--ease-smooth-out) var(--tail-reveal-delay,0ms); }
+.tail-reveal { opacity: 0; transition: opacity var(--stagger-dur) var(--ease-smooth-out) var(--tail-reveal-delay,0ms); }
 .tail-reveal.is-revealed { opacity: 1; transform: none; }
 .tail-footer-logo { display: block; width: 103px; height: 24px; margin-bottom: var(--space-16); }
 .tail-footer-menus { display:flex; flex-wrap:wrap; gap:var(--space-16); }

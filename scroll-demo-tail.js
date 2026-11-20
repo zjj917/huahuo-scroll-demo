@@ -5,7 +5,7 @@
     const tail = document.querySelector('[data-tail-content]');
     if (!tail) return;
     const reduce = matchMedia('(prefers-reduced-motion: reduce)');
-    const revealTargets = [...tail.querySelectorAll('.tail-section-heading > *, .tail-industry-heading > *, .tail-case-card, .tail-roles, .tail-faq-panels')];
+    const revealTargets = [...tail.querySelectorAll('.tail-section-heading, .tail-industry, .tail-faq-layout')];
     if ('IntersectionObserver' in window && !reduce.matches) {
       const observer = new IntersectionObserver(entries => {
         entries.forEach(entry => {
