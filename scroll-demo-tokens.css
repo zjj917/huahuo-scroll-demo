@@ -58,6 +58,16 @@
   --service-grid-columns: minmax(240px, .42fr) minmax(0, 1fr);
   --service-grid-gap: clamp(32px, 4vw, 64px);
   --service-frame-gap: 60px;
+  /* Award-specific display tokens: larger media and distinct prize lettering. */
+  --case-card-width: clamp(360px,46vw,720px);
+  --case-award-font-size: clamp(32px,2.8vw,40px);
+  --case-award-font-weight: 600;
+  --case-award-gold-start: rgba(145,76,16,1);
+  --case-award-gold-end: rgba(181,105,22,1);
+  --case-award-blue-start: rgba(29,99,163,1);
+  --case-award-blue-end: rgba(113,69,183,1);
+  --case-award-pink-start: rgba(168,56,114,1);
+  --case-award-pink-end: rgba(116,69,177,1);
   --text-base: 1rem;
   --text-lg: 1.125rem;
   --text-xl: 1.375rem;
@@ -92,6 +102,12 @@
 }
 html[data-mode="dark"] {
   color-scheme: dark;
+  --case-award-gold-start: rgba(255,229,170,1);
+  --case-award-gold-end: rgba(241,166,94,1);
+  --case-award-blue-start: rgba(148,216,255,1);
+  --case-award-blue-end: rgba(193,165,255,1);
+  --case-award-pink-start: rgba(255,172,210,1);
+  --case-award-pink-end: rgba(198,169,255,1);
   --hero-dot-opacity: .21;
   --hero-dot-flame-opacity: .32;
   --hero-dot-glow-opacity: .024;
