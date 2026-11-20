@@ -15,6 +15,7 @@
   const portraits = [];
   const featuredPortraits = [];
   const softPortraits = [];
+  let starSprites = [];
   // Verified public accounts; representative leading creators, not a ranking.
   const featuredProfiles = [
     { mid: 546195, name: '老番茄', category: '游戏创作' },
@@ -97,6 +98,8 @@
       mediumCount: Number(token('medium-count')), smallCount: Number(token('small-count')),
       volumeSpread: Number(token('volume-spread')), depthSize: Number(token('depth-size')),
       depthFade: Number(token('depth-fade')), rearBlur: Number(token('rear-blur')),
+      shapeScale: Number(token('shape-scale')), starGlow: Number(token('star-glow')),
+      starCore: token('star-core'), starPink: token('star-pink'), starBlue: token('star-blue'),
       entryDuration: Number(token('entry-duration')),
       featuredDrift: Number(token('featured-drift')),
       reach: Number(token('reach')),
@@ -108,6 +111,18 @@
       fireFront: style.getPropertyValue('--hero-fire-front').trim(),
       fireCore: style.getPropertyValue('--hero-fire-core').trim(),
     };
+    starSprites = [palette.starPink, palette.starBlue].map(color => {
+      const sprite = document.createElement('canvas');
+      sprite.width = sprite.height = 64;
+      const pen = sprite.getContext('2d');
+      const glow = pen.createRadialGradient(32,32,0,32,32,32);
+      glow.addColorStop(0,palette.starCore);
+      glow.addColorStop(.09,palette.starCore);
+      glow.addColorStop(.22,color);
+      glow.addColorStop(1,'transparent');
+      pen.fillStyle = glow; pen.fillRect(0,0,64,64);
+      return sprite;
+    });
   }
   function resetPoints() {
     pointer.active = false;
@@ -167,9 +182,10 @@
     const regionWidth = Math.max(0, rightEdge - interactionLeft);
     const spaceAboveCopy = copyBounds.top - bounds.top - 120;
     const shapeRatio = canvas.dataset.heroShape === 'flame' ? .75 : 502/552;
-    const fireHeight = desktop ? Math.max(0, Math.min(height - 200, regionWidth * Math.min(1.12,.94/shapeRatio))) : Math.max(0, Math.min(spaceAboveCopy - 24, height * .28, width * .6));
+    const baseHeight = desktop ? Math.max(0, Math.min(height - 200, regionWidth * Math.min(1.12,.94/shapeRatio))) : Math.max(0, Math.min(spaceAboveCopy - 24, height * .28, width * .6));
+    const fireHeight = desktop ? Math.min(baseHeight * palette.shapeScale, height-120) : baseHeight;
     const fireWidth = fireHeight * shapeRatio;
-    const fireLeft = desktop ? interactionLeft + (regionWidth - fireWidth) / 2 : width * .68 - fireWidth / 2;
+    const fireLeft = desktop ? Math.max(copyBounds.right-bounds.left+20, Math.min(width-fireWidth-20, interactionLeft + (regionWidth-fireWidth)/2)) : width * .68 - fireWidth / 2;
     const fireTop = desktop ? (height - fireHeight) / 2 : 120 + (spaceAboveCopy - fireHeight) / 2;
     fireArea = fireHeight >= 100 ? { x: fireLeft, y: fireTop, width: fireWidth, height: fireHeight } : null;
     if (fireHeight >= 100) {
@@ -382,6 +398,22 @@
     const baseSize = smallSize + (featuredSize - smallSize) * featuredBlend;
     const size = baseSize + (Math.max(baseSize, palette.hoverSize * (.8 + point.depth * .3)) - baseSize) * emphasis;
     const radius = size / 2;
+    // Cached light sprites give a bright core and wide bloom without per-point
+    // shadowBlur. A sparse foreground population carries the strongest light.
+    if ((!point.featured && !point.tier) && (point.fire || point.depth > .94)) {
+      const pulse = reduced.matches || !finePointer.matches ? 1 : .82 + .18*Math.sin(flowTime*(.6+point.depth*.6)+point.phase);
+      const gathered = point.fire ? .12 + currentShape*.88 : .15;
+      const bright = point.depth > .84;
+      const glowSize = (bright ? 18+point.depth*10 : 6+point.depth*7) * (point.fire ? 1 : .65);
+      context.globalCompositeOperation = 'lighter';
+      context.globalAlpha = palette.starGlow * (bright ? .9 : .18) * gathered * pulse;
+      context.drawImage(starSprites[point.portrait%2],x-glowSize/2,y-glowSize/2,glowSize,glowSize);
+      if (bright) {
+        context.beginPath(); context.arc(x,y,.65+point.depth*.5,0,Math.PI*2);
+        context.fillStyle=palette.starCore; context.globalAlpha=palette.starGlow*gathered*pulse; context.fill();
+      }
+      context.globalCompositeOperation = 'source-over';
+    }
     if (point.fire && currentShape > .08) {
       const zone = point.center * .6 + point.depth * .4;
       const tone = zone > .77 ? palette.fireCore : zone > .54 ? palette.fireFront : zone > .28 ? palette.fireMid : palette.fireBack;
