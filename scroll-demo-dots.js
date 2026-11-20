@@ -185,6 +185,19 @@
     // Sparse, irregular stars surround the denser gathered flame.
     const starCount = Math.min(900, Math.floor(width * height / (palette.spacing * palette.spacing * 2.3)));
     for (let i = 0; i < starCount; i++) addPoint(random() * width, 100 + random() * Math.max(0, height - 100), false);
+    // A small, bounded light population fills the empty area above the copy.
+    if (width >= 900) {
+      const top = 140;
+      const bottom = Math.min(height*.52, copyBounds.top-bounds.top-44);
+      const left = 48;
+      const right = Math.min(width*.45,copyBounds.right-bounds.left);
+      if (bottom > top+40 && right > left+80) {
+        for (let i=0;i<18;i++) {
+          addPoint(left+random()*(right-left), top+random()*(bottom-top), false);
+          points[points.length-1].ambient = true;
+        }
+      }
+    }
     const desktop = width >= 900;
     const rightEdge = width - Math.max(32, width * .04);
     const regionWidth = Math.max(0, rightEdge - interactionLeft);
@@ -383,7 +396,7 @@
     // One additive pass, rather than two blend-mode changes per particle.
     context.globalCompositeOperation = 'lighter';
     for (const point of points) {
-      if (!point.featured && !point.tier && (point.fire ? point.depth > .64 : point.depth > .98)) paintStar(point);
+      if (!point.featured && !point.tier && (point.ambient || (point.fire ? point.depth > .64 : point.depth > .98))) paintStar(point);
     }
     context.globalCompositeOperation = 'source-over';
     // Particle depth is sorted once on resize. Only hovered faces need promotion.
@@ -403,11 +416,11 @@
     const x=point.x, y=point.y;
     // Cached light sprites give a bright core and wide bloom without per-point
     // shadowBlur. A sparse foreground population carries the strongest light.
-    if ((!point.featured && !point.tier) && (point.fire || point.depth > .94)) {
+    if ((!point.featured && !point.tier) && (point.ambient || point.fire || point.depth > .94)) {
       const pulse = reduced.matches || !finePointer.matches ? 1 : .82 + .18*Math.sin(flowTime*(.6+point.depth*.6)+point.phase);
-      const gathered = point.fire ? .12 + currentShape*.88 : .15;
-      const bright = point.depth > .84;
-      const glowSize = (bright ? 18+point.depth*10 : 6+point.depth*7) * (point.fire ? 1 : .65);
+      const gathered = point.fire ? .12 + currentShape*.88 : point.ambient ? .42 : .15;
+      const bright = point.ambient || point.depth > .84;
+      const glowSize = (bright ? 18+point.depth*10 : 6+point.depth*7) * (point.fire ? 1 : point.ambient ? .45 : .65);
       context.globalAlpha = palette.starGlow * (bright ? .9 : .18) * gathered * pulse;
       context.drawImage(starSprites[point.portrait%2],x-glowSize/2,y-glowSize/2,glowSize,glowSize);
       if (bright) {
