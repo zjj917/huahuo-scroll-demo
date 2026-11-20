@@ -262,7 +262,7 @@
       // Both text sections share one moving edge, timed with the band morph.
       // The incoming content keeps moving until the icon reaches its endpoint.
       let shift = (1 - enter) * height - (1 - exit) * height;
-      if (outgoing >= 0) {
+      if (outgoing > 0) {
         const transition = serviceTransitions[outgoing];
         const rise = smooth((units-transition.bandStart)/(transition.bandEnd-transition.bandStart));
         const morph = serviceProgress[outgoing];
