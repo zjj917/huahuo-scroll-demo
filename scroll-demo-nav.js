@@ -41,13 +41,21 @@
     });
 
     if (!dialog || !title || !message) return;
-    document.querySelectorAll('.demo-header [data-contact]').forEach(button => {
+    const pendingPages = {
+      home: ['首页', '首页链接待接入。'],
+      awards: ['花火奖', '花火奖页面链接待接入。'],
+      help: ['帮助中心', '帮助中心链接待接入。'],
+      service: ['联系客服', '客服入口待补充。'],
+      email: ['联系邮箱', '联系邮箱待补充。'],
+      login: ['立即登录', '登录入口待接入。'],
+      join: ['立即入驻', '入驻入口待接入。'],
+    };
+    document.querySelectorAll('.demo-header [data-contact], .hero-actions [data-contact]').forEach(button => {
       button.addEventListener('click', () => {
         returnFocus = mobile.matches && nav.contains(button) ? toggle : button;
-        const email = button.dataset.contact === 'email';
-        const login = button.dataset.contact === 'login';
-        title.textContent = login ? '立即登录' : email ? '联系邮箱' : '联系客服';
-        message.textContent = login ? '登录入口待接入。' : email ? '联系邮箱待补充。' : '客服入口待补充。';
+        const [heading, description] = pendingPages[button.dataset.contact];
+        title.textContent = heading;
+        message.textContent = description;
         setMenu(false);
         if (!dialog.open) dialog.showModal();
         dialog.querySelector('[data-contact-close]')?.focus();

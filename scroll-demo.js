@@ -2,12 +2,10 @@
   'use strict';
   const root = document.documentElement;
   const track = document.querySelector('[data-story-track]');
+  const stage = document.querySelector('[data-story-stage]');
   const scenes = [...track.querySelectorAll('[data-scene]')];
   const header = document.querySelector('[data-header]');
-  const progressBar = document.querySelector('[data-progress-bar]');
-  const progressLabel = document.querySelector('[data-progress-label]');
   const themeButton = document.querySelector('[data-theme-toggle]');
-  const pauseButton = document.querySelector('[data-orbit-pause]');
   const reduced = matchMedia('(prefers-reduced-motion: reduce)');
   const compact = matchMedia('(max-width:760px), (max-height:620px)');
   const themePreference = matchMedia('(prefers-color-scheme: dark)');
@@ -19,14 +17,12 @@
   const letters = document.querySelector('[data-mask-letters]');
   const aperture = document.querySelector('[data-mask-aperture]');
   const subtitle = document.querySelector('.portal-subtitle');
-  const beacon = document.querySelector('.service-beacon');
-  const chapterLine = document.querySelector('.chapter-line');
+  const serviceSymbol = document.querySelector('.scene-service-service .service-symbol');
   const valueCards = [...document.querySelectorAll('.value-card')];
-  const navLinks = [...document.querySelectorAll('.demo-nav a')];
   const heroTitle = document.getElementById('hero-title');
   const valuesTitle = document.getElementById('values-title');
   const heroActions = document.querySelector('.hero-actions');
-  const heroDetails = [...document.querySelectorAll('.hero-copy .scene-kicker, .hero-note, .hero-actions, .scroll-cue, .orbit-pause')];
+  const heroDetails = [...document.querySelectorAll('.hero-copy .scene-kicker, .hero-actions')];
   const valuesDetails = [...document.querySelectorAll('.scene-values .section-heading > p')];
   // Keep the original headings in the document for semantics and layout. One
   // decorative layer carries the exact same visible title across both scenes.
@@ -34,15 +30,22 @@
   openingTitle.className = 'opening-title';
   openingTitle.setAttribute('aria-hidden', 'true');
   openingTitle.innerHTML = heroTitle.innerHTML;
-  document.querySelector('[data-story-stage]').append(openingTitle);
-  const stops = [0, 1.1, 2.5, 3.5, 7.3, 9.8, 11, 14.2];
-  const total = 15.7;
-  const names = ['认识花火', '四大主张', '我们的服务', '选人撮合', '订单履约', '投后分析', '优秀案例', '花火奖'];
+  stage.append(openingTitle);
+  const serviceMorph = document.createElement('div');
+  serviceMorph.className = 'service-morph';
+  serviceMorph.setAttribute('aria-hidden', 'true');
+  serviceMorph.innerHTML = `<div class="service-morph-surface"></div>${serviceSymbol.innerHTML}`;
+  stage.append(serviceMorph);
+  const morphSurface = serviceMorph.querySelector('.service-morph-surface');
+  const morphIcon = serviceMorph.querySelector('svg');
+  const stops = [0, 1.1, 2.5, 4.8, 8.6, 11.1, 12.3, 15.5];
+  const total = 17;
+  // Viewport-height distances keep every pose reversible and independent of time.
+  const serviceTransition = { enterStart: 2.1, enterEnd: 2.9, bandStart: 3, bandEnd: 3.5, morphStart: 3.6, morphEnd: stops[3] };
   const topics = ['科技数码','生活记录','游戏实况','美食探店','汽车出行','音乐创作','知识分享','时尚穿搭','运动健身','动画创作','家居生活','旅行探索','摄影影像','舞蹈表演','手工创作','宠物日常','艺术设计','校园生活','影视解读','户外探索'];
   const clamp = (value, min = 0, max = 1) => Math.min(max, Math.max(min, value));
   const smooth = value => { const t = clamp(value); return t * t * (3 - 2 * t); };
   let savedTheme;
-  let paused = false;
   let pinned = false;
   let frame = 0;
   let lastTime = 0;
@@ -56,6 +59,7 @@
   let heroBottom = 0;
   let keyboardInput = false;
   let openingGeometry = { startX: 0, startY: 0, endX: 0, endY: 0, scale: 1 };
+  let serviceGeometry = { x: 0, y: 0, width: 44, height: 44, radius: 12, iconWidth: 28, iconHeight: 28, viewportWidth: window.innerWidth };
   const serviceData = scenes.map((scene, index) => {
     scene.id = `demo-${scene.dataset.scene}`;
     const strip = scene.querySelector('.service-strip');
@@ -125,7 +129,7 @@
   }
   function positionCreators(elapsed) {
     for (const person of creators) {
-      if (!(person.hovered || person.focused || person.locked || paused || reduced.matches)) person.angle += elapsed * (.04 + person.orbit * .006) * (person.orbit % 2 ? -1 : 1);
+      if (!(person.hovered || person.focused || person.locked || reduced.matches)) person.angle += elapsed * (.04 + person.orbit * .006) * (person.orbit % 2 ? -1 : 1);
       const rx = orbitWidth * (.30 + person.orbit * .022);
       const ry = orbitHeight * (.20 + person.orbit * .045);
       const rotation = [-.32, .32, 1.04, 2.13][person.orbit];
@@ -140,12 +144,6 @@
       person.element.style.zIndex = String(Math.round(depth * 20) + 1);
     }
   }
-  function updatePauseButton() {
-    pauseButton.disabled = reduced.matches;
-    pauseButton.setAttribute('aria-pressed', String(paused || reduced.matches));
-    pauseButton.textContent = reduced.matches ? '已减少动态效果' : paused ? '继续头像运转' : '暂停头像运转';
-  }
-  pauseButton.addEventListener('click', () => { paused = !paused; lastTime = 0; updatePauseButton(); requestUpdate(); });
 
   function nearestScene() {
     let index = 0;
@@ -191,6 +189,17 @@
     orbitHeight = orbit.clientHeight;
     heroBottom = scenes[0].getBoundingClientRect().bottom + window.scrollY;
     measureOpening();
+    if (pinned) {
+      const target = serviceSymbol.getBoundingClientRect();
+      const targetScene = scenes[3].getBoundingClientRect();
+      const icon = serviceSymbol.querySelector('svg').getBoundingClientRect();
+      serviceGeometry = {
+        x: target.left - targetScene.left, y: target.top - targetScene.top,
+        width: target.width, height: target.height,
+        radius: parseFloat(getComputedStyle(serviceSymbol).borderRadius),
+        iconWidth: icon.width, iconHeight: icon.height, viewportWidth: stage.clientWidth,
+      };
+    }
     if (preserve) {
       let top = window.scrollY;
       if (inTail) top = tailAnchor.getBoundingClientRect().top + window.scrollY - tailOffset;
@@ -198,7 +207,6 @@
       else if (oldPinned) top = scenes[oldIndex].offsetTop - 96;
       window.scrollTo({ top: Math.max(0, top), behavior: 'instant' });
     }
-    updatePauseButton();
     positionCreators(0);
     dirty = true; lastTime = 0; requestUpdate();
   }
@@ -236,19 +244,24 @@
     const headerProgress = reduced.matches ? Number(window.scrollY > 0) : smooth(window.scrollY / Math.min(280, height * .32));
     header.style.setProperty('--header-progress', String(headerProgress));
     const openingProgress = smooth((units - .06) / 1.04);
-    const openingExit = smooth((units - stops[2] + .17) / .34);
+    const introEnter = smooth((units - serviceTransition.enterStart) / (serviceTransition.enterEnd - serviceTransition.enterStart));
+    const serviceReveal = smooth((units - serviceTransition.morphStart) / (serviceTransition.morphEnd - serviceTransition.morphStart));
+    const introExit = serviceReveal;
+    const openingExit = introEnter;
     const openingShift = -openingExit * height;
     const heroFade = 1 - smooth((units - .08) / .67);
     let nextIndex = 0;
     let bestOpacity = -1;
     scenes.forEach((scene, i) => {
-      const enter = i === 0 ? 1 : smooth((units - stops[i] + .17) / .34);
-      const exit = i === scenes.length - 1 ? 1 : 1 - smooth((units - stops[i+1] + .17) / .34);
+      const enter = i === 0 ? 1 : i === 2 ? introEnter : i === 3 ? serviceReveal : smooth((units - stops[i] + .17) / .34);
+      const exit = i === scenes.length - 1 ? 1 : i === 1 ? 1 - introEnter : i === 2 ? 1 - introExit : 1 - smooth((units - stops[i+1] + .17) / .34);
       const opacity = enter * exit;
       if (opacity > bestOpacity) { bestOpacity = opacity; nextIndex = i; }
       scene.classList.toggle('is-active', !pinned || (i < 2 ? openingExit < 1 : opacity > .002));
       // Adjacent pages share one moving edge: no overlapping, ghosted copy.
       scene.style.opacity = '1';
+      // Both text sections share one moving edge, timed with the band morph.
+      // The incoming content keeps moving until the icon reaches its endpoint.
       const shift = (1 - enter) * height - (1 - exit) * height;
       scene.style.transform = pinned ? `translateY(${(i < 2 ? openingShift : shift).toFixed(2)}px)` : 'none';
     });
@@ -275,7 +288,7 @@
       element.style.transform = pinned ? `translateY(${-openingProgress * 36}px)` : '';
     });
     orbit.style.opacity = pinned ? String(heroFade * .66) : '';
-    [heroActions, orbit, pauseButton].forEach(element => {
+    [heroActions, orbit].forEach(element => {
       const unavailable = pinned && heroFade < .02;
       if (unavailable && element.contains(document.activeElement)) document.getElementById('story').focus({ preventScroll: true });
       element.toggleAttribute('inert', unavailable);
@@ -304,9 +317,24 @@
       data.buttons.forEach((button, index) => { if (index === active) button.setAttribute('aria-current','step'); else button.removeAttribute('aria-current'); });
       // Preserve all service text in the accessibility tree; only the visual track moves.
     });
-    const beaconProgress = smooth((units - 2.45) / 1.05);
-    beacon.style.transform = pinned ? `translateY(${120 - beaconProgress * 120}px) scale(${.8 + beaconProgress * .2})` : 'none';
-    chapterLine.style.transform = `scaleX(${pinned ? smooth((units-2.3)/.6) : 1})`;
+    const morphActive = pinned && units > serviceTransition.bandStart && units < serviceTransition.morphEnd;
+    serviceMorph.style.visibility = morphActive ? 'visible' : 'hidden';
+    serviceSymbol.style.visibility = pinned && units < serviceTransition.morphEnd ? 'hidden' : '';
+    if (morphActive) {
+      const rise = smooth((units - serviceTransition.bandStart) / (serviceTransition.bandEnd - serviceTransition.bandStart));
+      const morph = smooth((units - serviceTransition.morphStart) / (serviceTransition.morphEnd - serviceTransition.morphStart));
+      const target = serviceGeometry;
+      const bandHeight = height * .44;
+      const x = target.x * morph;
+      const y = (height - bandHeight * rise) * (1 - morph) + target.y * morph;
+      const width = target.viewportWidth * (1 - morph) + target.width * morph;
+      const blockHeight = bandHeight * (1 - morph) + target.height * morph;
+      const iconStart = Math.min(112, bandHeight * .3);
+      const iconWidth = iconStart * (1 - morph) + target.iconWidth * morph;
+      const iconHeight = iconStart * (1 - morph) + target.iconHeight * morph;
+      morphSurface.style.clipPath = `inset(${y}px ${target.viewportWidth-x-width}px ${height-y-blockHeight}px ${x}px round ${target.radius*morph}px)`;
+      morphIcon.style.transform = `translate(${x+(width-iconWidth)/2}px,${y+(blockHeight-iconHeight)/2}px) scale(${iconWidth/48},${iconHeight/48})`;
+    }
     const portal = units - stops[6];
     const expand = smooth(portal / .8);
     const cut = smooth((portal - 1.05) / 1.4);
@@ -323,15 +351,8 @@
     rail.style.transform = pinned ? `translateX(${-railTravel*railProgress}px)` : 'none';
     document.querySelector('[data-case-direction="-1"]').disabled = railProgress <= .01;
     document.querySelector('[data-case-direction="1"]').disabled = railProgress >= .99;
-    const isFaq = document.getElementById('tail-faq')?.getBoundingClientRect().top < height * .5;
-    const isIndustry = document.getElementById('tail-industries')?.getBoundingClientRect().top < height * .5;
-    progressLabel.textContent = isFaq ? '合作指南' : isIndustry ? '行业案例' : names[currentIndex];
-    const docRange = document.documentElement.scrollHeight - height;
-    progressBar.style.setProperty('--progress', clamp(window.scrollY / Math.max(1,docRange)));
-    const navKey = isFaq ? 'faq' : isIndustry || currentIndex >= 6 ? 'cases' : 'hero';
-    navLinks.forEach(link => { if (link.dataset.jump === navKey) link.setAttribute('aria-current','location'); else link.removeAttribute('aria-current'); });
   }
-  function canOrbit() { return !paused && !reduced.matches && !document.hidden && (pinned ? units < 1.05 : window.scrollY < heroBottom); }
+  function canOrbit() { return !reduced.matches && !document.hidden && (pinned ? units < 1.05 : window.scrollY < heroBottom); }
   function tick(now) {
     frame = 0;
     if (dirty) render();

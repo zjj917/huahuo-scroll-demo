@@ -6,14 +6,14 @@
   <meta name="description" content="花火官网动态交互 Demo：按滚动顺序展示品牌主张、合作服务、案例与合作指南。">
   <meta name="color-scheme" content="light dark">
   <title>花火 · 滚动叙事 Demo</title>
-  <link rel="stylesheet" href="scroll-demo-tokens.css">
+  <link rel="stylesheet" href="scroll-demo-tokens.css?v=20261120-scroll">
   <link rel="stylesheet" href="motion.css">
-  <link rel="stylesheet" href="scroll-demo.css?v=20261119-login">
+  <link rel="stylesheet" href="scroll-demo.css?v=20261120-scroll">
   <link rel="stylesheet" href="scroll-demo-tail.css">
-  <link rel="stylesheet" href="scroll-demo-nav.css">
-  <script src="scroll-demo.js?v=20261119-login" defer></script>
+  <link rel="stylesheet" href="scroll-demo-nav.css?v=20261120-scroll">
+  <script src="scroll-demo.js?v=20261120-scroll" defer></script>
   <script src="scroll-demo-tail.js" defer></script>
-  <script src="scroll-demo-nav.js?v=20261119-login" defer></script>
+  <script src="scroll-demo-nav.js?v=20261120-scroll" defer></script>
 </head>
 <body>
   <a class="skip-link" href="#story">跳到主要内容</a>
@@ -23,9 +23,9 @@
       <img class="demo-brand-logo" src="assets/huahuo-logo.svg" width="103" height="24" alt="bilibili 花火">
     </a>
     <nav class="demo-nav" id="demo-site-nav" aria-label="主要导航">
-      <a href="#story" data-jump="hero">首页</a>
-      <a href="#story" data-jump="cases">花火奖</a>
-      <a href="#tail-faq" data-jump="faq">帮助中心</a>
+      <button class="demo-contact-trigger" type="button" data-contact="home" aria-haspopup="dialog" aria-controls="demo-contact-dialog">首页</button>
+      <button class="demo-contact-trigger" type="button" data-contact="awards" aria-haspopup="dialog" aria-controls="demo-contact-dialog">花火奖</button>
+      <button class="demo-contact-trigger" type="button" data-contact="help" aria-haspopup="dialog" aria-controls="demo-contact-dialog">帮助中心</button>
       <button class="demo-contact-trigger" type="button" data-contact="service" aria-haspopup="dialog" aria-controls="demo-contact-dialog">联系客服</button>
       <button class="demo-contact-trigger" type="button" data-contact="email" aria-haspopup="dialog" aria-controls="demo-contact-dialog">联系邮箱</button>
     </nav>
@@ -53,10 +53,9 @@
           <div class="hero-copy">
             <p class="scene-kicker">UP 主商业合作 &amp; 服务平台</p>
             <h1 id="hero-title">以内容为杠杆，<br><span>撬动品牌深度心智。</span></h1>
-            <p class="hero-note">让好内容，与好品牌相遇。花火绽放 UP 主内容营销价值。</p>
             <div class="hero-actions">
-              <a class="primary-button" href="#story" data-jump="service">探索合作</a>
-              <a class="text-button" href="#story" data-jump="cases">查看案例 <span aria-hidden="true">↗</span></a>
+              <button class="primary-button" type="button" data-contact="login" aria-haspopup="dialog" aria-controls="demo-contact-dialog">立即登录</button>
+              <button class="secondary-button" type="button" data-contact="join" aria-haspopup="dialog" aria-controls="demo-contact-dialog">立即入驻</button>
             </div>
           </div>
           <div class="hero-orbit" data-orbit aria-label="UP 主星球，鼠标悬停可暂停对应创作者">
@@ -67,8 +66,6 @@
             <div class="creator-nodes" data-creator-nodes></div>
             <p class="orbit-caption" id="hero-hover-label">不同热爱，同频相遇</p>
           </div>
-          <button type="button" class="orbit-pause" data-orbit-pause aria-pressed="false">暂停头像运转</button>
-          <p class="scroll-cue"><span aria-hidden="true">↓</span> 向下滚动，探索花火</p>
         </section>
 
         <section class="story-scene scene-values" data-scene="values" aria-labelledby="values-title">
@@ -78,10 +75,10 @@
             <p>从一次合作开始，把内容变成可持续的品牌资产。</p>
           </div>
           <div class="value-grid" data-values>
-            <article class="value-card"><span class="value-index">01</span><div><h3>破圈共创</h3><p>跨圈层穿透，驱动品牌新增长</p></div></article>
-            <article class="value-card"><span class="value-index">02</span><div><h3>生态普惠</h3><p>肩腰部达人，释放真实影响力</p></div></article>
-            <article class="value-card"><span class="value-index">03</span><div><h3>深度定制</h3><p>打造契合度高、价值感强的内容表达</p></div></article>
-            <article class="value-card"><span class="value-index">04</span><div><h3>心智深耕</h3><p>内容资产，决定品牌生命周期</p></div></article>
+            <article class="value-card"><span class="value-index">01</span><div><h3>破圈共创</h3><p><span>跨圈层连接多元兴趣，</span><span>以内容共创拓展品牌触点，</span><span>持续驱动品牌新增长。</span></p></div></article>
+            <article class="value-card"><span class="value-index">02</span><div><h3>生态普惠</h3><p><span>让肩腰部达人被看见，</span><span>以真实表达连接细分人群，</span><span>释放多元创作者的影响力。</span></p></div></article>
+            <article class="value-card"><span class="value-index">03</span><div><h3>深度定制</h3><p><span>让品牌诉求融入创作，</span><span>以高契合度传递内容价值，</span><span>打造用户愿意观看的表达。</span></p></div></article>
+            <article class="value-card"><span class="value-index">04</span><div><h3>心智深耕</h3><p><span>让优质内容持续沉淀，</span><span>将品牌认知积累为内容资产，</span><span>为品牌生命周期注入活力。</span></p></div></article>
           </div>
         </section>
 
@@ -91,8 +88,6 @@
             <h2 id="services-title">我们的服务</h2>
             <p>从选人撮合，到订单履约，再到投后分析，陪伴每一次内容共创。</p>
           </div>
-          <div class="service-beacon" aria-hidden="true"><svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="15" cy="13" r="5"/><circle cx="34" cy="13" r="5"/><path d="M7 39V28a8 8 0 0 1 16 0v11H7Zm19 0V28a8 8 0 0 1 16 0v11H26Z"/></svg></div>
-          <div class="chapter-line" aria-hidden="true"></div>
         </section>
 
         <section class="story-scene scene-service scene-service-service" data-scene="service" aria-labelledby="service-title">
@@ -376,6 +371,5 @@
 
   </main>
 
-  <div class="progress-rail" aria-hidden="true"><span data-progress-bar></span><b data-progress-label>认识花火</b></div>
 </body>
 </html>
