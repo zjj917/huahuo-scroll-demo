@@ -6,14 +6,14 @@
   <meta name="description" content="花火官网动态交互 Demo：按滚动顺序展示品牌主张、合作服务、案例与合作指南。">
   <meta name="color-scheme" content="light dark">
   <title>花火 · 滚动叙事 Demo</title>
-  <link rel="stylesheet" href="scroll-demo-tokens.css?v=20261120-fulfillment">
+  <link rel="stylesheet" href="scroll-demo-tokens.css?v=20261120-cases-dark">
   <link rel="stylesheet" href="motion.css">
-  <link rel="stylesheet" href="scroll-demo.css?v=20261120-fulfillment">
+  <link rel="stylesheet" href="scroll-demo.css?v=20261120-cases-dark">
   <link rel="stylesheet" href="scroll-demo-tail.css">
-  <link rel="stylesheet" href="scroll-demo-nav.css?v=20261120-fulfillment">
-  <script src="scroll-demo.js?v=20261120-fulfillment" defer></script>
+  <link rel="stylesheet" href="scroll-demo-nav.css?v=20261120-cases-dark">
+  <script src="scroll-demo.js?v=20261120-cases-dark" defer></script>
   <script src="scroll-demo-tail.js" defer></script>
-  <script src="scroll-demo-nav.js?v=20261120-fulfillment" defer></script>
+  <script src="scroll-demo-nav.js?v=20261120-cases-dark" defer></script>
 </head>
 <body>
   <a class="skip-link" href="#story">跳到主要内容</a>
@@ -128,7 +128,6 @@
             <h2 id="delivery-title">合作履约</h2>
             <p class="service-description">三项平台保障，陪伴每一次内容合作。</p>
             <nav class="service-steps" aria-label="订单履约内容"><button type="button" data-step="0" aria-label="查看纠纷自助解决" aria-current="step"><span>01</span>纠纷自助解决</button><button type="button" data-step="1" aria-label="查看稿件保护"><span>02</span>稿件保护</button><button type="button" data-step="2" aria-label="查看风险管理"><span>03</span>风险管理</button></nav>
-            <div class="phase-next" aria-hidden="true">投后复盘<span>↓</span></div>
           </div>
           <div class="service-viewport"><div class="service-strip">
                 <article class="service-frame" id="delivery-frame-0" aria-labelledby="delivery-frame-title-0">
@@ -168,12 +167,13 @@
         <section class="story-scene scene-cases-intro" data-scene="cases-intro" aria-labelledby="cases-intro-title">
           <div class="case-film" data-case-film><img src="assets/scroll-case-reference.jpg" alt="用户提供的案例封面参考：云海中的悬空场景，用于演示转场" width="1600" height="899"></div>
           <svg class="case-type-mask" data-type-mask viewBox="0 0 1440 900" preserveAspectRatio="none" aria-hidden="true">
-            <defs><mask id="case-letter-mask" maskUnits="userSpaceOnUse" x="0" y="0" width="1440" height="900"><rect width="1440" height="900" fill="white"/><rect width="1440" height="900" fill="black" data-mask-aperture/><g data-mask-letters><text x="720" y="470" text-anchor="middle" dominant-baseline="middle" font-size="118" font-weight="750" fill="black">通过优秀案例</text></g></mask></defs>
+            <defs><mask id="case-letter-mask" maskUnits="userSpaceOnUse" x="0" y="0" width="1440" height="900"><rect width="1440" height="900" fill="white"/><rect width="1440" height="900" fill="black" data-mask-aperture/><g data-mask-letters><text x="0" y="0" text-anchor="start" font-size="118" font-weight="600" fill="black">通过优秀案例</text></g></mask></defs>
             <rect width="1440" height="900" class="mask-surface" mask="url(#case-letter-mask)"/>
           </svg>
-          <h2 id="cases-intro-title" class="sr-only">通过优秀案例，了解真实效果。</h2>
-          <p class="portal-subtitle">了解真实效果。</p>
-          <p class="reference-note">转场参考画面 · 非播放视频</p>
+          <div class="portal-copy">
+            <h2 id="cases-intro-title" class="portal-heading">通过优秀案例</h2>
+            <p class="portal-subtitle">了解真实效果。</p>
+          </div>
         </section>
 
         <section class="story-scene scene-cases" data-scene="cases" aria-labelledby="cases-title">

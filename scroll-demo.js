@@ -17,6 +17,9 @@
   const letters = document.querySelector('[data-mask-letters]');
   const aperture = document.querySelector('[data-mask-aperture]');
   const subtitle = document.querySelector('.portal-subtitle');
+  const portalHeading = document.getElementById('cases-intro-title');
+  const portalCopy = document.querySelector('.portal-copy');
+  const portalText = letters.querySelector('text');
   const valueCards = [...document.querySelectorAll('.value-card')];
   const heroTitle = document.getElementById('hero-title');
   const valuesTitle = document.getElementById('values-title');
@@ -30,13 +33,14 @@
   openingTitle.setAttribute('aria-hidden', 'true');
   openingTitle.innerHTML = heroTitle.innerHTML;
   stage.append(openingTitle);
-  const stops = [0, 1.1, 2.5, 4.8, 10.2, 12.7, 13.9, 17.1];
-  const total = 18.6;
+  const stops = [0, 1.1, 2.5, 4.8, 10.2, 14.3, 15.5, 18.7];
+  const total = 20.2;
   // Viewport-height distances keep every pose reversible and independent of time.
   const serviceIntro = { enterStart: 2.1, enterEnd: 2.9 };
   const serviceTransitions = [
     { from: 2, to: 3, color: 'var(--brand)', bandStart: 3, bandEnd: 3.5, morphStart: 3.6, morphEnd: stops[3] },
     { from: 3, to: 4, color: 'var(--phase-green)', bandStart: 8.4, bandEnd: 8.9, morphStart: 9, morphEnd: stops[4] },
+    { from: 4, to: 5, color: 'var(--phase-blue)', bandStart: 12.5, bandEnd: 13, morphStart: 13.1, morphEnd: stops[5] },
   ].map(transition => {
     const symbol = scenes[transition.to].querySelector('.service-symbol');
     const element = document.createElement('div');
@@ -64,13 +68,13 @@
   let heroBottom = 0;
   let keyboardInput = false;
   let openingGeometry = { startX: 0, startY: 0, endX: 0, endY: 0, scale: 1 };
+  let portalGeometry = null;
   const serviceData = scenes.map((scene, index) => {
     scene.id = `demo-${scene.dataset.scene}`;
     const strip = scene.querySelector('.service-strip');
     if (!strip) return null;
-    // Preserve the four matching frames' original reading window. The later
-    // delivery stop adds transition space, not more distance between frames.
-    const contentEnd = index === 3 ? 8.6 : stops[index + 1];
+    // Keep reading windows separate from the following band's transition.
+    const contentEnd = index === 3 ? 8.6 : index === 4 ? 12.7 : stops[index + 1];
     return { scene, index, strip, frames: [...strip.children], buttons: [...scene.querySelectorAll('[data-step]')], offsets: [], frameStart: stops[index] + .18, frameEnd: contentEnd - .37 };
   }).filter(Boolean);
 
@@ -173,6 +177,39 @@
     };
     openingTitle.style.width = `${heroTitle.offsetWidth}px`;
   }
+  function measurePortal() {
+    if (!pinned) return;
+    const width = stage.clientWidth;
+    const viewportHeight = stage.clientHeight;
+    const fontSize = Math.min(118, width * 118 / 1440);
+    typeMask.setAttribute('viewBox', `0 0 ${width} ${viewportHeight}`);
+    typeMask.querySelectorAll('mask, rect').forEach(element => {
+      element.setAttribute('width', String(width));
+      element.setAttribute('height', String(viewportHeight));
+    });
+    portalText.setAttribute('font-size', String(fontSize));
+    // getBBox is local to the text; the group's current scrub transform does
+    // not contaminate these coordinates during resize or reverse scrolling.
+    const bounds = portalText.getBBox();
+    if (!bounds.width || !bounds.height) return;
+    const scene = scenes[6].getBoundingClientRect();
+    const heading = portalHeading.getBoundingClientRect();
+    const copy = portalCopy.getBoundingClientRect();
+    const scale = parseFloat(getComputedStyle(portalHeading).fontSize) / fontSize;
+    const subtitleSize = parseFloat(getComputedStyle(subtitle).fontSize);
+    const subtitleScale = Math.min(36, Math.max(20, width * .025)) / subtitleSize;
+    portalGeometry = {
+      width, height: viewportHeight, bounds, scale,
+      endX: heading.left - scene.left,
+      endY: heading.top - scene.top + (portalHeading.offsetHeight - bounds.height * scale) / 2,
+      subtitleScale,
+      subtitleStartX: (width - subtitle.offsetWidth * subtitleScale) / 2,
+      subtitleStartY: viewportHeight * .64,
+      // Layout offsets exclude the subtitle's animated transform.
+      subtitleEndX: copy.left - scene.left + subtitle.offsetLeft,
+      subtitleEndY: copy.top - scene.top + subtitle.offsetTop,
+    };
+  }
   function configure(preserve = true) {
     const oldPinned = pinned;
     const oldUnits = units;
@@ -197,6 +234,7 @@
     orbitHeight = orbit.clientHeight;
     heroBottom = scenes[0].getBoundingClientRect().bottom + window.scrollY;
     measureOpening();
+    measurePortal();
     if (pinned) {
       serviceTransitions.forEach(transition => {
         const target = transition.symbol.getBoundingClientRect();
@@ -280,7 +318,7 @@
     scenes[nextIndex].removeAttribute('inert');
     scenes[nextIndex].removeAttribute('aria-hidden');
     if (currentIndex !== nextIndex && pinned && scenes[currentIndex].contains(document.activeElement)) {
-      const heading = nextIndex < 2 ? document.getElementById('story') : scenes[nextIndex].querySelector('h1,h2');
+      const heading = nextIndex < 2 || nextIndex === 6 ? document.getElementById('story') : scenes[nextIndex].querySelector('h1,h2');
       heading.tabIndex = -1; heading.focus({ preventScroll: true });
     }
     currentIndex = nextIndex;
@@ -346,15 +384,27 @@
       transition.icon.style.transform = `translate(${x+(width-iconWidth)/2}px,${y+(blockHeight-iconHeight)/2}px) scale(${iconWidth/48},${iconHeight/48})`;
     });
     const portal = units - stops[6];
-    const expand = smooth(portal / .8);
-    const cut = smooth((portal - 1.05) / 1.4);
-    film.style.clipPath = pinned ? `inset(${(1-expand)*78}% ${(1-expand)*7.5}% 0 round ${(1-expand)*24}px)` : 'none';
-    typeMask.style.opacity = pinned ? String(smooth((portal-1)/.3)) : '0';
-    const zoom = Math.exp((1-cut) * Math.log(18));
-    letters.setAttribute('transform', `translate(665 470) scale(${zoom.toFixed(4)}) translate(-665 -470)`);
+    const cut = smooth((portal - 1.05) / 1.2);
+    const dock = smooth((portal - 1.9) / .95);
+    film.style.clipPath = 'none';
+    typeMask.style.opacity = pinned && portalGeometry ? String(smooth((portal-1)/.3)) : '0';
+    if (pinned && portalGeometry) {
+      const p = portalGeometry;
+      const zoom = Math.exp((1-cut) * Math.log(18));
+      const scale = zoom * (1 + (p.scale-1) * dock);
+      const centerX = p.width / 2 + (p.endX + p.bounds.width*p.scale/2 - p.width/2) * dock;
+      const centerY = p.height * .52 + (p.endY + p.bounds.height*p.scale/2 - p.height*.52) * dock;
+      const x = centerX - (p.bounds.x + p.bounds.width/2) * scale;
+      const y = centerY - (p.bounds.y + p.bounds.height/2) * scale;
+      letters.setAttribute('transform', `translate(${x} ${y}) scale(${scale})`);
+      subtitle.style.transform = `translate(${(p.subtitleStartX-p.subtitleEndX)*(1-dock)}px,${(p.subtitleStartY-p.subtitleEndY)*(1-dock)}px) scale(${p.subtitleScale+(1-p.subtitleScale)*dock})`;
+    } else {
+      letters.removeAttribute('transform');
+      subtitle.style.transform = '';
+    }
     if (aperture) aperture.style.opacity = String(1-smooth((portal-1.05)/.5));
-    subtitle.style.opacity = pinned ? String(smooth((portal-2.35)/.4)) : '1';
-    const immersive = pinned && portal > .35 && portal < 2.95;
+    subtitle.style.opacity = pinned ? String(smooth((portal-1.85)/.4)) : '1';
+    const immersive = pinned && portal > .35 && portal < 2.7;
     header.classList.toggle('is-submerged', immersive);
     root.classList.toggle('is-portal', immersive);
     const railProgress = clamp((units - stops[7] - .15) / 1.15);
@@ -379,6 +429,7 @@
   compact.addEventListener('change', () => configure());
   document.addEventListener('visibilitychange', () => { if (document.hidden) { cancelAnimationFrame(frame); frame = 0; } else { lastTime=0; requestUpdate(); } });
   configure(false);
+  if (document.fonts?.ready) document.fonts.ready.then(() => { measurePortal(); requestUpdate(); });
   if (location.hash.startsWith('#demo-')) {
     const index = scenes.findIndex(scene => `#${scene.id}` === location.hash);
     if (index >= 0) requestAnimationFrame(() => jumpTo(index));

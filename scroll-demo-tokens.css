@@ -76,7 +76,7 @@ html[data-mode="dark"] {
   --color-text-primary: rgba(246,247,248,1);
   --color-text-secondary: rgba(174,179,185,1);
   --color-text-tertiary: rgba(156,161,170,1);
-  --color-container-bg-module-solid: rgba(24,25,28,1);
+  --color-container-bg-module-solid: rgba(13,13,15,1);
   --color-container-bg-page-default: rgba(30,31,35,1);
   --color-container-bg-block-thick: rgba(47,50,56,1);
   --color-container-border-default: rgba(255,255,255,.16);
@@ -88,7 +88,7 @@ html[data-mode="dark"] {
   --color-focus: rgba(255,140,176,1);
   --color-button: rgba(246,247,248,1);
   --color-button-text: rgba(24,25,28,1);
-  --color-header: rgba(24,25,28,.88);
+  --color-header: rgba(13,13,15,.88);
   --color-placeholder: rgba(40,42,47,1);
   --color-placeholder-strong: rgba(49,52,59,1);
   --color-placeholder-icon: rgba(120,125,135,1);
