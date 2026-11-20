@@ -6,13 +6,13 @@
   <meta name="description" content="花火官网动态交互 Demo：按滚动顺序展示品牌主张、合作服务、案例与合作指南。">
   <meta name="color-scheme" content="light dark">
   <title>花火 · 滚动叙事 Demo</title>
-  <link rel="stylesheet" href="scroll-demo-tokens.css?v=20261120-featured-creators-v1">
+  <link rel="stylesheet" href="scroll-demo-tokens.css?v=20261120-quick-entry-v1">
   <link rel="stylesheet" href="motion.css">
   <link rel="stylesheet" href="scroll-demo.css?v=20261120-cover-morph-v1">
   <link rel="stylesheet" href="scroll-demo-tail.css">
-  <link rel="stylesheet" href="scroll-demo-nav.css?v=20261120-fire-depth-v3">
+  <link rel="stylesheet" href="scroll-demo-nav.css?v=20261120-home-selected-v1">
   <script src="scroll-demo.js?v=20261120-cover-morph-v1" defer></script>
-  <script src="scroll-demo-dots.js?v=20261120-featured-creators-v1" defer></script>
+  <script src="scroll-demo-dots.js?v=20261120-quick-entry-v1" defer></script>
   <script src="scroll-demo-tail.js" defer></script>
   <script src="scroll-demo-nav.js?v=20261120-fire-depth-v3" defer></script>
 </head>
@@ -24,7 +24,7 @@
       <img class="demo-brand-logo" src="assets/huahuo-logo.svg" width="103" height="24" alt="bilibili 花火">
     </a>
     <nav class="demo-nav" id="demo-site-nav" aria-label="主要导航">
-      <button class="demo-contact-trigger" type="button" data-contact="home" aria-haspopup="dialog" aria-controls="demo-contact-dialog">首页</button>
+      <a href="#story" data-jump="hero" aria-current="page">首页</a>
       <button class="demo-contact-trigger" type="button" data-contact="awards" aria-haspopup="dialog" aria-controls="demo-contact-dialog">花火奖</button>
       <button class="demo-contact-trigger" type="button" data-contact="help" aria-haspopup="dialog" aria-controls="demo-contact-dialog">帮助中心</button>
       <button class="demo-contact-trigger" type="button" data-contact="service" aria-haspopup="dialog" aria-controls="demo-contact-dialog">联系客服</button>

@@ -43,8 +43,9 @@
   --hero-dot-spacing: 24;
   --hero-dot-size: 3;
   --hero-dot-hover-size: 7;
-  --hero-dot-featured-size: 42;
+  --hero-dot-featured-size: 52;
   --hero-dot-featured-opacity: .9;
+  --hero-dot-entry-duration: 2.6;
   --hero-dot-reach: 185;
   --hero-dot-opacity: .14;
   --hero-dot-flame-opacity: .22;

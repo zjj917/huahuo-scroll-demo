@@ -7,6 +7,7 @@
   background: transparent; border: 0; text-align: left; text-decoration: none;
 }
 #demo-site-nav a:hover, #demo-site-nav .demo-contact-trigger:hover { color: var(--ink); }
+#demo-site-nav [aria-current="page"], #demo-site-nav [aria-current="page"]:hover { color: var(--brand); }
 #demo-site-nav .demo-contact-trigger:active { transform: none; }
 .demo-menu-toggle { display: none; }
 .demo-menu-toggle svg, .demo-contact-close svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; }

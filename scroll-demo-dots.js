@@ -68,6 +68,7 @@
       spacing: Number(token('spacing')), size: Number(token('size')),
       hoverSize: Number(token('hover-size')),
       featuredSize: Number(token('featured-size')), featuredOpacity: Number(token('featured-opacity')),
+      entryDuration: Number(token('entry-duration')),
       reach: Number(token('reach')),
       opacity: Number(token('opacity')), flameOpacity: Number(token('flame-opacity')), color: token('color'),
       glow: token('glow'), core: token('core'),
@@ -171,7 +172,7 @@
         }
         if (nearest) {
           nearest.featured = true;
-          nearest.featuredScale = [.86,1,.78,.94,.84][index];
+          nearest.featuredScale = [.5,1,.62,.85,.43][index];
           nearest.portrait = [0,3,7,12,18][index];
           featured.push(nearest);
         }
@@ -188,7 +189,7 @@
     if (!reduced.matches && finePointer.matches) {
       const depth = point.depth * 2 - 1;
       const wave = flowTime * .55 + point.targetY * .012;
-      const strength = point.fire ? shapeBlend : .24;
+      const strength = point.fire ? .18 + shapeBlend * .82 : .24;
       // Front and back layers drift at different amplitudes and phases.
       x += (Math.sin(wave + depth * .7) * (7 + point.depth * 7) + Math.sin(flowTime * .3 + point.phase) * (4 + point.depth * 5)) * strength;
       y += (Math.sin(flowTime * .43 + point.phase) * (5 + point.depth * 7) + Math.cos(wave) * depth * 4) * strength;
@@ -220,12 +221,12 @@
     const responsive = pointer.active && !reduced.matches && finePointer.matches;
     const scrollProgress = Number(canvas.style.getPropertyValue('--fire-scroll') || 0);
     const staticField = reduced.matches || !finePointer.matches;
-    if (staticField) { entryElapsed = 6.5; entryAmount = 1; }
+    if (staticField) { entryElapsed = palette.entryDuration; entryAmount = 1; }
     else {
       flowTime += elapsed;
-      entryElapsed = Math.min(6.5, entryElapsed + elapsed);
-      const progress = Math.max(0, (entryElapsed - .8) / 5.7);
-      entryAmount = progress * progress * (3 - 2 * progress);
+      entryElapsed = Math.min(palette.entryDuration, entryElapsed + elapsed);
+      const progress = entryElapsed / palette.entryDuration;
+      entryAmount = 1 - (1 - progress) ** 3;
     }
     const shapeBlend = shapeAmount();
     currentShape = shapeBlend;
@@ -269,8 +270,9 @@
       // Pointer attraction keeps velocity after release, then eases back.
       const towardX = distance > .01 ? dx / distance : 0;
       const towardY = distance > .01 ? dy / distance : 0;
-      point.vx = (point.vx + ((goalX - point.x) * 3.6 + towardX * force * 105) * elapsed) * damping;
-      point.vy = (point.vy + ((goalY - point.y) * 3.6 + towardY * force * 105) * elapsed) * damping;
+      const spring = entryAmount < 1 ? 12 : 3.6;
+      point.vx = (point.vx + ((goalX - point.x) * spring + towardX * force * 105) * elapsed) * damping;
+      point.vy = (point.vy + ((goalY - point.y) * spring + towardY * force * 105) * elapsed) * damping;
       point.x += point.vx * elapsed;
       point.y += point.vy * elapsed;
       point.heat += (force - point.heat) * blend;
