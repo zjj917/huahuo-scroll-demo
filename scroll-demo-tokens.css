@@ -38,6 +38,14 @@
   --hero-action-font-size: 1.25rem;
   --hero-action-min-width: 168px;
   --hero-action-mobile-height: 56px;
+  --hero-kicker-font-size: 18px;
+  --value-graphic-width: 180px;
+  --value-graphic-height: 80px;
+  --value-graphic-stroke: 1.5;
+  --hero-emphasis-line-width: .045em;
+  --hero-emphasis-line-offset: .06em;
+  --hero-emphasis-duration: 900ms;
+  --hero-emphasis-delay: 200ms;
   --hero-copy-bottom: var(--space-120);
   --header-capsule-inset: 88px;
   /* Miniature creator portraits, enlarged only near a fine pointer. */
@@ -47,6 +55,7 @@
   --hero-dot-featured-size: 52;
   --hero-dot-featured-opacity: .9;
   --hero-dot-entry-duration: 2.6;
+  --hero-dot-featured-drift: 64;
   --hero-dot-reach: 185;
   --hero-dot-opacity: .14;
   --hero-dot-flame-opacity: .22;

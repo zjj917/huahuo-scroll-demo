@@ -90,6 +90,11 @@ html.is-pinned .story-scene.is-current { pointer-events: auto; }
 .hero-creator-card strong { color: var(--ink); font-size: var(--text-sm); font-weight: var(--font-weight-navigation); line-height: 1.5; }
 .hero-creator-card span { color: var(--muted); font-size: var(--text-xs); line-height: 1.5; }
 .hero-copy { position: relative; z-index: 4; pointer-events: none; }
+.hero-copy .scene-kicker { font-size: var(--hero-kicker-font-size); }
+.hero-emphasis { display: inline-block; position: relative; }
+.hero-emphasis::after { content: ''; position: absolute; left: 0; right: 0; bottom: var(--hero-emphasis-line-offset); height: var(--hero-emphasis-line-width); background: currentColor; border-radius: var(--radius-full); transform: scaleX(0); transform-origin: left; animation: hero-underline-draw var(--hero-emphasis-duration) var(--ease-smooth-out) var(--hero-emphasis-delay) both; }
+@keyframes hero-underline-draw { to { transform: scaleX(1); } }
+@media (prefers-reduced-motion: reduce) { .hero-emphasis::after { animation: none; transform: scaleX(1); } }
 .hero-copy a, .hero-copy button { pointer-events: auto; }
 .hero-copy h1 { font-size: var(--display); line-height: 1.38; letter-spacing: -.06em; }
 .hero-copy h1 span { white-space: nowrap; }
@@ -110,7 +115,9 @@ html.is-pinned .scene-values h2 { font-size: clamp(32px, 3.1vw, 52px); line-heig
 .section-heading > p:last-child { font-size: 14px; color: var(--muted); margin-top: 20px; }
 .value-grid { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 20px; margin-top: 36px; }
 .value-card { min-height: clamp(260px,36vh,410px); padding: 28px; background: var(--subtle); border-radius: var(--card-radius); display: flex; flex-direction: column; justify-content: space-between; }
-.value-index { font-size: clamp(44px,4.5vw,72px); line-height: 1.1; font-weight: 200; color: var(--color-text-tertiary); }
+.value-graphic { display: block; width: 100%; max-width: var(--value-graphic-width); height: var(--value-graphic-height); flex: none; color: var(--color-text-tertiary); fill: none; stroke: currentColor; stroke-width: var(--value-graphic-stroke); stroke-linecap: round; stroke-linejoin: round; }
+.value-graphic-soft { opacity: .4; }
+.value-graphic-dot { fill: currentColor; stroke: none; }
 .value-card h3 { font-size: clamp(22px,2.1vw,32px); margin-bottom: 16px; }
 .value-card p { font-size: 14px; line-height: 1.8; color: var(--muted); }
 .value-card p > span { display: block; }
@@ -230,7 +237,7 @@ html.is-linear .case-awards { position: relative; inset: auto; padding: 0 0 var(
   .value-card { min-height: 232px; padding: 22px 18px; }
   .value-card h3 { font-size: 23px; margin-bottom: 14px; }
   .value-card p { font-size: 13px; }
-  .value-index { font-size: 42px; }
+
   .section-heading > p:last-child { font-size: 14px; }
   .scene-services-intro { min-height: 600px; justify-content: flex-start; }
   .services-intro-copy h2 { font-size: 56px; }

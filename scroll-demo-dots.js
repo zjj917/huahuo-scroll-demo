@@ -13,6 +13,15 @@
   const finePointer = matchMedia('(hover: hover) and (pointer: fine)');
   const pointer = { x: 0, y: 0, active: false };
   const portraits = [];
+  const featuredPortraits = [];
+  // Verified public accounts; representative leading creators, not a ranking.
+  const featuredProfiles = [
+    { mid: 546195, name: '老番茄', category: '游戏创作' },
+    { mid: 517327498, name: '罗翔说刑法', category: '法律知识' },
+    { mid: 9824766, name: '敬汉卿', category: '生活创作' },
+    { mid: 946974, name: '影视飓风', category: '影像科技' },
+    { mid: 163637592, name: '老师好我叫何同学', category: '科技创作' },
+  ];
   // Illustrative demo profiles paired with the project's original avatar assets.
   const profiles = [
     ['数码观察员', '科技数码'], ['生活捕手', '生活记录'], ['游戏搭子', '游戏实况'],
@@ -69,6 +78,7 @@
       hoverSize: Number(token('hover-size')),
       featuredSize: Number(token('featured-size')), featuredOpacity: Number(token('featured-opacity')),
       entryDuration: Number(token('entry-duration')),
+      featuredDrift: Number(token('featured-drift')),
       reach: Number(token('reach')),
       opacity: Number(token('opacity')), flameOpacity: Number(token('flame-opacity')), color: token('color'),
       glow: token('glow'), core: token('core'),
@@ -172,8 +182,10 @@
         }
         if (nearest) {
           nearest.featured = true;
+          nearest.featuredProfile = index;
           nearest.featuredScale = [.5,1,.62,.85,.43][index];
           nearest.portrait = [0,3,7,12,18][index];
+          nearest.wander = { fromX: 0, fromY: 0, toX: (random()-.5)*2, toY: (random()-.5)*2, start: flowTime, duration: 4 + random()*5 };
           featured.push(nearest);
         }
       });
@@ -193,6 +205,23 @@
       // Front and back layers drift at different amplitudes and phases.
       x += (Math.sin(wave + depth * .7) * (7 + point.depth * 7) + Math.sin(flowTime * .3 + point.phase) * (4 + point.depth * 5)) * strength;
       y += (Math.sin(flowTime * .43 + point.phase) * (5 + point.depth * 7) + Math.cos(wave) * depth * 4) * strength;
+      if (point.featured) {
+        const wander = point.wander;
+        if (flowTime >= wander.start + wander.duration) {
+          wander.fromX = wander.toX; wander.fromY = wander.toY;
+          wander.toX = Math.random()*2-1; wander.toY = Math.random()*2-1;
+          wander.start = flowTime; wander.duration = 4 + Math.random()*5;
+        }
+        const progress = Math.min(1, Math.max(0, (flowTime-wander.start)/wander.duration));
+        const ease = progress*progress*(3-2*progress);
+        const driftX = Math.min(palette.featuredDrift, fireArea.width * .22);
+        const driftY = Math.min(palette.featuredDrift, fireArea.height * .16);
+        x += (wander.fromX+(wander.toX-wander.fromX)*ease) * driftX * shapeBlend;
+        y += (wander.fromY+(wander.toY-wander.fromY)*ease) * driftY * shapeBlend;
+        const edge = Math.min(palette.featuredSize, fireArea.width*.2)/2 + 12;
+        if (width >= 900) x = Math.max(interactionLeft+edge, Math.min(width-edge, x));
+        y = Math.max(100+edge, Math.min(height-edge, y));
+      }
     }
     return { x, y };
   }
@@ -322,7 +351,7 @@
     const portraitOpacity = point.fire ? palette.opacity + (palette.flameOpacity * .65 - palette.opacity) * currentShape : palette.opacity;
     const smallOpacity = portraitOpacity * (.28 + point.depth * .72) * point.softness;
     context.globalAlpha = Math.min(1, smallOpacity + (palette.featuredOpacity - smallOpacity) * featuredBlend + .42 * point.heat);
-    const portrait = portraits[point.portrait];
+    const portrait = (point.featured && featuredPortraits[point.featuredProfile]) || portraits[point.portrait];
     if (portrait) context.drawImage(portrait, x - radius, y - radius, size, size);
     else {
       context.beginPath();
@@ -337,9 +366,10 @@
     const selectedDistance = selected ? Math.hypot(pointer.x - selected.x, pointer.y - selected.y) : Infinity;
     if (!selected || (closest.featured && selected !== closest) || selectedDistance > closestDistance + palette.spacing * .65) {
       selected = closest;
-      cardPortrait.src = `assets/creators/creator-${String(selected.portrait + 1).padStart(2, '0')}.svg`;
-      cardName.textContent = profiles[selected.portrait][0];
-      cardCategory.textContent = profiles[selected.portrait][1];
+      const featured = selected.featured ? featuredProfiles[selected.featuredProfile] : null;
+      cardPortrait.src = featured ? `assets/creators/featured-${featured.mid}.jpg` : `assets/creators/creator-${String(selected.portrait + 1).padStart(2, '0')}.svg`;
+      cardName.textContent = featured ? featured.name : profiles[selected.portrait][0];
+      cardCategory.textContent = featured ? featured.category : profiles[selected.portrait][1];
     }
     if (card.hidden) {
       card.hidden = false;
@@ -409,7 +439,22 @@
     requestDraw();
   });
   readPalette();
-  // Reuse the existing original illustrative avatars; no third-party image calls.
+  function loadPortrait(path, target, index) {
+    const image = new Image();
+    image.onload = () => {
+      const sprite = document.createElement('canvas');
+      sprite.width = sprite.height = 160;
+      const pen = sprite.getContext('2d');
+      if (!pen) return;
+      pen.beginPath(); pen.arc(80, 80, 79, 0, Math.PI*2); pen.clip();
+      pen.drawImage(image, 0, 0, 160, 160);
+      target[index] = sprite;
+      requestDraw();
+    };
+    image.src = path;
+  }
+  featuredProfiles.forEach((profile, index) => loadPortrait(`assets/creators/featured-${profile.mid}.jpg`, featuredPortraits, index));
+  // Small background particles retain the project's original illustrations.
   for (let index = 0; index < 20; index++) {
     const image = new Image();
     image.onload = () => {
