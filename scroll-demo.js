@@ -32,6 +32,11 @@
   openingTitle.className = 'opening-title';
   openingTitle.setAttribute('aria-hidden', 'true');
   openingTitle.innerHTML = heroTitle.innerHTML;
+  const openingGradient = openingTitle.querySelector('linearGradient');
+  if (openingGradient) {
+    openingGradient.id = 'opening-title-underline-gradient';
+    openingTitle.querySelector('.hero-underline path').setAttribute('stroke', 'url(#opening-title-underline-gradient)');
+  }
   stage.append(openingTitle);
   const stops = [0, 1.1, 2.5, 4.8, 10.2, 14.3, 15.5];
   const awardsStart = 18.15;

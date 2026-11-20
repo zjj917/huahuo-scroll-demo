@@ -54,9 +54,6 @@
   --value-graphic-width: 180px;
   --value-graphic-height: 80px;
   --value-graphic-stroke: 1.5;
-  --hero-underline-stroke: 3;
-  --hero-underline-secondary: rgba(184,148,242,1);
-  --hero-underline-second-delay: 300ms;
   --hero-emphasis-duration: 900ms;
   --hero-emphasis-delay: 200ms;
   --hero-copy-bottom: var(--space-120);

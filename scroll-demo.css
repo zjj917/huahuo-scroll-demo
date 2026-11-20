@@ -92,10 +92,8 @@ html.is-pinned .story-scene.is-current { pointer-events: auto; }
 .hero-copy { position: relative; z-index: 4; pointer-events: none; }
 .hero-copy .scene-kicker { font-size: var(--hero-kicker-font-size); }
 .hero-emphasis { display: inline-block; position: relative; }
-.hero-underline { position: absolute; left: 0; bottom: -.16em; width: 100%; height: .32em; overflow: visible; fill: none; stroke-linecap: round; stroke-width: var(--hero-underline-stroke); }
+.hero-underline { position: absolute; left: 0; bottom: -.16em; width: 100%; height: .32em; overflow: visible; fill: none; stroke-linecap: round; }
 .hero-underline path { stroke-dasharray: 1; stroke-dashoffset: 1; animation: hero-underline-draw var(--hero-emphasis-duration) var(--ease-smooth-out) var(--hero-emphasis-delay) both; }
-.hero-underline-first { stroke: var(--color-brand); }
-.hero-underline .hero-underline-second { stroke: var(--hero-underline-secondary); animation-delay: calc(var(--hero-emphasis-delay) + var(--hero-underline-second-delay)); }
 @keyframes hero-underline-draw { to { stroke-dashoffset: 0; } }
 @media (prefers-reduced-motion: reduce) { .hero-underline path { animation: none; stroke-dashoffset: 0; } }
 .hero-copy a, .hero-copy button { pointer-events: auto; }
