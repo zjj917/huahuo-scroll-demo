@@ -67,6 +67,7 @@
     palette = {
       spacing: Number(token('spacing')), size: Number(token('size')),
       hoverSize: Number(token('hover-size')),
+      featuredSize: Number(token('featured-size')), featuredOpacity: Number(token('featured-opacity')),
       reach: Number(token('reach')),
       opacity: Number(token('opacity')), flameOpacity: Number(token('flame-opacity')), color: token('color'),
       glow: token('glow'), core: token('core'),
@@ -153,6 +154,29 @@
         }
       }
     }
+    // A few existing particles stay readable as portraits, without another layer
+    // or a separate animation path. Normalized anchors keep the spread irregular.
+    if (fireArea) {
+      const anchors = desktop ? [[.54,.22],[.27,.46],[.78,.57],[.22,.76],[.66,.85]] : [[.54,.22],[.27,.55],[.68,.82]];
+      const featured = [];
+      anchors.forEach(([x, y], index) => {
+        const targetX = fireLeft + fireWidth * x;
+        const targetY = fireTop + fireHeight * y;
+        let nearest = null;
+        let distance = Infinity;
+        for (const point of points) {
+          if (!point.fire || featured.some(other => Math.hypot(point.targetX-other.targetX, point.targetY-other.targetY) < Math.min(80, fireWidth * .25))) continue;
+          const delta = Math.hypot(point.targetX-targetX, point.targetY-targetY);
+          if (delta < distance) { nearest = point; distance = delta; }
+        }
+        if (nearest) {
+          nearest.featured = true;
+          nearest.featuredScale = [.86,1,.78,.94,.84][index];
+          nearest.portrait = [0,3,7,12,18][index];
+          featured.push(nearest);
+        }
+      });
+    }
     points.sort((a, b) => a.depth - b.depth);
     resizeNeeded = false;
     viewNeeded = true;
@@ -220,6 +244,8 @@
     const enlarged = [];
     let closest = null;
     let closestDistance = Infinity;
+    let featuredClosest = null;
+    let featuredDistance = Infinity;
     for (const point of points) {
       const goal = goalFor(point, shapeBlend);
       const goalX = goal.x;
@@ -234,6 +260,9 @@
       const dy = pointer.y - point.y;
       const distance = Math.hypot(dx, dy);
       if (distance < closestDistance) { closest = point; closestDistance = distance; }
+      if (point.featured && currentShape > .75 && distance < Math.min(palette.featuredSize, fireArea.width * .2) * point.featuredScale / 2 + 6 && distance < featuredDistance) {
+        featuredClosest = point; featuredDistance = distance;
+      }
       const proximity = responsive ? Math.max(0, 1 - distance / palette.reach) : 0;
       const force = proximity * proximity * (3 - 2 * proximity);
       // Spring acceleration plus strong drag gives the slow, water-like wake.
@@ -248,12 +277,12 @@
       if (staticField) { point.x = goalX; point.y = goalY; point.vx = 0; point.vy = 0; point.heat = 0; }
       else if (Math.abs(point.vx) + Math.abs(point.vy) > .08 || Math.abs(force - point.heat) > .002 || (!responsive && Math.hypot(goalX - point.x, goalY - point.y) > .12)) moving = true;
       else if (!responsive) { point.x = goalX; point.y = goalY; point.vx = 0; point.vy = 0; point.heat = 0; }
-      if (point.heat > .02) enlarged.push(point);
+      if (point.heat > .02 || point.featured) enlarged.push(point);
       else paintPortrait(point);
     }
     // Paint the closest faces last, keeping each enlarged portrait legible.
     enlarged.sort((a, b) => a.heat - b.heat).forEach(paintPortrait);
-    updateCard(responsive, closest, closestDistance);
+    updateCard(responsive, featuredClosest || closest, featuredClosest ? featuredDistance : closestDistance);
     context.globalAlpha = 1;
     if (moving) frame = requestAnimationFrame(draw);
     else lastTime = 0;
@@ -262,14 +291,17 @@
     const x = point.x;
     const y = point.y;
     const emphasis = point.heat ** 2;
-    const baseSize = palette.size * point.sizeFactor;
-    const size = baseSize + (palette.hoverSize * (.8 + point.depth * .3) - baseSize) * emphasis;
+    const featuredBlend = point.featured ? currentShape ** 2 : 0;
+    const smallSize = palette.size * point.sizeFactor;
+    const featuredSize = point.featured ? Math.min(palette.featuredSize, fireArea.width * .2) * point.featuredScale : smallSize;
+    const baseSize = smallSize + (featuredSize - smallSize) * featuredBlend;
+    const size = baseSize + (Math.max(baseSize, palette.hoverSize * (.8 + point.depth * .3)) - baseSize) * emphasis;
     const radius = size / 2;
     if (point.fire && currentShape > .08) {
       const zone = point.center * .6 + point.depth * .4;
       const tone = zone > .77 ? palette.fireCore : zone > .54 ? palette.fireFront : zone > .28 ? palette.fireMid : palette.fireBack;
       const pulse = .82 + Math.sin(flowTime * (1.05 + point.depth * .8) + point.phase) * .18;
-      const emberRadius = Math.max(1.2, baseSize * (.62 + point.depth * .38));
+      const emberRadius = Math.max(1.2, smallSize * (.62 + point.depth * .38));
       context.beginPath();
       context.arc(x, y, emberRadius, 0, Math.PI * 2);
       context.fillStyle = tone;
@@ -286,7 +318,8 @@
       context.fillRect(x - haloRadius, y - haloRadius, haloRadius * 2, haloRadius * 2);
     }
     const portraitOpacity = point.fire ? palette.opacity + (palette.flameOpacity * .65 - palette.opacity) * currentShape : palette.opacity;
-    context.globalAlpha = portraitOpacity * (.28 + point.depth * .72) * point.softness + .42 * point.heat;
+    const smallOpacity = portraitOpacity * (.28 + point.depth * .72) * point.softness;
+    context.globalAlpha = Math.min(1, smallOpacity + (palette.featuredOpacity - smallOpacity) * featuredBlend + .42 * point.heat);
     const portrait = portraits[point.portrait];
     if (portrait) context.drawImage(portrait, x - radius, y - radius, size, size);
     else {
@@ -300,7 +333,7 @@
     if (!responsive || !closest || closestDistance > (closest.fire ? 32 : 42)) { card.hidden = true; selected = null; return; }
     // Hysteresis prevents names flickering when the pointer rests between cells.
     const selectedDistance = selected ? Math.hypot(pointer.x - selected.x, pointer.y - selected.y) : Infinity;
-    if (!selected || selectedDistance > closestDistance + palette.spacing * .65) {
+    if (!selected || (closest.featured && selected !== closest) || selectedDistance > closestDistance + palette.spacing * .65) {
       selected = closest;
       cardPortrait.src = `assets/creators/creator-${String(selected.portrait + 1).padStart(2, '0')}.svg`;
       cardName.textContent = profiles[selected.portrait][0];
