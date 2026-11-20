@@ -261,9 +261,11 @@
       element.style.opacity = pinned ? String(heroFade) : '';
       element.style.transform = pinned ? `translateY(${-openingProgress * 36}px)` : '';
     });
-    const heroOpacity = pinned ? String(heroFade) : '1';
-    if (heroDots.style.opacity !== heroOpacity) {
+    const fireScroll = pinned ? smooth((units - .02) / .83) : 0;
+    const heroOpacity = pinned ? String(1 - smooth((units - .78) / .32)) : '1';
+    if (heroDots.style.opacity !== heroOpacity || heroDots.style.getPropertyValue('--fire-scroll') !== String(fireScroll)) {
       heroDots.style.opacity = heroOpacity;
+      heroDots.style.setProperty('--fire-scroll', String(fireScroll));
       heroDots.dispatchEvent(new Event('hero-progress'));
     }
     const unavailable = pinned && heroFade < .02;

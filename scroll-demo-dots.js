@@ -36,7 +36,6 @@
   let flowTime = 0;
   let entryElapsed = 0;
   let entryAmount = 0;
-  let dispersion = 0;
   let frame = 0;
   let lastTime = 0;
   let resizeNeeded = true;
@@ -46,6 +45,7 @@
   let hasBuilt = false;
   let fireArea = null;
   let firePixels;
+  let currentShape = 0;
 
   function flameMask() {
     if (firePixels) return firePixels;
@@ -71,6 +71,10 @@
       opacity: Number(token('opacity')), flameOpacity: Number(token('flame-opacity')), color: token('color'),
       glow: token('glow'), core: token('core'),
       flameGlow: token('flame-glow'), glowOpacity: Number(token('glow-opacity')),
+      fireBack: style.getPropertyValue('--hero-fire-back').trim(),
+      fireMid: style.getPropertyValue('--hero-fire-mid').trim(),
+      fireFront: style.getPropertyValue('--hero-fire-front').trim(),
+      fireCore: style.getPropertyValue('--hero-fire-core').trim(),
     };
   }
   function resetPoints() {
@@ -108,10 +112,11 @@
       const spreadX = 24 + random() * Math.max(0, width - 48);
       const spreadY = 100 + random() * Math.max(0, height - 124);
       const depth = random();
+      const center = fire ? Math.max(0, 1 - Math.hypot((x - fireLeft - fireWidth * .5) / (fireWidth * .58), (y - fireTop - fireHeight * .7) / (fireHeight * .72))) : 0;
       const point = {
         x: fire && entrance ? spreadX : x, y: fire && entrance ? spreadY : y,
         targetX: x, targetY: y, fire, spreadX, spreadY,
-        depth, phase: random() * Math.PI * 2,
+        depth, center, phase: random() * Math.PI * 2,
         sizeFactor: fire ? .5 + random() ** 2 * 1.1 + depth * .15 : .45 + random() * .65,
         vx: 0, vy: 0, heat: 0,
         portrait: Math.floor(random() * profiles.length),
@@ -163,7 +168,7 @@
     return { x, y };
   }
   function shapeAmount() {
-    return Number(canvas.style.opacity || 1) * entryAmount * (1 - dispersion * .94);
+    return entryAmount * (1 - Number(canvas.style.getPropertyValue('--fire-scroll') || 0));
   }
   function readView() {
     bounds = canvas.getBoundingClientRect();
@@ -185,31 +190,27 @@
     const damping = Math.exp(-4.2 * elapsed);
     lastTime = now;
     const responsive = pointer.active && !reduced.matches && finePointer.matches;
+    const scrollProgress = Number(canvas.style.getPropertyValue('--fire-scroll') || 0);
     const staticField = reduced.matches || !finePointer.matches;
-    if (staticField) { entryElapsed = 6.5; entryAmount = 1; dispersion = 0; }
+    if (staticField) { entryElapsed = 6.5; entryAmount = 1; }
     else {
       flowTime += elapsed;
       entryElapsed = Math.min(6.5, entryElapsed + elapsed);
       const progress = Math.max(0, (entryElapsed - .8) / 5.7);
       entryAmount = progress * progress * (3 - 2 * progress);
-      const overFire = responsive && fireArea && pointer.x >= fireArea.x - 48 && pointer.x <= fireArea.x + fireArea.width + 48 && pointer.y >= fireArea.y - 48 && pointer.y <= fireArea.y + fireArea.height + 48;
-      // Entering the flame releases it across the whole field. Regathering is
-      // deliberately slower, while each particle keeps its own momentum.
-      const targetDispersion = overFire ? 1 : 0;
-      dispersion += (targetDispersion - dispersion) * (1 - Math.exp(-elapsed / (overFire ? .8 : 2.8)));
-      if (Math.abs(targetDispersion - dispersion) < .0001) dispersion = targetDispersion;
     }
     const shapeBlend = shapeAmount();
+    currentShape = shapeBlend;
     let moving = !staticField;
     context.clearRect(0, 0, width, height);
     if (fireArea) {
       const x = fireArea.x + fireArea.width * .5;
       const y = fireArea.y + fireArea.height * .63;
-      const glow = context.createRadialGradient(x, y, 0, x, y, fireArea.width * .72);
+      const glow = context.createRadialGradient(x, y, fireArea.width * .08, x, y, fireArea.width * .72);
       glow.addColorStop(0, palette.flameGlow);
       glow.addColorStop(1, 'transparent');
       context.fillStyle = glow;
-      context.globalAlpha = palette.glowOpacity * shapeBlend * (.92 + Math.sin(flowTime * .6) * .08);
+      context.globalAlpha = palette.glowOpacity * shapeBlend ** 3 * (.84 + Math.sin(flowTime * 1.1) * .16);
       context.fillRect(0, 0, width, height);
     }
     const enlarged = [];
@@ -219,6 +220,12 @@
       const goal = goalFor(point, shapeBlend);
       const goalX = goal.x;
       const goalY = goal.y;
+      if (scrollProgress > 0) {
+        point.x = goalX;
+        point.y = goalY;
+        point.vx = 0;
+        point.vy = 0;
+      }
       const dx = pointer.x - point.x;
       const dy = pointer.y - point.y;
       const distance = Math.hypot(dx, dy);
@@ -226,11 +233,11 @@
       const proximity = responsive ? Math.max(0, 1 - distance / palette.reach) : 0;
       const force = proximity * proximity * (3 - 2 * proximity);
       // Spring acceleration plus strong drag gives the slow, water-like wake.
-      // Pointer force pushes outward; releasing it keeps velocity, then returns.
-      const awayX = distance > .01 ? -dx / distance : Math.cos(point.portrait * 2.4);
-      const awayY = distance > .01 ? -dy / distance : Math.sin(point.portrait * 2.4);
-      point.vx = (point.vx + ((goalX - point.x) * 3.6 + awayX * force * 420) * elapsed) * damping;
-      point.vy = (point.vy + ((goalY - point.y) * 3.6 + awayY * force * 420) * elapsed) * damping;
+      // Pointer attraction keeps velocity after release, then eases back.
+      const towardX = distance > .01 ? dx / distance : 0;
+      const towardY = distance > .01 ? dy / distance : 0;
+      point.vx = (point.vx + ((goalX - point.x) * 3.6 + towardX * force * 105) * elapsed) * damping;
+      point.vy = (point.vy + ((goalY - point.y) * 3.6 + towardY * force * 105) * elapsed) * damping;
       point.x += point.vx * elapsed;
       point.y += point.vy * elapsed;
       point.heat += (force - point.heat) * blend;
@@ -254,6 +261,17 @@
     const baseSize = palette.size * point.sizeFactor;
     const size = baseSize + (palette.hoverSize * (.8 + point.depth * .3) - baseSize) * emphasis;
     const radius = size / 2;
+    if (point.fire && currentShape > .08) {
+      const zone = point.center * .6 + point.depth * .4;
+      const tone = zone > .77 ? palette.fireCore : zone > .54 ? palette.fireFront : zone > .28 ? palette.fireMid : palette.fireBack;
+      const pulse = .82 + Math.sin(flowTime * (1.05 + point.depth * .8) + point.phase) * .18;
+      const emberRadius = Math.max(1.2, baseSize * (.62 + point.depth * .38));
+      context.beginPath();
+      context.arc(x, y, emberRadius, 0, Math.PI * 2);
+      context.fillStyle = tone;
+      context.globalAlpha = Math.min(.82, palette.flameOpacity * (.75 + zone * 1.3) * pulse) * currentShape ** 2;
+      context.fill();
+    }
     if (point.heat > .1) {
       const haloRadius = radius + 7;
       const halo = context.createRadialGradient(x, y, radius * .7, x, y, haloRadius);
@@ -263,7 +281,8 @@
       context.fillStyle = halo;
       context.fillRect(x - haloRadius, y - haloRadius, haloRadius * 2, haloRadius * 2);
     }
-    context.globalAlpha = (point.fire ? palette.flameOpacity : palette.opacity) * (.28 + point.depth * .72) + .22 * point.heat;
+    const portraitOpacity = point.fire ? palette.opacity + (palette.flameOpacity * .65 - palette.opacity) * currentShape : palette.opacity;
+    context.globalAlpha = portraitOpacity * (.28 + point.depth * .72) + .42 * point.heat;
     const portrait = portraits[point.portrait];
     if (portrait) context.drawImage(portrait, x - radius, y - radius, size, size);
     else {
