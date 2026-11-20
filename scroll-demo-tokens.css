@@ -25,6 +25,7 @@
   --header-backdrop-blur: 24px;
   --header-capsule-radius: 24px;
   --values-title-increase: 8px;
+  --values-card-height-increase: var(--space-32);
   --values-gap-increase: var(--space-24);
   --values-card-bg: rgba(248,249,250,1);
   --header-top-border-width: 1.5px;
