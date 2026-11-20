@@ -28,4 +28,4 @@ Full terms: https://transitions.dev/terms.html
 
 ## Creator profile images
 
-The five featured profile photos were retrieved from Bilibili public account card data on 2026-11-20. Account IDs, original image URLs, public follower counts at retrieval, and source attribution are recorded in `assets/creators/featured-sources.json`. These are representative leading creators selected for a design demo, not an official ranking or a claim of endorsement. Rights remain with their respective owners. The smaller background illustrations are the project's original demo artwork.
+The ten featured profile photos were retrieved from Bilibili public account card data on 2026-11-20. Account IDs, original image URLs, public follower counts at retrieval, and source attribution are recorded in `assets/creators/featured-sources.json`. These are representative leading creators selected for a design demo, not an official ranking or a claim of endorsement. Rights remain with their respective owners. Medium and small readable portraits reuse these ten verified public accounts. The smallest background illustrations are the project's original demo artwork.

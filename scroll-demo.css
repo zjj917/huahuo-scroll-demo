@@ -54,10 +54,11 @@ button:active, .primary-button:active { transform: scale(.98); }
   padding: 0 calc(var(--header-padding-expanded) + (var(--header-padding-collapsed) - var(--header-padding-expanded)) * var(--header-progress));
   display: flex; align-items: center; gap: 28px;
   border-radius: calc(40px * var(--header-progress));
-  backdrop-filter: blur(calc(22px * var(--header-progress)));
+  backdrop-filter: blur(calc(var(--header-backdrop-blur) * var(--header-progress)));
+  -webkit-backdrop-filter: blur(calc(var(--header-backdrop-blur) * var(--header-progress)));
   transition: opacity var(--duration-fast), transform var(--duration-fast);
 }
-.demo-header::before { content: ''; position: absolute; inset: 0; z-index: -1; pointer-events: none; background: var(--glass); border: 1px solid var(--line); border-radius: inherit; box-shadow: var(--shadow); opacity: var(--header-progress); }
+.demo-header::before { content: ''; position: absolute; inset: 0; z-index: -1; pointer-events: none; background: var(--glass); border: 0; border-radius: inherit; opacity: var(--header-progress); }
 .demo-header.is-submerged { opacity: 0; transform: translateY(-110px); pointer-events: none; }
 .demo-header:focus-within { opacity: 1; transform: none; pointer-events: auto; }
 .demo-brand { display: flex; align-items: center; gap: 7px; color: var(--brand-ink); white-space: nowrap; }

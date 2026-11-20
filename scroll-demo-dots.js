@@ -21,6 +21,11 @@
     { mid: 9824766, name: '敬汉卿', category: '生活创作' },
     { mid: 946974, name: '影视飓风', category: '影像科技' },
     { mid: 163637592, name: '老师好我叫何同学', category: '科技创作' },
+    { mid: 562197, name: '中国BOY超级大猩猩', category: '游戏与生活' },
+    { mid: 1577804, name: '某幻君', category: '游戏与音乐' },
+    { mid: 168598, name: '逍遥散人', category: '游戏创作' },
+    { mid: 777536, name: 'LexBurner', category: '动画与直播' },
+    { mid: 122879, name: '敖厂长', category: '游戏创作' },
   ];
   // Illustrative demo profiles paired with the project's original avatar assets.
   const profiles = [
@@ -77,6 +82,8 @@
       spacing: Number(token('spacing')), size: Number(token('size')),
       hoverSize: Number(token('hover-size')),
       featuredSize: Number(token('featured-size')), featuredOpacity: Number(token('featured-opacity')),
+      mediumSize: Number(token('medium-size')), smallSize: Number(token('small-size')),
+      mediumOpacity: Number(token('medium-opacity')), smallOpacity: Number(token('small-opacity')),
       entryDuration: Number(token('entry-duration')),
       featuredDrift: Number(token('featured-drift')),
       reach: Number(token('reach')),
@@ -190,6 +197,26 @@
         }
       });
     }
+    if (fireArea) {
+      const occupied = points.filter(point => point.featured);
+      const layers = desktop ? [{ tier:'medium', count:9, gap:34 },{ tier:'small', count:20, gap:20 }] : [{ tier:'medium', count:3, gap:18 },{ tier:'small', count:6, gap:12 }];
+      for (const layer of layers) {
+        const candidates = points.filter(point => point.fire && !point.featured && point.softness > .8);
+        for (let i=0; i<layer.count; i++) {
+          let chosen = null;
+          for (let attempt=0; attempt<120 && candidates.length; attempt++) {
+            const candidate = candidates.splice(Math.floor(random()*candidates.length),1)[0];
+            if (occupied.every(other => Math.hypot(candidate.targetX-other.targetX,candidate.targetY-other.targetY) > (other.featured ? Math.min(52,fireWidth*.2)*other.featuredScale/2+layer.gap : layer.gap))) { chosen=candidate; break; }
+          }
+          if (!chosen) continue;
+          chosen.tier = layer.tier;
+          chosen.featuredProfile = (i + (layer.tier==='small' ? 3 : 5)) % featuredProfiles.length;
+          chosen.featuredScale = .72 + random()*.28;
+          chosen.wander = { fromX:0, fromY:0, toX:random()*2-1, toY:random()*2-1, start:flowTime, duration:6+random()*5 };
+          occupied.push(chosen);
+        }
+      }
+    }
     points.sort((a, b) => a.depth - b.depth);
     resizeNeeded = false;
     viewNeeded = true;
@@ -205,7 +232,7 @@
       // Front and back layers drift at different amplitudes and phases.
       x += (Math.sin(wave + depth * .7) * (7 + point.depth * 7) + Math.sin(flowTime * .3 + point.phase) * (4 + point.depth * 5)) * strength;
       y += (Math.sin(flowTime * .43 + point.phase) * (5 + point.depth * 7) + Math.cos(wave) * depth * 4) * strength;
-      if (point.featured) {
+      if (point.featured || point.tier) {
         const wander = point.wander;
         if (flowTime >= wander.start + wander.duration) {
           wander.fromX = wander.toX; wander.fromY = wander.toY;
@@ -214,8 +241,9 @@
         }
         const progress = Math.min(1, Math.max(0, (flowTime-wander.start)/wander.duration));
         const ease = progress*progress*(3-2*progress);
-        const driftX = Math.min(palette.featuredDrift, fireArea.width * .22);
-        const driftY = Math.min(palette.featuredDrift, fireArea.height * .16);
+        const driftScale = point.featured ? 1 : point.tier==='medium' ? .45 : .25;
+        const driftX = Math.min(palette.featuredDrift, fireArea.width * .22) * driftScale;
+        const driftY = Math.min(palette.featuredDrift, fireArea.height * .16) * driftScale;
         x += (wander.fromX+(wander.toX-wander.fromX)*ease) * driftX * shapeBlend;
         y += (wander.fromY+(wander.toY-wander.fromY)*ease) * driftY * shapeBlend;
         const edge = Math.min(palette.featuredSize, fireArea.width*.2)/2 + 12;
@@ -290,7 +318,7 @@
       const dy = pointer.y - point.y;
       const distance = Math.hypot(dx, dy);
       if (distance < closestDistance) { closest = point; closestDistance = distance; }
-      if (point.featured && currentShape > .75 && distance < Math.min(palette.featuredSize, fireArea.width * .2) * point.featuredScale / 2 + 6 && distance < featuredDistance) {
+      if ((point.featured || point.tier) && currentShape > .75 && distance < portraitSize(point) / 2 + 6 && distance < featuredDistance) {
         featuredClosest = point; featuredDistance = distance;
       }
       const proximity = responsive ? Math.max(0, 1 - distance / palette.reach) : 0;
@@ -308,7 +336,7 @@
       if (staticField) { point.x = goalX; point.y = goalY; point.vx = 0; point.vy = 0; point.heat = 0; }
       else if (Math.abs(point.vx) + Math.abs(point.vy) > .08 || Math.abs(force - point.heat) > .002 || (!responsive && Math.hypot(goalX - point.x, goalY - point.y) > .12)) moving = true;
       else if (!responsive) { point.x = goalX; point.y = goalY; point.vx = 0; point.vy = 0; point.heat = 0; }
-      if (point.heat > .02 || point.featured) enlarged.push(point);
+      if (point.heat > .02 || point.featured || point.tier) enlarged.push(point);
       else paintPortrait(point);
     }
     // Paint the closest faces last, keeping each enlarged portrait legible.
@@ -318,13 +346,17 @@
     if (moving) frame = requestAnimationFrame(draw);
     else lastTime = 0;
   }
+  function portraitSize(point) {
+    const size = point.featured ? palette.featuredSize : point.tier==='medium' ? palette.mediumSize : palette.smallSize;
+    return Math.min(size, fireArea.width * .2) * point.featuredScale;
+  }
   function paintPortrait(point) {
     const x = point.x;
     const y = point.y;
     const emphasis = point.heat ** 2;
-    const featuredBlend = point.featured ? currentShape ** 2 : 0;
+    const featuredBlend = point.featured || point.tier ? currentShape ** 2 : 0;
     const smallSize = palette.size * point.sizeFactor;
-    const featuredSize = point.featured ? Math.min(palette.featuredSize, fireArea.width * .2) * point.featuredScale : smallSize;
+    const featuredSize = point.featured || point.tier ? portraitSize(point) : smallSize;
     const baseSize = smallSize + (featuredSize - smallSize) * featuredBlend;
     const size = baseSize + (Math.max(baseSize, palette.hoverSize * (.8 + point.depth * .3)) - baseSize) * emphasis;
     const radius = size / 2;
@@ -350,8 +382,8 @@
     }
     const portraitOpacity = point.fire ? palette.opacity + (palette.flameOpacity * .65 - palette.opacity) * currentShape : palette.opacity;
     const smallOpacity = portraitOpacity * (.28 + point.depth * .72) * point.softness;
-    context.globalAlpha = Math.min(1, smallOpacity + (palette.featuredOpacity - smallOpacity) * featuredBlend + .42 * point.heat);
-    const portrait = (point.featured && featuredPortraits[point.featuredProfile]) || portraits[point.portrait];
+    context.globalAlpha = Math.min(1, smallOpacity + ((point.featured ? palette.featuredOpacity : point.tier==='medium' ? palette.mediumOpacity : palette.smallOpacity) - smallOpacity) * featuredBlend + .42 * point.heat);
+    const portrait = ((point.featured || point.tier) && featuredPortraits[point.featuredProfile]) || portraits[point.portrait];
     if (portrait) context.drawImage(portrait, x - radius, y - radius, size, size);
     else {
       context.beginPath();
@@ -364,9 +396,9 @@
     if (!responsive || !closest || closestDistance > (closest.fire ? 32 : 42)) { card.hidden = true; selected = null; return; }
     // Hysteresis prevents names flickering when the pointer rests between cells.
     const selectedDistance = selected ? Math.hypot(pointer.x - selected.x, pointer.y - selected.y) : Infinity;
-    if (!selected || (closest.featured && selected !== closest) || selectedDistance > closestDistance + palette.spacing * .65) {
+    if (!selected || ((closest.featured || closest.tier) && selected !== closest) || selectedDistance > closestDistance + palette.spacing * .65) {
       selected = closest;
-      const featured = selected.featured ? featuredProfiles[selected.featuredProfile] : null;
+      const featured = selected.featured || selected.tier ? featuredProfiles[selected.featuredProfile] : null;
       cardPortrait.src = featured ? `assets/creators/featured-${featured.mid}.jpg` : `assets/creators/creator-${String(selected.portrait + 1).padStart(2, '0')}.svg`;
       cardName.textContent = featured ? featured.name : profiles[selected.portrait][0];
       cardCategory.textContent = featured ? featured.category : profiles[selected.portrait][1];
