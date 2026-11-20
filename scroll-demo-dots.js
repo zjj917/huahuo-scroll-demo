@@ -106,6 +106,8 @@
       entryDuration: Number(token('entry-duration')),
       featuredDrift: Number(token('featured-drift')),
       reach: Number(token('reach')),
+      shapeSamples: Number(token('shape-samples')) || 2400,
+      looseRatio: Number(token('shape-loose-ratio')) || .1,
       flowBoost: Number(token('flow-boost')) || 1.5,
       flowSpeed: Number(token('flow-speed')) || 1.2,
       swirl: Number(token('swirl')) || 240,
@@ -217,13 +219,15 @@
     fireArea = fireHeight >= 100 ? { x: fireLeft, y: fireTop, width: fireWidth, height: fireHeight } : null;
     if (fireHeight >= 100) {
       const pixels = flameMask();
-      const step = Math.max(9, Math.sqrt(fireWidth * fireHeight / 1900));
+      const step = Math.max(9, Math.sqrt(fireWidth * fireHeight / (desktop ? palette.shapeSamples : 1900)));
       for (let y = step / 2; y < fireHeight; y += step) {
         for (let x = step / 2; x < fireWidth; x += step) {
           const pixel = (Math.floor(y / fireHeight * 320) * 240 + Math.floor(x / fireWidth * 240)) * 4;
-          if (pixels[pixel + 3] > 128 && random() > .08) {
-            const loose = random() < .24;
-            const scatter = step * (loose ? 5 + random() * 4 : 1.8 + random() * 1.6);
+          if (pixels[pixel + 3] > 128 && random() > .025) {
+            const loose = random() < palette.looseRatio;
+            // Keep most resting samples close to the SVG mask. A sparse loose
+            // layer and pointer flow can still break the silhouette.
+            const scatter = step * (loose ? 3 + random() * 2 : .55 + random() * .35);
             addPoint(fireLeft + x + (random() - .5) * scatter, fireTop + y + (random() - .5) * scatter, true, loose ? .5 + random() * .25 : 1);
           }
         }
@@ -257,7 +261,7 @@
     }
     if (fireArea) {
       const occupied = points.filter(point => point.featured);
-      const layers = desktop ? [{ tier:'medium', count:palette.mediumCount, gap:28 },{ tier:'small', count:palette.smallCount, gap:15 }] : [{ tier:'medium', count:3, gap:18 },{ tier:'small', count:6, gap:12 }];
+      const layers = desktop ? [{ tier:'medium', count:palette.mediumCount, gap:24 },{ tier:'small', count:palette.smallCount, gap:12 }] : [{ tier:'medium', count:3, gap:18 },{ tier:'small', count:6, gap:12 }];
       for (const layer of layers) {
         const candidates = points.filter(point => point.fire && !point.featured && !point.tier && point.softness > .8);
         for (let i=0; i<layer.count; i++) {

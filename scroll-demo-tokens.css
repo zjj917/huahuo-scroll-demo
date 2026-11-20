@@ -80,12 +80,14 @@
   --hero-dot-featured-size: 52;
   --hero-dot-featured-opacity: .9;
   --hero-dot-medium-size: 26;
-  --hero-dot-small-size: 14;
+  --hero-dot-small-size: 16;
   --hero-dot-medium-opacity: .74;
   --hero-dot-small-opacity: .56;
-  --hero-dot-medium-count: 15;
-  --hero-dot-small-count: 34;
+  --hero-dot-medium-count: 28;
+  --hero-dot-small-count: 120;
   --hero-dot-volume-spread: .12;
+  --hero-dot-shape-samples: 2400;
+  --hero-dot-shape-loose-ratio: .1;
   --hero-dot-depth-size: .3;
   --hero-dot-depth-fade: .42;
   --hero-dot-rear-blur: 5;
