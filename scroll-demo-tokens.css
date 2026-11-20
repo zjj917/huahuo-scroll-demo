@@ -33,6 +33,7 @@
   --text-xs: .75rem;
   --text-sm: .875rem;
   --font-weight-navigation: 500;
+  --font-weight-navigation-selected: 600;
   --hero-action-height: 56px;
   --hero-action-font-size: 1.25rem;
   --hero-action-min-width: 168px;
