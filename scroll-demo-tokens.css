@@ -93,6 +93,11 @@
   --hero-dot-rear-blur: 5;
   --hero-dot-shape-scale: 1.2;
   --hero-dot-star-glow: .65;
+  --hero-dot-spark-cyan: rgba(0,255,232,1);
+  --hero-dot-spark-violet: rgba(196,48,255,1);
+  --hero-dot-spark-blue: rgba(36,110,255,1);
+  --hero-dot-spark-yellow: rgba(255,235,0,1);
+  --hero-dot-spark-white: rgba(255,255,255,1);
   --hero-dot-star-core: rgba(255,244,233,1);
   --hero-dot-star-pink: rgba(255,145,191,1);
   --hero-dot-star-blue: rgba(155,205,255,1);
@@ -137,7 +142,6 @@
   --content-title-size: 20px;
   --content-title-mobile-size: 18px;
   --content-title-weight: 600;
-  --footer-divider-width: .5px;
   --text-base: 1rem;
   --text-lg: 1.125rem;
   --text-xl: 1.375rem;

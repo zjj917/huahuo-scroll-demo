@@ -51,9 +51,7 @@
 .tail-footer-main { display: flex; justify-content: space-between; align-items: center; gap: 32px; padding-bottom: 36px; }
 .tail-footer-main p { margin: 0; font-size: 14px; color: var(--muted); }
 .tail-footer-main .tail-footer-brand { margin-bottom: 12px; font-size: 32px; font-weight: 700; line-height: 1.25; color: var(--ink); letter-spacing: -.04em; }
-.tail-back-top { min-height: 44px; display: inline-flex; align-items: center; gap: 20px; padding: 10px 0 10px 16px; font-size: 14px; flex: none; }
-.tail-back-top:hover { text-decoration: underline; text-underline-offset: 5px; }
-.tail-footer-legal { display: flex; justify-content: space-between; align-items: baseline; gap: 16px 32px; flex-wrap: wrap; padding-top: 24px; border-top: var(--footer-divider-width) solid var(--line); color: var(--muted); font-size: 12px; line-height: 1.7; }
+.tail-footer-legal { display: flex; justify-content: space-between; align-items: baseline; gap: 16px 32px; flex-wrap: wrap; padding-top: 24px; border-top: 0; color: var(--muted); font-size: 12px; line-height: 1.7; }
 .tail-footer-legal p { margin: 0; }
 .tail-footer-legal > div { display: flex; gap: 16px 24px; flex-wrap: wrap; }
 .tail-content button:focus-visible, .tail-content a:focus-visible { outline: 2px solid var(--ink); outline-offset: 5px; }
@@ -80,7 +78,6 @@
   .tail-answer-inner p { font-size: 13px; padding-right: 16px; }
   .tail-footer { padding-block: 40px 28px; }
   .tail-footer-main { align-items: flex-start; flex-direction: column; gap: 24px; padding-bottom: 24px; }
-  .tail-back-top { padding-left: 0; }
 }
 @media (prefers-reduced-motion: reduce) {
   .tail-content *, .tail-content *::before, .tail-content *::after { transition: none !important; animation: none !important; }

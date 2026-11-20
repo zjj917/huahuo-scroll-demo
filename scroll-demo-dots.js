@@ -102,6 +102,7 @@
       depthFade: Number(token('depth-fade')), rearBlur: Number(token('rear-blur')),
       shapeScale: Number(token('shape-scale')), starGlow: Number(token('star-glow')),
       starCore: token('star-core'), starPink: token('star-pink'), starBlue: token('star-blue'),
+      sparkColors: ['cyan','violet','blue','yellow','white'].map(name => token(`spark-${name}`)),
       underlight: token('underlight'), underlightOpacity: Number(token('underlight-opacity')),
       entryDuration: Number(token('entry-duration')),
       featuredDrift: Number(token('featured-drift')),
@@ -120,7 +121,7 @@
       fireFront: style.getPropertyValue('--hero-fire-front').trim(),
       fireCore: style.getPropertyValue('--hero-fire-core').trim(),
     };
-    starSprites = [palette.starPink, palette.starBlue].map(color => {
+    starSprites = [palette.starPink, palette.starBlue, ...palette.sparkColors].map(color => {
       const sprite = document.createElement('canvas');
       sprite.width = sprite.height = 64;
       const pen = sprite.getContext('2d');
@@ -281,6 +282,10 @@
         }
       }
     }
+    // Reuse a small subset of tiny particles as saturated lights.
+    points.forEach(point => {
+      if (point.fire && !point.featured && !point.tier && random() < .1) point.sparkIndex = Math.floor(random()*5);
+    });
     points.sort((a, b) => a.depth - b.depth);
     resizeNeeded = false;
     viewNeeded = true;
@@ -415,7 +420,12 @@
     // One additive pass, rather than two blend-mode changes per particle.
     context.globalCompositeOperation = 'lighter';
     for (const point of points) {
-      if (!point.featured && !point.tier && (point.ambient || (point.fire ? point.depth > .64 : point.depth > .98))) paintStar(point);
+      if (!point.featured && !point.tier && (point.sparkIndex !== undefined || point.ambient || (point.fire ? point.depth > .64 : point.depth > .98))) paintStar(point);
+      if (point.featured || point.tier === 'medium') {
+        const radius = portraitSize(point) * .9;
+        context.globalAlpha = (.1 + point.depth*.08) * currentShape**2;
+        context.drawImage(starSprites[point.portrait%2],point.x-radius,point.y-radius,radius*2,radius*2);
+      }
     }
     context.globalCompositeOperation = 'source-over';
     // Particle depth is sorted once on resize. Only hovered faces need promotion.
@@ -433,6 +443,16 @@
   }
   function paintStar(point) {
     const x=point.x, y=point.y;
+    if (point.sparkIndex !== undefined) {
+      const pulse = reduced.matches || !finePointer.matches ? 1 : .86 + .14*Math.sin(flowTime*.9+point.phase);
+      const gathered = .12 + currentShape*.88;
+      const size = 10 + point.depth*7;
+      context.globalAlpha = .9*gathered*pulse;
+      context.drawImage(starSprites[2+point.sparkIndex],x-size/2,y-size/2,size,size);
+      context.beginPath(); context.arc(x,y,.8+point.depth*.4,0,Math.PI*2);
+      context.fillStyle = palette.sparkColors[point.sparkIndex]; context.globalAlpha = gathered*pulse; context.fill();
+      return;
+    }
     // Cached light sprites give a bright core and wide bloom without per-point
     // shadowBlur. A sparse foreground population carries the strongest light.
     if ((!point.featured && !point.tier) && (point.ambient || point.fire || point.depth > .94)) {
@@ -449,6 +469,7 @@
     }
   }
   function paintPortrait(point) {
+    if (point.sparkIndex !== undefined) return;
     const x = point.x;
     const y = point.y;
     const emphasis = point.heat ** 2;
@@ -458,7 +479,7 @@
     const baseSize = smallSize + (featuredSize - smallSize) * featuredBlend;
     const size = baseSize + (Math.max(baseSize, palette.hoverSize * (.8 + point.depth * .3)) - baseSize) * emphasis;
     const radius = size / 2;
-    if (point.fire && currentShape > .08) {
+    if (point.fire && point.tier !== 'small' && currentShape > .08) {
       const zone = point.center * .6 + point.depth * .4;
       const tone = zone > .77 ? palette.fireCore : zone > .54 ? palette.fireFront : zone > .28 ? palette.fireMid : palette.fireBack;
       const pulse = .82 + Math.sin(flowTime * (1.05 + point.depth * .8) + point.phase) * .18;
@@ -469,7 +490,7 @@
       context.globalAlpha = Math.min(.82, palette.flameOpacity * (.75 + zone * 1.3) * pulse) * currentShape ** 2 * point.softness;
       context.fill();
     }
-    if (point.heat > .1) {
+    if (point.heat > .1 && point.tier !== 'small') {
       const haloRadius = radius + 7;
       context.globalAlpha = emphasis * .28;
       context.drawImage(starSprites[point.portrait%2],x-haloRadius,y-haloRadius,haloRadius*2,haloRadius*2);
@@ -479,7 +500,7 @@
     const depthOpacity = 1 - (1-point.depth) * palette.depthFade;
     const faceOpacity = (point.featured ? palette.featuredOpacity : point.tier==='medium' ? palette.mediumOpacity : palette.smallOpacity) * depthOpacity;
     context.globalAlpha = Math.min(1, smallOpacity + (faceOpacity - smallOpacity) * featuredBlend + .42 * point.heat);
-    const rear = point.tier && point.depth < .3 && point.heat < .1 && currentShape > .5;
+    const rear = point.tier === 'medium' && point.depth < .3 && point.heat < .1 && currentShape > .5;
     const portrait = ((point.featured || point.tier) && ((rear && softPortraits[point.featuredProfile]) || featuredPortraits[point.featuredProfile])) || portraits[point.portrait];
     if (portrait) context.drawImage(portrait, x - radius, y - radius, size, size);
     else {
