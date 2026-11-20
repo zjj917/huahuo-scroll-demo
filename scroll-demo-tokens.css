@@ -39,11 +39,24 @@
   --hero-action-min-width: 168px;
   --hero-action-mobile-height: 56px;
   --hero-kicker-font-size: 18px;
+  --tilt-perspective: 1000px;
+  --tilt-return: 700ms;
+  --tilt-return-ease: var(--ease-smooth-out);
+  --tilt-follow: 120ms;
+  --tilt-follow-ease: var(--ease-smooth-out);
+  --tilt-glare-opacity: .24;
+  --tilt-glare-fade: 300ms;
+  --tilt-glare-ease: var(--ease-smooth-out);
+  --value-tilt-angle: 3;
+  --value-glare-blue: rgba(121,172,236,.28);
+  --value-glare-violet: rgba(188,143,221,.22);
+  --value-glare-pearl: rgba(255,255,255,.2);
   --value-graphic-width: 180px;
   --value-graphic-height: 80px;
   --value-graphic-stroke: 1.5;
-  --hero-emphasis-line-width: .045em;
-  --hero-emphasis-line-offset: .06em;
+  --hero-underline-stroke: 3;
+  --hero-underline-secondary: rgba(184,148,242,1);
+  --hero-underline-second-delay: 300ms;
   --hero-emphasis-duration: 900ms;
   --hero-emphasis-delay: 200ms;
   --hero-copy-bottom: var(--space-120);
@@ -71,6 +84,11 @@
   --service-grid-columns: minmax(240px, .42fr) minmax(0, 1fr);
   --service-grid-gap: clamp(32px, 4vw, 64px);
   --service-frame-gap: 60px;
+  --service-frame-title-size: 24px;
+  --service-frame-title-mobile-size: 20px;
+  --service-frame-description-size: 15px;
+  --service-step-size: 16px;
+  --service-description-lag: 96px;
   /* Award-specific display tokens: larger media and distinct prize lettering. */
   --case-card-width: clamp(360px,46vw,720px);
   --case-award-font-size: clamp(32px,2.8vw,40px);

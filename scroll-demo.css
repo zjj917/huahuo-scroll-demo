@@ -92,9 +92,12 @@ html.is-pinned .story-scene.is-current { pointer-events: auto; }
 .hero-copy { position: relative; z-index: 4; pointer-events: none; }
 .hero-copy .scene-kicker { font-size: var(--hero-kicker-font-size); }
 .hero-emphasis { display: inline-block; position: relative; }
-.hero-emphasis::after { content: ''; position: absolute; left: 0; right: 0; bottom: var(--hero-emphasis-line-offset); height: var(--hero-emphasis-line-width); background: currentColor; border-radius: var(--radius-full); transform: scaleX(0); transform-origin: left; animation: hero-underline-draw var(--hero-emphasis-duration) var(--ease-smooth-out) var(--hero-emphasis-delay) both; }
-@keyframes hero-underline-draw { to { transform: scaleX(1); } }
-@media (prefers-reduced-motion: reduce) { .hero-emphasis::after { animation: none; transform: scaleX(1); } }
+.hero-underline { position: absolute; left: 0; bottom: -.16em; width: 100%; height: .32em; overflow: visible; fill: none; stroke-linecap: round; stroke-width: var(--hero-underline-stroke); }
+.hero-underline path { stroke-dasharray: 1; stroke-dashoffset: 1; animation: hero-underline-draw var(--hero-emphasis-duration) var(--ease-smooth-out) var(--hero-emphasis-delay) both; }
+.hero-underline-first { stroke: var(--color-brand); }
+.hero-underline .hero-underline-second { stroke: var(--hero-underline-secondary); animation-delay: calc(var(--hero-emphasis-delay) + var(--hero-underline-second-delay)); }
+@keyframes hero-underline-draw { to { stroke-dashoffset: 0; } }
+@media (prefers-reduced-motion: reduce) { .hero-underline path { animation: none; stroke-dashoffset: 0; } }
 .hero-copy a, .hero-copy button { pointer-events: auto; }
 .hero-copy h1 { font-size: var(--display); line-height: 1.38; letter-spacing: -.06em; }
 .hero-copy h1 span { white-space: nowrap; }
@@ -141,17 +144,17 @@ html.is-pinned .service-morph { display: block; }
 .scene-service-analysis .service-symbol { background: var(--phase-blue); }
 .service-description { font-size: 15px; line-height: 1.8; margin-top: 18px; color: var(--muted); max-width: 320px; }
 .service-steps { display: flex; flex-direction: column; gap: 4px; margin-top: 28px; }
-.service-steps button { display: flex; align-items: baseline; gap: 12px; min-height: 44px; background: none; text-align: left; font-size: 13px; padding: 8px 0; color: var(--muted); }
-.service-steps button span { font-size: 12px; font-variant-numeric: tabular-nums; }
+.service-steps button { display: flex; align-items: baseline; gap: 12px; min-height: 44px; background: none; text-align: left; font-size: var(--service-step-size); padding: 8px 0; color: var(--muted); }
+.service-steps button span { font-size: var(--service-step-size); font-variant-numeric: tabular-nums; }
 .service-steps button[aria-current] { color: var(--brand-ink); font-weight: 600; }
 .scene-service-delivery .service-steps button[aria-current] { color: var(--phase-green); }
 .scene-service-analysis .service-steps button[aria-current] { color: var(--phase-blue); }
 .service-viewport { min-width: 0; }
 .service-strip { display: flex; flex-direction: column; gap: var(--service-frame-gap); will-change: transform; }
-.service-frame h3 { font-size: 20px; font-weight: 550; margin-bottom: 4px; }
+.service-frame h3 { font-size: var(--service-frame-title-size); font-weight: 550; margin-bottom: 4px; }
 .visual-placeholder { display: grid; place-items: center; height: clamp(270px,46vh,550px); background: var(--panel); border-radius: var(--card-radius); }
 .visual-placeholder span { color: var(--muted); font-size: 14px; }
-.service-frame > p { color: var(--muted); font-size: 14px; margin-bottom: 16px; line-height: 1.8; }
+.service-frame > p { color: var(--muted); font-size: var(--service-frame-description-size); margin-bottom: 16px; line-height: 1.8; }
 .scene-cases-intro { --case-cover-height: 75svh; min-height: 100svh; padding: 0; overflow: clip; background: var(--page); }
 .case-film { position: absolute; inset: 0 auto auto 0; width: 100%; height: 100%; z-index: 4; overflow: clip; pointer-events: none; }
 .case-film img { display: block; width: 100%; height: 100%; object-fit: cover; }
@@ -207,7 +210,7 @@ html.is-linear .case-awards { position: relative; inset: auto; padding: 0 0 var(
   .value-card p { font-size: 13px; }
   .scene-service { grid-template-columns: var(--service-grid-columns); gap: var(--service-grid-gap); }
   .service-description { font-size: 14px; }
-  .service-steps button { font-size: 12px; }
+  .service-steps button { font-size: var(--service-step-size); }
 }
 @media (max-width:900px) {
   .value-card p > span { display: inline; }
@@ -248,11 +251,11 @@ html.is-linear .case-awards { position: relative; inset: auto; padding: 0 0 var(
   .service-copy h2 { font-size: 44px; }
   .service-description { max-width: 100%; font-size: 15px; }
   .service-steps { margin-top: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-  .service-steps button { font-size: 12px; padding: 8px; background: var(--subtle); border-radius: 8px; }
+  .service-steps button { font-size: var(--service-step-size); padding: 8px; background: var(--subtle); border-radius: 8px; }
   .service-viewport { margin-top: 32px; }
-  .service-frame h3 { font-size: 18px; }
+  .service-frame h3 { font-size: var(--service-frame-title-mobile-size); }
   .visual-placeholder { height: 220px; }
-  .service-frame > p { font-size: 14px; margin-bottom: 14px; }
+  .service-frame > p { font-size: var(--service-frame-description-size); margin-bottom: 14px; }
   .scene-cases-intro { --case-cover-height: max(400px,75svh); }
   .case-film img { object-position: 50% 50%; }
   html.is-linear .case-rail { grid-template-columns: 1fr; gap: 32px; }
@@ -289,3 +292,13 @@ html.is-linear .case-awards { position: relative; inset: auto; padding: 0 0 var(
   .story-scene { position:relative !important; opacity:1 !important; visibility:visible !important; transform:none !important; min-height:0 !important; break-inside:avoid; }
   .service-strip, .case-rail, .value-card { transform:none !important; opacity:1 !important; }
 }
+
+/* Keep the scroll entrance on the outer card and pointer tilt on its surface. */
+.value-card.t-tilt { padding: 0; background: transparent; touch-action: auto; }
+.value-card-surface.t-tilt-card { width: 100%; height: 100%; flex: 1; min-height: inherit; padding: var(--space-24); border-radius: var(--card-radius); background: var(--subtle); display: flex; flex-direction: column; justify-content: space-between; isolation: isolate; }
+.value-card-surface > :not(.t-tilt-glare) { position: relative; z-index: 1; }
+.value-card .t-tilt-glare { z-index: 2; background: radial-gradient(ellipse at var(--tilt-gx,50%) var(--tilt-gy,50%),var(--value-glare-pearl),transparent 65%),conic-gradient(from 125deg at var(--tilt-gx,50%) var(--tilt-gy,50%),transparent,var(--value-glare-blue),transparent,var(--value-glare-violet),transparent); }
+@media (max-width:760px) { .value-card-surface.t-tilt-card { padding: var(--space-24) var(--space-16); } }
+@media (prefers-reduced-motion:reduce), (hover:none), (pointer:coarse) { .value-card .t-tilt-glare { display:none; } .value-card-surface.t-tilt-card { transform:none; } }
+
+.service-steps button { overflow-wrap: anywhere; line-height: 1.5; }

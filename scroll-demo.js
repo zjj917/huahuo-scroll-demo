@@ -18,6 +18,7 @@
   const portalKicker = document.querySelector('.portal-kicker');
   const portalHeading = document.getElementById('cases-intro-title');
   const portalCopy = document.querySelector('.portal-copy');
+  const serviceIntroDescription = document.querySelector('.services-intro-copy > p:last-child');
   const valueCards = [...document.querySelectorAll('.value-card')];
   const heroTitle = document.getElementById('hero-title');
   const valuesTitle = document.getElementById('values-title');
@@ -87,6 +88,37 @@
   setTheme(savedTheme || (themePreference.matches ? 'dark' : 'light'));
   themeButton.addEventListener('click', () => setTheme(root.dataset.mode === 'dark' ? 'light' : 'dark', true));
   themePreference.addEventListener('change', event => { if (!savedTheme) setTheme(event.matches ? 'dark' : 'light'); });
+
+  const fineHover = matchMedia('(hover: hover) and (pointer: fine)');
+  const tiltResets = valueCards.map(outer => {
+    const surface = outer.querySelector('.t-tilt-card');
+    if (!surface) return () => {};
+    const reset = () => {
+      outer.classList.remove('is-hover');
+      surface.classList.remove('is-tilting');
+      surface.style.setProperty('--tilt-rx', '0deg');
+      surface.style.setProperty('--tilt-ry', '0deg');
+    };
+    outer.addEventListener('pointermove', event => {
+      if (event.pointerType === 'touch' || reduced.matches || !fineHover.matches) return;
+      const bounds = outer.getBoundingClientRect();
+      const x = clamp((event.clientX-bounds.left)/bounds.width);
+      const y = clamp((event.clientY-bounds.top)/bounds.height);
+      const max = Number(getComputedStyle(outer).getPropertyValue('--value-tilt-angle'));
+      outer.classList.add('is-hover'); surface.classList.add('is-tilting');
+      surface.style.setProperty('--tilt-rx', `${(1-2*y)*max}deg`);
+      surface.style.setProperty('--tilt-ry', `${(2*x-1)*max}deg`);
+      surface.style.setProperty('--tilt-gx', `${x*100}%`);
+      surface.style.setProperty('--tilt-gy', `${y*100}%`);
+    });
+    ['pointerleave','pointercancel'].forEach(name => outer.addEventListener(name, reset));
+    return reset;
+  });
+  const resetTilts = () => tiltResets.forEach(reset => reset());
+  window.addEventListener('scroll', resetTilts, { passive:true });
+  window.addEventListener('blur', resetTilts);
+  reduced.addEventListener('change', resetTilts);
+  fineHover.addEventListener('change', resetTilts);
 
   function nearestScene() {
     let index = 0;
@@ -224,7 +256,13 @@
       scene.style.opacity = '1';
       // Both text sections share one moving edge, timed with the band morph.
       // The incoming content keeps moving until the icon reaches its endpoint.
-      const shift = (1 - enter) * height - (1 - exit) * height;
+      let shift = (1 - enter) * height - (1 - exit) * height;
+      if (outgoing >= 0) {
+        const transition = serviceTransitions[outgoing];
+        const rise = smooth((units-transition.bandStart)/(transition.bandEnd-transition.bandStart));
+        const morph = serviceProgress[outgoing];
+        shift = (1-enter)*height - height*(.44*rise*(1-morph)+morph);
+      }
       scene.style.transform = pinned ? `translateY(${(i < 2 ? openingShift : shift).toFixed(2)}px)` : 'none';
     });
     if (!pinned) nextIndex = nearestScene();
@@ -265,6 +303,14 @@
       card.style.opacity = pinned ? String(entry) : '1';
       card.style.transform = pinned ? `translateY(${(1 - entry) * 120}px)` : 'none';
     });
+    // Description follows the heading on a later scroll interval; both share
+    // their resting layout, while reverse scrolling retraces the same lag.
+    if (serviceIntroDescription) {
+      const follow = smooth((units - 2.35) / .75);
+      const leaving = serviceProgress[0];
+      const lag = parseFloat(getComputedStyle(root).getPropertyValue('--service-description-lag'));
+      serviceIntroDescription.style.transform = pinned ? `translateY(${(1-follow)*lag + leaving*(1-leaving)*lag}px)` : '';
+    }
     serviceData.forEach(data => {
       const position = clamp((units - data.frameStart) / (data.frameEnd - data.frameStart)) * (data.frames.length - 1);
       const base = Math.floor(position);
