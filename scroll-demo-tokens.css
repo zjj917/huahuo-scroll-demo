@@ -106,6 +106,12 @@
   --hero-meteor-beam: rgba(105,110,255,.20);
   --hero-meteor-beam-core: rgba(210,222,255,.32);
   --hero-effect-control-size: 44px;
+  --hero-dot-planet-rim: rgba(255,142,181,1);
+  --hero-dot-planet-glow: rgba(255,60,130,.26);
+  --hero-dot-planet-surface: rgba(9,8,14,1);
+  --hero-dot-planet-shadow: rgba(0,0,0,.62);
+  --hero-dot-planet-orbit-speed: .055;
+  --hero-dot-planet-face-count: 38;
   --hero-dot-meteor-tail: rgba(124,132,255,1);
   --hero-dot-meteor-core: rgba(236,243,255,1);
   --hero-dot-meteor-count: 36;

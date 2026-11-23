@@ -28,8 +28,12 @@
   const arrivals = [];
   let nextMeteorAt = 0;
   let effect = 'meteor';
-  try { effect = localStorage.getItem('huahuo-hero-effect') === 'cinema' ? 'cinema' : 'meteor'; } catch (_) {}
-  const effectButton = document.querySelector('[data-hero-effect-toggle]');
+  try { effect = ['meteor','cinema','planet'].includes(localStorage.getItem('huahuo-hero-effect')) ? localStorage.getItem('huahuo-hero-effect') : 'meteor'; } catch (_) {}
+  const effectSelect = document.querySelector('[data-hero-effect-select]');
+  let planetSprite, planetFaceShade;
+  let planetGeometry=null;
+  let planetFaces=[];
+  let planetCandidates=[];
   // Verified public accounts; representative leading creators, not a ranking.
   const featuredProfiles = [
     { mid: 546195, name: '老番茄', category: '游戏创作' },
@@ -131,6 +135,10 @@
       meteorGapMin: Number(token('meteor-gap-min')) || .9,
       meteorGapMax: Number(token('meteor-gap-max')) || 2,
       meteorTail: token('meteor-tail'), meteorCore: token('meteor-core'),
+      planetRim:token('planet-rim'), planetGlow:token('planet-glow'),
+      planetSurface:token('planet-surface'), planetShadow:token('planet-shadow'),
+      planetSpeed:Number(token('planet-orbit-speed')) || .055,
+      planetCount:Number(token('planet-face-count')) || 38,
       featuredDrift: Number(token('featured-drift')),
       reach: Number(token('reach')),
       shapeSamples: Number(token('shape-samples')) || 2400,
@@ -170,6 +178,7 @@
     const tail=tailPen.createLinearGradient(0,0,256,0);
     tail.addColorStop(0,'transparent');tail.addColorStop(.55,palette.meteorTail);tail.addColorStop(1,palette.meteorCore);
     tailPen.fillStyle=tail;tailPen.fillRect(0,6,256,4);
+    cachePlanetArtwork();
   }
   function resetPoints() {
     pointer.active = false;
@@ -177,6 +186,7 @@
     card.hidden = true;
     selected = null;
     meteors.length=0;arrivals.length=0;nextMeteorAt=0;
+    planetCandidates=[];
     const shapeBlend = shapeAmount();
     points.forEach(point => {
       const goal = goalFor(point, shapeBlend);
@@ -356,6 +366,7 @@
       if (point.fire && !point.featured && !point.tier && random() < .1) point.sparkIndex = Math.floor(random()*5);
     });
     points.sort((a, b) => a.depth - b.depth);
+    if(effect==='planet') buildPlanet();
     resizeNeeded = false;
     viewNeeded = true;
     hasBuilt = true;
@@ -475,6 +486,13 @@
       const progress = entryElapsed / palette.entryDuration;
       entryAmount = progress * progress * (3 - 2 * progress);
     }
+    if (effect==='planet') {
+      if(entryElapsed>=palette.entryDuration)entryFinished=true;
+      drawPlanet(elapsed,staticField,ready);
+      if (!staticField && ready) frame=requestAnimationFrame(draw);
+      else lastTime=0;
+      return;
+    }
     const shapeBlend = shapeAmount();
     currentShape = shapeBlend;
     let moving = !staticField && (ready || entryFinished);
@@ -559,6 +577,99 @@
     context.globalAlpha = 1;
     if (moving) frame = requestAnimationFrame(draw);
     else lastTime = 0;
+  }
+  function cachePlanetArtwork() {
+    planetSprite=document.createElement('canvas');planetSprite.width=planetSprite.height=1024;
+    const pen=planetSprite.getContext('2d');
+    const atmosphere=pen.createRadialGradient(512,512,354,512,512,505);
+    atmosphere.addColorStop(0,palette.planetGlow);atmosphere.addColorStop(.12,palette.planetGlow);atmosphere.addColorStop(1,'transparent');
+    pen.fillStyle=atmosphere;pen.fillRect(0,0,1024,1024);
+    pen.beginPath();pen.arc(512,512,360,0,Math.PI*2);pen.fillStyle=palette.planetSurface;pen.fill();
+    const edge=pen.createRadialGradient(512,512,305,512,512,362);
+    edge.addColorStop(0,'transparent');edge.addColorStop(.78,palette.planetGlow);edge.addColorStop(1,palette.planetRim);
+    pen.fillStyle=edge;pen.fill();
+    planetFaceShade=document.createElement('canvas');planetFaceShade.width=planetFaceShade.height=96;
+    const shade=planetFaceShade.getContext('2d');shade.beginPath();shade.arc(48,48,47,0,Math.PI*2);shade.clip();
+    const sphere=shade.createRadialGradient(24,20,4,54,55,60);
+    sphere.addColorStop(0,'transparent');sphere.addColorStop(.55,'transparent');sphere.addColorStop(1,palette.planetShadow);
+    shade.fillStyle=sphere;shade.fillRect(0,0,96,96);
+  }
+  function buildPlanet() {
+    const compact=width<900;
+    const radius=compact ? Math.min(width*.70,height*.29) : Math.min(height*.9,width*.52);
+    planetGeometry={x:compact ? width*1.02 : width*1.035,y:compact ? Math.min(height*.46,copyBounds.top-bounds.top-24) : height*1.10,radius,compact};
+    planetFaces=Array.from({length:compact ? 17 : palette.planetCount},(_,index)=>({
+      phase:index*(Math.PI*2/(compact ? 17 : palette.planetCount))+.23,
+      lane:index%3,featuredProfile:index%featuredProfiles.length,
+      scale:index%9===0 ? 1.6 : .66+(index%5)*.16,
+    }));
+  }
+  function planetOrbit(face) {
+    const g=planetGeometry;
+    const angle=face.phase+flowTime*palette.planetSpeed*(face.lane===1 ? .85 : 1);
+    const rx=g.radius*(1.23+face.lane*.065),ry=g.radius*(.40+face.lane*.022);
+    const tilt=.48,dx=Math.cos(angle)*rx,dy=Math.sin(angle)*ry;
+    return {x:g.x+dx*Math.cos(tilt)-dy*Math.sin(tilt),y:g.y+dx*Math.sin(tilt)+dy*Math.cos(tilt),depth:-Math.sin(angle),angle};
+  }
+  function paintPlanetRing(front) {
+    const g=planetGeometry;context.beginPath();let connected=false;
+    for(let i=0;i<=100;i++) {
+      const point=planetOrbit({phase:i/100*Math.PI*2,lane:1});
+      if((point.depth>=0)!==front){connected=false;continue;}
+      if(connected)context.lineTo(point.x,point.y);else context.moveTo(point.x,point.y);
+      connected=true;
+    }
+    context.strokeStyle=palette.planetRim;context.lineWidth=.6;context.globalAlpha=front ? .15 : .07;context.stroke();
+  }
+  function paintPlanetFace(face,position,front) {
+    const g=planetGeometry;
+    const depth=(position.depth+1)/2;
+    const size=(g.compact ? 16 : 25)*face.scale*(.65+depth*.75);
+    const alpha=(.24+depth*.68)*Math.min(1,entryAmount*2);
+    if(position.x+size<0||position.x-size>width||position.y+size<100||position.y-size>height)return;
+    context.globalAlpha=alpha*.25;
+    context.drawImage(starSprites[0],position.x-size*.8,position.y-size*.8,size*1.6,size*1.6);
+    const sprite=featuredPortraits[face.featuredProfile];
+    context.globalAlpha=alpha;
+    if(sprite)context.drawImage(sprite,position.x-size/2,position.y-size/2,size,size);
+    context.drawImage(planetFaceShade,position.x-size/2,position.y-size/2,size,size);
+    // The upper-left rim shares the planet's light; the lower-right is shaded.
+    context.beginPath();context.arc(position.x,position.y,size/2,-Math.PI*.9,-Math.PI*.1);
+    context.strokeStyle=palette.planetRim;context.lineWidth=.9;context.globalAlpha=alpha*.45;context.stroke();
+    if(front)planetCandidates.push({...face,x:position.x,y:position.y,hitRadius:size/2,featured:true,depth});
+  }
+  function drawPlanet(elapsed,staticField,ready) {
+    if(!planetGeometry)buildPlanet();
+    const g=planetGeometry;
+    context.clearRect(0,0,width,height);planetCandidates=[];
+    // Space remains open around the copy. Geometry is clipped before any face
+    // or ring can cross text, navigation, or the primary actions.
+    context.save();context.beginPath();
+    if(g.compact)context.rect(0,90,width,Math.max(0,copyBounds.top-bounds.top-110));
+    else {context.rect(0,100,width,Math.max(0,copyBounds.top-bounds.top-130));context.rect(Math.max(width*.49,copyBounds.right-bounds.left+20),100,width,height-100);}
+    context.clip();
+    context.globalCompositeOperation='lighter';
+    for(const point of points)if(!point.fire&&(point.depth>.86||point.ambient))paintStar(point);
+    context.globalCompositeOperation='source-over';
+    const orbit=planetFaces.map(face=>({face,position:planetOrbit(face)}));
+    paintPlanetRing(false);
+    orbit.filter(item=>item.position.depth<0).forEach(item=>paintPlanetFace(item.face,item.position,false));
+    context.globalAlpha=1;
+    const diameter=g.radius*1024/360;
+    context.drawImage(planetSprite,g.x-diameter/2,g.y-diameter/2,diameter,diameter);
+    paintPlanetRing(true);
+    orbit.filter(item=>item.position.depth>=0).sort((a,b)=>a.position.depth-b.position.depth).forEach(item=>paintPlanetFace(item.face,item.position,true));
+    // A few quiet meteors run toward the illuminated horizon indefinitely.
+    if(!staticField && ready)for(let i=0;i<3;i++) {
+      const p=((flowTime*.12+i*.39)%1),t=p*p*(3-2*p);
+      const targetX=g.x-g.radius*(.72+i*.07),targetY=g.y-g.radius*(.62-i*.05);
+      const travel=g.compact ? width*.55 : width*.46;
+      paintMeteor(targetX-travel*(1-t),targetY-travel*.62*(1-t),5,50+20*(1-p),Math.sin(Math.PI*p)*.35,undefined);
+    }
+    context.restore();context.globalAlpha=1;
+    let closest=null,distance=Infinity;
+    if(pointer.active&&!staticField)planetCandidates.forEach(face=>{const d=Math.hypot(pointer.x-face.x,pointer.y-face.y);if(d<face.hitRadius+8&&d<distance){closest=face;distance=d;}});
+    updateCard(Boolean(closest),closest,distance);
   }
   function clipMeteorField() {
     context.beginPath();
@@ -792,21 +903,18 @@
   });
   function updateEffectControl() {
     root.dataset.heroEffect=effect;
-    if (!effectButton) return;
-    effectButton.setAttribute('aria-pressed',String(effect==='meteor'));
-    const next=effect==='meteor' ? '景深汇聚' : '流星汇聚';
-    effectButton.setAttribute('aria-label',`切换为${next}`);effectButton.title=`切换为${next}`;
-    effectButton.querySelector('[data-hero-effect-label]').textContent=effect==='meteor' ? '流星汇聚' : '景深汇聚';
+    if(effectSelect) effectSelect.value=effect;
   }
   updateEffectControl();
-  effectButton?.addEventListener('click',()=>{
-    effect=effect==='meteor' ? 'cinema' : 'meteor';
+  effectSelect?.addEventListener('change',()=>{
+    if(!['meteor','cinema','planet'].includes(effectSelect.value))return;
+    effect=effectSelect.value;
     try { localStorage.setItem('huahuo-hero-effect',effect); } catch (_) {}
     updateEffectControl();
     palette.entryDuration=effect==='meteor' ? palette.meteorEntryDuration : palette.cinemaEntryDuration;
     handoffElapsed=0;
     entryFinished=false;entryElapsed=0;entryAmount=0;hasBuilt=false;resizeNeeded=true;viewNeeded=true;lastTime=0;
-    meteors.length=0;arrivals.length=0;nextMeteorAt=0;
+    meteors.length=0;arrivals.length=0;nextMeteorAt=0;planetCandidates=[];
     release();
     if (window.scrollY>10) window.scrollTo({top:0,behavior:'instant'});
   });
