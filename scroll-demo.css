@@ -323,7 +323,8 @@ html.is-pinned .scene-values h2 { font-weight:var(--hero-title-weight); }
 html.is-pinned .opening-title > [data-opening-line] { position:absolute; top:0; left:0; display:block; white-space:nowrap; transform-origin:0 0; }
 @media(max-width:1100px) { .scene-values { --values-card-padding:var(--space-24); } }
 @media(max-width:760px) {
-  .scene-values { --values-card-height:300px; --values-card-padding:var(--space-24); }
+  .scene-values { --values-card-height:360px; --values-card-padding:var(--space-24); }
+  .scene-values .value-card p { min-height:9.6em; }
   .scene-values .section-heading { padding-inline:0; }
   .scene-values .value-grid { gap:var(--space-12); }
   #values-title > [data-opening-line] { white-space:normal; }
