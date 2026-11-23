@@ -104,9 +104,9 @@
   --hero-dot-underlight: rgba(190,80,133,1);
   --hero-dot-underlight-opacity: .055;
   --hero-dot-entry-duration: 2.6;
-  --hero-dot-entry-media-count: 44;
-  --hero-dot-entry-cover-count: 22;
-  --hero-dot-entry-media-size: 128;
+  --hero-dot-entry-media-count: 18;
+  --hero-dot-entry-cover-count: 10;
+  --hero-dot-entry-media-size: 112;
   --hero-dot-featured-drift: 64;
   --hero-dot-reach: 225;
   --hero-dot-flow-boost: 1.5;

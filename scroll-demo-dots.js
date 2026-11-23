@@ -109,9 +109,9 @@
       sparkColors: ['cyan','violet','blue','yellow','white'].map(name => token(`spark-${name}`)),
       underlight: token('underlight'), underlightOpacity: Number(token('underlight-opacity')),
       entryDuration: Number(token('entry-duration')),
-      entryMediaCount: Number(token('entry-media-count')) || 44,
-      entryCoverCount: Number(token('entry-cover-count')) || 22,
-      entryMediaSize: Number(token('entry-media-size')) || 128,
+      entryMediaCount: Number(token('entry-media-count')) || 18,
+      entryCoverCount: Number(token('entry-cover-count')) || 10,
+      entryMediaSize: Number(token('entry-media-size')) || 112,
       featuredDrift: Number(token('featured-drift')),
       reach: Number(token('reach')),
       shapeSamples: Number(token('shape-samples')) || 2400,
@@ -295,20 +295,20 @@
       let coverCount = 0;
       media.forEach((point,index) => {
         point.introMedia = true;
-        point.entrySize = (point.featured ? .58 : .65+random()*.45) * palette.entryMediaSize;
-        point.entryDelay = random()*.12;
-        point.entryAngle = (random()-.5)*.6;
-        if (!point.featured && index%3 !== 0 && coverCount < palette.entryCoverCount) {
+        point.entrySize = (.85+random()*.25) * palette.entryMediaSize;
+        // A shallow ordered delay reads as a film moving through depth.
+        point.entryDelay = (index%3)*.035;
+        if (!point.featured && coverCount < palette.entryCoverCount) {
           point.coverIndex = coverCount++ % 8;
         }
       });
+      const vanishingX = fireArea.x+fireArea.width*.5;
+      const vanishingY = fireArea.y+fireArea.height*.5;
       points.filter(point => point.fire).forEach(point => {
-        const side = Math.floor(random()*3);
-        const margin = point.entrySize || 32;
-        point.entryX = side === 1 ? width+margin : interactionLeft+random()*(width-interactionLeft);
-        point.entryY = side === 0 ? -margin : side === 2 ? height+margin : 100+random()*(height-100);
-        point.entryControlX = interactionLeft+(width-interactionLeft)*(.28+random()*.6);
-        point.entryControlY = 100+random()*(height-160);
+        // All cards retreat on their own straight projection ray. No crossing,
+        // edge sources, or random rotation; the rest of the logo fades in place.
+        point.entryX = vanishingX+(point.targetX-vanishingX)*2.05;
+        point.entryY = vanishingY+(point.targetY-vanishingY)*2.05;
       });
     }
     // Reuse a small subset of tiny particles as saturated lights.
@@ -324,20 +324,29 @@
     const delay = point.entryDelay || 0;
     return Math.max(0,Math.min(1,(entryElapsed/palette.entryDuration-delay)/(1-delay)));
   }
+  function entryDepth(point) {
+    const progress = entryProgress(point);
+    // Perspective projection through depth, normalized to land at zero.
+    return (1/(1+progress*4)-.2)/.8;
+  }
+  function entryReveal(point) {
+    const p = Math.max(0,Math.min(1,(entryProgress(point)-.76)/.24));
+    return p*p*(3-2*p);
+  }
   function goalFor(point, shapeBlend) {
     let x = point.fire ? point.spreadX + (point.targetX - point.spreadX) * shapeBlend : point.targetX;
     let y = point.fire ? point.spreadY + (point.targetY - point.spreadY) * shapeBlend : point.targetY;
     const flying = point.fire && point.entryX !== undefined && !entryFinished && entryProgress(point) < 1;
     if (flying) {
-      const t = 1 - (1-entryProgress(point))**3;
-      const rest = 1-t;
-      x = rest*rest*point.entryX + 2*rest*t*point.entryControlX + t*t*point.targetX;
-      y = rest*rest*point.entryY + 2*rest*t*point.entryControlY + t*t*point.targetY;
+      const retreat = entryDepth(point);
+      x = point.targetX+(point.entryX-point.targetX)*retreat;
+      y = point.targetY+(point.entryY-point.targetY)*retreat;
+      if (!point.introMedia) { x=point.targetX; y=point.targetY; }
     }
     if (!reduced.matches && finePointer.matches) {
       const depth = point.depth * 2 - 1;
       const wave = flowTime * .55 + point.targetY * .012;
-      const strength = (point.fire ? .18 + shapeBlend * .82 : .24) * (1 + (point.fire ? interactionFlow * palette.flowBoost : 0));
+      const strength = (point.fire ? .18 + shapeBlend * .82 : .24) * (1 + (point.fire ? interactionFlow * palette.flowBoost : 0)) * (flying ? entryReveal(point) : 1);
       // Front and back layers drift at different amplitudes and phases.
       x += (Math.sin(wave + depth * .7) * (7 + point.depth * 7) + Math.sin(flowTime * .3 + point.phase) * (4 + point.depth * 5)) * strength;
       y += (Math.sin(flowTime * .43 + point.phase) * (5 + point.depth * 7) + Math.cos(wave) * depth * 4) * strength;
@@ -350,12 +359,12 @@
         }
         const progress = Math.min(1, Math.max(0, (flowTime-wander.start)/wander.duration));
         const ease = progress*progress*(3-2*progress);
-        const driftScale = point.featured ? 1 : point.tier==='medium' ? .45 : .25;
+        const driftScale = (point.featured ? 1 : point.tier==='medium' ? .45 : .25) * (flying ? entryReveal(point) : 1);
         const driftX = Math.min(palette.featuredDrift, fireArea.width * .22) * driftScale;
         const driftY = Math.min(palette.featuredDrift, fireArea.height * .16) * driftScale;
         x += (wander.fromX+(wander.toX-wander.fromX)*ease) * driftX * shapeBlend;
         y += (wander.fromY+(wander.toY-wander.fromY)*ease) * driftY * shapeBlend;
-        const volume = point.depth * 2 - 1;
+        const volume = (point.depth * 2 - 1) * (flying ? entryReveal(point) : 1);
         const orbit = flowTime * .18 + point.phase;
         x += Math.cos(orbit) * volume * fireArea.width * palette.volumeSpread * shapeBlend;
         y += Math.sin(orbit) * volume * fireArea.height * palette.volumeSpread * .45 * shapeBlend;
@@ -523,9 +532,8 @@
   }
   function paintIncomingMedia(point) {
     const progress = entryProgress(point);
-    const t = progress*progress*(3-2*progress);
-    const resting = portraitSize(point);
-    const size = resting+(point.entrySize-resting)*(1-t);
+    const resting = palette.size*point.sizeFactor;
+    const size = resting+(point.entrySize-resting)*entryDepth(point);
     const cover = point.coverIndex !== undefined && covers[point.coverIndex];
     const sprite = cover || featuredPortraits[point.featuredProfile] || portraits[point.portrait];
     if (!sprite) return;
@@ -533,14 +541,13 @@
     // Clip the decorative flight to the right of copy, preserving readable UI.
     context.save(); context.beginPath();
     context.rect(Math.min(interactionLeft, width),0,Math.max(0,width-interactionLeft),height); context.clip();
-    const restingOpacity = (point.featured ? palette.featuredOpacity : point.tier === 'medium' ? palette.mediumOpacity : palette.smallOpacity) * (1-(1-point.depth)*palette.depthFade);
-    context.globalAlpha = Math.min(1,progress*12)*(1+(restingOpacity-1)*t);
-    context.translate(point.x,point.y);context.rotate(point.entryAngle*(1-t));
+    context.globalAlpha = Math.min(1,progress*16)*.85*(1-entryReveal(point));
+    context.translate(point.x,point.y);
     context.drawImage(sprite,-size/2,-h/2,size,h);
     context.restore();
   }
   function paintPortrait(point) {
-    if (point.introMedia && !entryFinished) return;
+    if (point.introMedia && !entryFinished && entryReveal(point) === 0) return;
     if (point.sparkIndex !== undefined) return;
     const x = point.x;
     const y = point.y;
@@ -571,12 +578,10 @@
     const smallOpacity = portraitOpacity * (.28 + point.depth * .72) * point.softness;
     const depthOpacity = 1 - (1-point.depth) * palette.depthFade;
     const faceOpacity = (point.featured ? palette.featuredOpacity : point.tier==='medium' ? palette.mediumOpacity : palette.smallOpacity) * depthOpacity;
-    context.globalAlpha = Math.min(1, smallOpacity + (faceOpacity - smallOpacity) * featuredBlend + .42 * point.heat);
+    context.globalAlpha = Math.min(1, smallOpacity + (faceOpacity - smallOpacity) * featuredBlend + .42 * point.heat) * (point.introMedia && !entryFinished ? entryReveal(point) : 1);
     const rear = point.tier === 'medium' && point.depth < .3 && point.heat < .1 && currentShape > .5;
     const portrait = ((point.featured || point.tier) && ((rear && softPortraits[point.featuredProfile]) || featuredPortraits[point.featuredProfile])) || portraits[point.portrait];
-    const cover = point.coverIndex !== undefined && covers[point.coverIndex];
-    if (cover) context.drawImage(cover,x-radius,y-size*9/32,size,size*9/16);
-    else if (portrait) context.drawImage(portrait, x - radius, y - radius, size, size);
+    if (portrait) context.drawImage(portrait, x - radius, y - radius, size, size);
     else {
       context.beginPath();
       context.arc(x, y, palette.size / 2, 0, Math.PI * 2);
@@ -585,7 +590,7 @@
     }
   }
   function updateCard(responsive, closest, closestDistance) {
-    if (!responsive || !closest || closest.coverIndex !== undefined || closestDistance > (closest.fire ? 32 : 42)) { card.hidden = true; selected = null; return; }
+    if (!responsive || !closest || closestDistance > (closest.fire ? 32 : 42)) { card.hidden = true; selected = null; return; }
     // Hysteresis prevents names flickering when the pointer rests between cells.
     const selectedDistance = selected ? Math.hypot(pointer.x - selected.x, pointer.y - selected.y) : Infinity;
     if (!selected || ((closest.featured || closest.tier) && selected !== closest) || selectedDistance > closestDistance + palette.spacing * .65) {
