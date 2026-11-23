@@ -329,7 +329,7 @@ html.is-pinned .opening-title > [data-opening-line] { position:absolute; top:0; 
   #values-title > [data-opening-line] { white-space:normal; }
 }
 @media(max-height:740px) and (min-width:761px) {
-  .scene-values { padding-top:var(--space-120); --values-card-height:280px; --values-card-padding:var(--space-24); }
+  .scene-values { padding-top:var(--space-120); --values-card-height:320px; --values-card-padding:var(--space-24); }
   .scene-values .section-heading .scene-kicker { margin-bottom:var(--space-16); }
   .scene-values .section-heading > p:last-child { margin-top:var(--space-24); }
   .scene-values .value-grid { margin-top:var(--space-40); }
