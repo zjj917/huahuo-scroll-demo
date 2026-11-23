@@ -29,3 +29,8 @@ Full terms: https://transitions.dev/terms.html
 ## Creator profile images
 
 The ten featured profile photos were retrieved from Bilibili public account card data on 2026-11-20. Account IDs, original image URLs, public follower counts at retrieval, and source attribution are recorded in `assets/creators/featured-sources.json`. These are representative leading creators selected for a design demo, not an official ranking or a claim of endorsement. Rights remain with their respective owners. Medium and small readable portraits reuse these ten verified public accounts. The smallest background illustrations are the project's original demo artwork.
+
+
+## Video thumbnails in the opening animation
+
+Eight public Bilibili video thumbnails are bundled at 320×180 WebP resolution as decorative motion samples. Titles, creators, original image URLs and video URLs are recorded in `assets/covers/sources.json`. These samples do not represent Huahuo campaign cases, commercial partnerships, or endorsements. Copyright remains with the respective rights holders. No video playback or audio is included.

@@ -15,6 +15,10 @@
   const portraits = [];
   const featuredPortraits = [];
   const softPortraits = [];
+  const covers = [];
+  let assetsReady = false;
+  let pageReady = document.readyState === 'complete';
+  let entryFinished = false;
   let starSprites = [];
   let ambientSprite;
   // Verified public accounts; representative leading creators, not a ranking.
@@ -105,6 +109,9 @@
       sparkColors: ['cyan','violet','blue','yellow','white'].map(name => token(`spark-${name}`)),
       underlight: token('underlight'), underlightOpacity: Number(token('underlight-opacity')),
       entryDuration: Number(token('entry-duration')),
+      entryMediaCount: Number(token('entry-media-count')) || 44,
+      entryCoverCount: Number(token('entry-cover-count')) || 22,
+      entryMediaSize: Number(token('entry-media-size')) || 128,
       featuredDrift: Number(token('featured-drift')),
       reach: Number(token('reach')),
       shapeSamples: Number(token('shape-samples')) || 2400,
@@ -282,6 +289,28 @@
         }
       }
     }
+    if (fireArea && desktop) {
+      const faces = points.filter(point => point.featured || point.tier);
+      const media = [...faces.filter(point => point.featured), ...faces.filter(point => !point.featured).sort((a,b) => a.phase-b.phase)].slice(0,palette.entryMediaCount);
+      let coverCount = 0;
+      media.forEach((point,index) => {
+        point.introMedia = true;
+        point.entrySize = (point.featured ? .58 : .65+random()*.45) * palette.entryMediaSize;
+        point.entryDelay = random()*.12;
+        point.entryAngle = (random()-.5)*.6;
+        if (!point.featured && index%3 !== 0 && coverCount < palette.entryCoverCount) {
+          point.coverIndex = coverCount++ % 8;
+        }
+      });
+      points.filter(point => point.fire).forEach(point => {
+        const side = Math.floor(random()*3);
+        const margin = point.entrySize || 32;
+        point.entryX = side === 1 ? width+margin : interactionLeft+random()*(width-interactionLeft);
+        point.entryY = side === 0 ? -margin : side === 2 ? height+margin : 100+random()*(height-100);
+        point.entryControlX = interactionLeft+(width-interactionLeft)*(.28+random()*.6);
+        point.entryControlY = 100+random()*(height-160);
+      });
+    }
     // Reuse a small subset of tiny particles as saturated lights.
     points.forEach(point => {
       if (point.fire && !point.featured && !point.tier && random() < .1) point.sparkIndex = Math.floor(random()*5);
@@ -291,9 +320,20 @@
     viewNeeded = true;
     hasBuilt = true;
   }
+  function entryProgress(point) {
+    const delay = point.entryDelay || 0;
+    return Math.max(0,Math.min(1,(entryElapsed/palette.entryDuration-delay)/(1-delay)));
+  }
   function goalFor(point, shapeBlend) {
     let x = point.fire ? point.spreadX + (point.targetX - point.spreadX) * shapeBlend : point.targetX;
     let y = point.fire ? point.spreadY + (point.targetY - point.spreadY) * shapeBlend : point.targetY;
+    const flying = point.fire && point.entryX !== undefined && !entryFinished && entryProgress(point) < 1;
+    if (flying) {
+      const t = 1 - (1-entryProgress(point))**3;
+      const rest = 1-t;
+      x = rest*rest*point.entryX + 2*rest*t*point.entryControlX + t*t*point.targetX;
+      y = rest*rest*point.entryY + 2*rest*t*point.entryControlY + t*t*point.targetY;
+    }
     if (!reduced.matches && finePointer.matches) {
       const depth = point.depth * 2 - 1;
       const wave = flowTime * .55 + point.targetY * .012;
@@ -320,8 +360,10 @@
         x += Math.cos(orbit) * volume * fireArea.width * palette.volumeSpread * shapeBlend;
         y += Math.sin(orbit) * volume * fireArea.height * palette.volumeSpread * .45 * shapeBlend;
         const edge = Math.min(palette.featuredSize, fireArea.width*.2)/2 + 12;
-        if (width >= 900) x = Math.max(interactionLeft+edge, Math.min(width-edge, x));
-        y = Math.max(100+edge, Math.min(height-edge, y));
+        if (!flying) {
+          if (width >= 900) x = Math.max(interactionLeft+edge, Math.min(width-edge, x));
+          y = Math.max(100+edge, Math.min(height-edge, y));
+        }
       }
     }
     return { x, y };
@@ -350,9 +392,14 @@
     const blend = 1 - Math.exp(-elapsed / .2);
     const damping = Math.exp(-4.2 * elapsed);
     lastTime = now;
-    const responsive = pointer.active && !reduced.matches && finePointer.matches;
+    const responsive = pointer.active && entryFinished && !reduced.matches && finePointer.matches;
     const scrollProgress = Number(canvas.style.getPropertyValue('--fire-scroll') || 0);
     const staticField = reduced.matches || !finePointer.matches;
+    const wasEntering = !entryFinished;
+    if (scrollProgress > 0 || staticField || width < 900) {
+      entryFinished = true; entryElapsed = palette.entryDuration; entryAmount = 1;
+    }
+    const ready = pageReady && assetsReady;
     // Hover builds a whole-field current; release takes longer to settle.
     const flowTarget = responsive ? 1 : 0;
     interactionFlow += (flowTarget - interactionFlow) * (1 - Math.exp(-elapsed / (responsive ? .35 : .9)));
@@ -361,13 +408,13 @@
     if (staticField) { interactionFlow = 0; entryElapsed = palette.entryDuration; entryAmount = 1; }
     else {
       flowTime += elapsed * (1 + interactionFlow * palette.flowSpeed);
-      entryElapsed = Math.min(palette.entryDuration, entryElapsed + elapsed);
+      entryElapsed = Math.min(palette.entryDuration, entryElapsed + (ready ? elapsed : 0));
       const progress = entryElapsed / palette.entryDuration;
       entryAmount = progress * progress * (3 - 2 * progress);
     }
     const shapeBlend = shapeAmount();
     currentShape = shapeBlend;
-    let moving = !staticField;
+    let moving = !staticField && (ready || entryFinished);
     context.clearRect(0, 0, width, height);
     if (fireArea && shapeBlend > .002) {
       const radius = fireArea.width * .8;
@@ -383,7 +430,7 @@
       const goal = goalFor(point, shapeBlend);
       const goalX = goal.x;
       const goalY = goal.y;
-      if (scrollProgress > 0) {
+      if (scrollProgress > 0 || (wasEntering && point.fire)) {
         point.x = goalX;
         point.y = goalY;
         point.vx = 0;
@@ -411,12 +458,16 @@
       point.vy = (point.vy + ((goalY - point.y) * spring + flowY) * elapsed) * damping;
       point.x += point.vx * elapsed;
       point.y += point.vy * elapsed;
+      if (wasEntering && point.fire) {
+        point.x = goalX; point.y = goalY; point.vx = 0; point.vy = 0;
+      }
       point.heat += (force - point.heat) * blend;
       if (staticField) { point.x = goalX; point.y = goalY; point.vx = 0; point.vy = 0; point.heat = 0; }
       else if (Math.abs(point.vx) + Math.abs(point.vy) > .08 || Math.abs(force - point.heat) > .002 || (!responsive && Math.hypot(goalX - point.x, goalY - point.y) > .12)) moving = true;
       else if (!responsive) { point.x = goalX; point.y = goalY; point.vx = 0; point.vy = 0; point.heat = 0; }
       enlarged.push(point);
     }
+    if (entryElapsed >= palette.entryDuration) entryFinished = true;
     // One additive pass, rather than two blend-mode changes per particle.
     context.globalCompositeOperation = 'lighter';
     for (const point of points) {
@@ -431,6 +482,8 @@
     // Particle depth is sorted once on resize. Only hovered faces need promotion.
     if (responsive) enlarged.sort((a, b) => (a.heat > .1) - (b.heat > .1) || a.depth - b.depth);
     enlarged.forEach(paintPortrait);
+    // Large incoming media stay readable over the tiny-particle field.
+    if (wasEntering && !entryFinished) points.filter(point => point.introMedia).forEach(paintIncomingMedia);
     updateCard(responsive, featuredClosest || closest, featuredClosest ? featuredDistance : closestDistance);
     context.globalAlpha = 1;
     if (moving) frame = requestAnimationFrame(draw);
@@ -468,7 +521,26 @@
       }
     }
   }
+  function paintIncomingMedia(point) {
+    const progress = entryProgress(point);
+    const t = progress*progress*(3-2*progress);
+    const resting = portraitSize(point);
+    const size = resting+(point.entrySize-resting)*(1-t);
+    const cover = point.coverIndex !== undefined && covers[point.coverIndex];
+    const sprite = cover || featuredPortraits[point.featuredProfile] || portraits[point.portrait];
+    if (!sprite) return;
+    const h = cover ? size*9/16 : size;
+    // Clip the decorative flight to the right of copy, preserving readable UI.
+    context.save(); context.beginPath();
+    context.rect(Math.min(interactionLeft, width),0,Math.max(0,width-interactionLeft),height); context.clip();
+    const restingOpacity = (point.featured ? palette.featuredOpacity : point.tier === 'medium' ? palette.mediumOpacity : palette.smallOpacity) * (1-(1-point.depth)*palette.depthFade);
+    context.globalAlpha = Math.min(1,progress*12)*(1+(restingOpacity-1)*t);
+    context.translate(point.x,point.y);context.rotate(point.entryAngle*(1-t));
+    context.drawImage(sprite,-size/2,-h/2,size,h);
+    context.restore();
+  }
   function paintPortrait(point) {
+    if (point.introMedia && !entryFinished) return;
     if (point.sparkIndex !== undefined) return;
     const x = point.x;
     const y = point.y;
@@ -502,7 +574,9 @@
     context.globalAlpha = Math.min(1, smallOpacity + (faceOpacity - smallOpacity) * featuredBlend + .42 * point.heat);
     const rear = point.tier === 'medium' && point.depth < .3 && point.heat < .1 && currentShape > .5;
     const portrait = ((point.featured || point.tier) && ((rear && softPortraits[point.featuredProfile]) || featuredPortraits[point.featuredProfile])) || portraits[point.portrait];
-    if (portrait) context.drawImage(portrait, x - radius, y - radius, size, size);
+    const cover = point.coverIndex !== undefined && covers[point.coverIndex];
+    if (cover) context.drawImage(cover,x-radius,y-size*9/32,size,size*9/16);
+    else if (portrait) context.drawImage(portrait, x - radius, y - radius, size, size);
     else {
       context.beginPath();
       context.arc(x, y, palette.size / 2, 0, Math.PI * 2);
@@ -511,7 +585,7 @@
     }
   }
   function updateCard(responsive, closest, closestDistance) {
-    if (!responsive || !closest || closestDistance > (closest.fire ? 32 : 42)) { card.hidden = true; selected = null; return; }
+    if (!responsive || !closest || closest.coverIndex !== undefined || closestDistance > (closest.fire ? 32 : 42)) { card.hidden = true; selected = null; return; }
     // Hysteresis prevents names flickering when the pointer rests between cells.
     const selectedDistance = selected ? Math.hypot(pointer.x - selected.x, pointer.y - selected.y) : Infinity;
     if (!selected || ((closest.featured || closest.tier) && selected !== closest) || selectedDistance > closestDistance + palette.spacing * .65) {
@@ -563,7 +637,7 @@
     const x = event.clientX - bounds.left;
     const y = event.clientY - bounds.top;
     const wasActive = pointer.active;
-    pointer.active = width >= 900 && interactionLeft + cardWidth + 20 < width && x >= interactionLeft && x <= width && y >= 100 && y <= height && !event.target.closest('header, dialog');
+    pointer.active = entryFinished && width >= 900 && interactionLeft + cardWidth + 20 < width && x >= interactionLeft && x <= width && y >= 100 && y <= height && !event.target.closest('header, dialog');
     const interval = Math.max(16, Math.min(80, (event.timeStamp || 0) - pointer.time || 16.7)) / 1000;
     pointer.vx = pointer.active && wasActive ? Math.max(-900, Math.min(900, (x-pointer.x)/interval)) : 0;
     pointer.vy = pointer.active && wasActive ? Math.max(-900, Math.min(900, (y-pointer.y)/interval)) : 0;
@@ -596,12 +670,13 @@
   });
   readPalette();
   function loadPortrait(path, target, index) {
+    return new Promise(resolve => {
     const image = new Image();
     image.onload = () => {
       const sprite = document.createElement('canvas');
       sprite.width = sprite.height = 160;
       const pen = sprite.getContext('2d');
-      if (!pen) return;
+      if (!pen) { resolve(); return; }
       pen.beginPath(); pen.arc(80, 80, 79, 0, Math.PI*2); pen.clip();
       pen.drawImage(image, 0, 0, 160, 160);
       target[index] = sprite;
@@ -616,11 +691,29 @@
           softPortraits[index] = soft;
         }
       }
-      requestDraw();
+      requestDraw(); resolve();
     };
+    image.onerror = () => resolve();
     image.src = path;
+    });
   }
-  featuredProfiles.forEach((profile, index) => loadPortrait(`assets/creators/featured-${profile.mid}.jpg`, featuredPortraits, index));
+  const assetTasks = featuredProfiles.map((profile, index) => loadPortrait(`assets/creators/featured-${profile.mid}.jpg`, featuredPortraits, index));
+  for (let index=0;index<8;index++) assetTasks.push(new Promise(resolve => {
+    const image = new Image();
+    image.onload = () => {
+      const sprite = document.createElement('canvas'); sprite.width=320; sprite.height=180;
+      const pen = sprite.getContext('2d');
+      if (pen) {
+        pen.beginPath();pen.roundRect(0,0,320,180,18);pen.clip();
+        pen.drawImage(image,0,0,320,180);covers[index]=sprite;
+      }
+      resolve();
+    };
+    image.onerror = () => resolve();
+    image.src = `assets/covers/video-${String(index+1).padStart(2,'0')}.webp`;
+  }));
+  Promise.all(assetTasks).then(() => { assetsReady=true; lastTime=0; requestDraw(); });
+  window.addEventListener('load',() => { pageReady=true;lastTime=0;requestDraw(); },{once:true});
   // Small background particles retain the project's original illustrations.
   for (let index = 0; index < 20; index++) {
     const image = new Image();
