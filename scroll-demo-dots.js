@@ -121,6 +121,8 @@
       entryCoverCount: Number(token('entry-cover-count')) || 10,
       entryMediaSize: Number(token('entry-media-size')) || 112,
       meteorCount: Number(token('meteor-count')) || 36,
+      meteorDurationMin: Number(token('meteor-duration-min')) || 3.6,
+      meteorDurationMax: Number(token('meteor-duration-max')) || 4.8,
       meteorGapMin: Number(token('meteor-gap-min')) || .9,
       meteorGapMax: Number(token('meteor-gap-max')) || 2,
       meteorTail: token('meteor-tail'), meteorCore: token('meteor-core'),
@@ -569,7 +571,7 @@
     if (flowTime>=nextMeteorAt && meteors.length<4) {
       const target=meteorTargets[Math.floor(Math.random()*meteorTargets.length)];
       const travel=Math.min(width*.65,height*1.05);
-      meteors.push({target,age:0,duration:1.25+Math.random()*.55,travel,profile:Math.random()<.3 ? Math.floor(Math.random()*featuredProfiles.length) : undefined});
+      meteors.push({target,age:0,duration:palette.meteorDurationMin+Math.random()*(palette.meteorDurationMax-palette.meteorDurationMin),travel,profile:Math.random()<.3 ? Math.floor(Math.random()*featuredProfiles.length) : undefined});
       nextMeteorAt=flowTime+palette.meteorGapMin+Math.random()*(palette.meteorGapMax-palette.meteorGapMin);
     }
     for (let index=meteors.length-1;index>=0;index--) {
