@@ -67,9 +67,15 @@
   --value-glare-blue: rgba(121,172,236,.28);
   --value-glare-violet: rgba(188,143,221,.22);
   --value-glare-pearl: rgba(255,255,255,.2);
-  --value-graphic-width: 80px;
-  --value-graphic-height: 80px;
+  --value-graphic-width: 72px;
+  --value-graphic-height: 72px;
   --value-graphic-stroke: 1.5;
+  --values-heading-size: clamp(32px,3vw,48px);
+  --values-card-height: clamp(300px,44vh,400px);
+  --values-card-radius: clamp(32px,4vw,64px);
+  --values-card-padding: var(--space-40);
+  --values-card-title-size: clamp(24px,2vw,32px);
+  --values-card-copy-size: clamp(14px,1.125vw,18px);
   --hero-emphasis-duration: 900ms;
   --hero-emphasis-delay: 200ms;
   --hero-copy-bottom: var(--space-120);

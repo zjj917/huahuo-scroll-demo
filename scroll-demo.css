@@ -307,3 +307,30 @@ html.is-pinned .scene-values h2 { font-weight:var(--hero-title-weight); }
 
 /* Real MiSans Heavy, including the moving title and its destination. */
 .hero-copy, .opening-title, #values-title { font-family:var(--hero-font-family); }
+
+/* The platform statement uses a centered heading and four generous cards. */
+.scene-values { justify-content:flex-start; padding-top:clamp(112px,16.5vh,150px); }
+.scene-values .section-heading { text-align:center; width:100%; }
+.scene-values .section-heading .scene-kicker { font-size:var(--values-card-copy-size); margin-bottom:var(--space-32); }
+.scene-values .section-heading #values-title { font-size:var(--values-heading-size); line-height:1.38; letter-spacing:-.06em; font-weight:var(--hero-title-weight); }
+#values-title > [data-opening-line] { display:inline-block; white-space:nowrap; }
+.scene-values .section-heading > p:last-child { margin-top:var(--space-32); font-size:var(--values-card-copy-size); }
+.scene-values .value-grid { width:100%; margin-top:clamp(40px,6.6vh,60px); gap:var(--space-24); }
+.scene-values .value-card { min-height:var(--values-card-height); border-radius:var(--values-card-radius); }
+.scene-values .value-card-surface { padding:var(--values-card-padding); border-radius:var(--values-card-radius); gap:var(--space-32); }
+.scene-values .value-card h3 { font-size:var(--values-card-title-size); line-height:1.4; margin-bottom:var(--space-24); }
+.scene-values .value-card p { font-size:var(--values-card-copy-size); line-height:1.6; }
+html.is-pinned .opening-title > [data-opening-line] { position:absolute; top:0; left:0; display:block; white-space:nowrap; transform-origin:0 0; }
+@media(max-width:1100px) { .scene-values { --values-card-padding:var(--space-24); } }
+@media(max-width:760px) {
+  .scene-values { --values-card-height:300px; --values-card-padding:var(--space-24); }
+  .scene-values .section-heading { padding-inline:0; }
+  .scene-values .value-grid { gap:var(--space-12); }
+  #values-title > [data-opening-line] { white-space:normal; }
+}
+@media(max-height:740px) and (min-width:761px) {
+  .scene-values { padding-top:var(--space-120); --values-card-height:280px; --values-card-padding:var(--space-24); }
+  .scene-values .section-heading .scene-kicker { margin-bottom:var(--space-16); }
+  .scene-values .section-heading > p:last-child { margin-top:var(--space-24); }
+  .scene-values .value-grid { margin-top:var(--space-40); }
+}

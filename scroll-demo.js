@@ -37,6 +37,7 @@
     openingGradient.id = 'opening-title-underline-gradient';
     openingTitle.querySelector('.hero-underline path').setAttribute('stroke', 'url(#opening-title-underline-gradient)');
   }
+  const openingLines=[...openingTitle.querySelectorAll('[data-opening-line]')];
   stage.append(openingTitle);
   const stops = [0, 1.1, 2.5, 4.8, 10.2, 14.3, 15.5];
   const awardsStart = 18.15;
@@ -142,7 +143,12 @@
     openingGeometry = {
       startX: start.left - hero.left, startY: start.top - hero.top,
       endX: end.left - values.left, endY: end.top - values.top,
-      scale: parseFloat(getComputedStyle(valuesTitle).fontSize) / parseFloat(getComputedStyle(heroTitle).fontSize)
+      scale: parseFloat(getComputedStyle(valuesTitle).fontSize) / parseFloat(getComputedStyle(heroTitle).fontSize),
+      lines:[...heroTitle.querySelectorAll(':scope > [data-opening-line]')].map((line,index)=>{
+        const from=line.getBoundingClientRect();
+        const to=valuesTitle.querySelectorAll('[data-opening-line]')[index].getBoundingClientRect();
+        return {startX:from.left-hero.left,startY:from.top-hero.top,endX:to.left-values.left,endY:to.top-values.top};
+      })
     };
     openingTitle.style.width = `${heroTitle.offsetWidth}px`;
   }
@@ -287,7 +293,13 @@
       if (available) scene.removeAttribute('aria-hidden'); else scene.setAttribute('aria-hidden','true');
     });
     const g = openingGeometry;
-    openingTitle.style.transform = `translate(${g.startX + (g.endX-g.startX)*openingProgress}px,${g.startY + (g.endY-g.startY)*openingProgress + openingShift}px) scale(${1 + (g.scale-1)*openingProgress})`;
+    openingTitle.style.transform = `translateY(${openingShift}px)`;
+    openingLines.forEach((line,index)=>{
+      const l=g.lines[index];
+      line.style.transform=`translate(${l.startX+(l.endX-l.startX)*openingProgress}px,${l.startY+(l.endY-l.startY)*openingProgress}px) scale(${1+(g.scale-1)*openingProgress})`;
+    });
+    const underline=openingTitle.querySelector('.hero-underline');
+    if(underline)underline.style.opacity=String(1-openingProgress);
     openingTitle.style.visibility = pinned && openingExit < 1 ? 'visible' : 'hidden';
     heroDetails.forEach(element => {
       element.style.opacity = pinned ? String(heroFade) : '';
