@@ -332,6 +332,8 @@
       });
     }
     if (fireArea && desktop && effect === 'meteor') {
+      // The whole field starts scattered, not pre-positioned in the logo.
+      points.filter(point=>point.fire).forEach(point=>{ point.entryDelay=point.phase/(Math.PI*2)*.22; });
       const candidates=points.filter(point => point.fire && point.softness>.8);
       const faces=candidates.filter(point => point.featured || point.tier==='medium').slice(0,8);
       const stars=candidates.filter(point => !point.featured && !point.tier);
@@ -372,8 +374,9 @@
     const flying = point.fire && !entryFinished && entryProgress(point) < 1;
     if (effect==='meteor' && flying) {
       const progress=entryProgress(point), t=1-(1-progress)**2;
-      x=point.introMeteor ? point.entryX+(point.targetX-point.entryX)*t : point.targetX;
-      y=point.introMeteor ? point.entryY+(point.targetY-point.entryY)*t : point.targetY;
+      const gather=progress*progress*(3-2*progress);
+      x=point.introMeteor ? point.entryX+(point.targetX-point.entryX)*t : point.spreadX+(point.targetX-point.spreadX)*gather;
+      y=point.introMeteor ? point.entryY+(point.targetY-point.entryY)*t : point.spreadY+(point.targetY-point.spreadY)*gather;
     }
     if (effect==='cinema' && flying && point.entryX !== undefined) {
       const retreat = entryDepth(point);
