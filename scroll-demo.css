@@ -12,7 +12,7 @@
   --glass: var(--color-header);
   --gutter: clamp(24px, 7.5vw, 144px);
   --scene-top: clamp(112px, 16vh, 180px);
-  --display: clamp(40px, 4.8vw, 88px);
+  --display: 64px;
   --headline: clamp(36px, 3.8vw, 64px);
   --card-radius: 28px;
   --phase-green: rgba(0, 143, 97, 1);
