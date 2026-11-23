@@ -134,6 +134,9 @@
       planetRim:token('planet-rim'), planetGlow:token('planet-glow'),
       planetSurface:token('planet-surface'), planetShadow:token('planet-shadow'),
       planetSpeed:Number(token('planet-orbit-speed')) || .055,
+      planetRingCount:Number(token('planet-ring-count')) || 5,
+      planetScrollScale:Number(token('planet-scroll-scale')) || .38,
+      planetScrollY:Number(token('planet-scroll-y')) || .28,
       planetCount:Number(token('planet-face-count')) || 38,
       featuredDrift: Number(token('featured-drift')),
       reach: Number(token('reach')),
@@ -555,14 +558,15 @@
     else lastTime = 0;
   }
   function cachePlanetArtwork() {
-    planetSprite=document.createElement('canvas');planetSprite.width=planetSprite.height=1024;
+    planetSprite=document.createElement('canvas');planetSprite.width=planetSprite.height=2048;
     const pen=planetSprite.getContext('2d');
-    const atmosphere=pen.createRadialGradient(512,512,354,512,512,505);
-    atmosphere.addColorStop(0,palette.planetGlow);atmosphere.addColorStop(.12,palette.planetGlow);atmosphere.addColorStop(1,'transparent');
+    pen.setTransform(2,0,0,2,0,0);
+    const atmosphere=pen.createRadialGradient(512,512,359,512,512,408);
+    atmosphere.addColorStop(0,palette.planetGlow);atmosphere.addColorStop(.04,palette.planetGlow);atmosphere.addColorStop(1,'transparent');
     pen.fillStyle=atmosphere;pen.fillRect(0,0,1024,1024);
     pen.beginPath();pen.arc(512,512,360,0,Math.PI*2);pen.fillStyle=palette.planetSurface;pen.fill();
-    const edge=pen.createRadialGradient(512,512,305,512,512,362);
-    edge.addColorStop(0,'transparent');edge.addColorStop(.78,palette.planetGlow);edge.addColorStop(1,palette.planetRim);
+    const edge=pen.createRadialGradient(512,512,342,512,512,360);
+    edge.addColorStop(0,'transparent');edge.addColorStop(.88,palette.planetGlow);edge.addColorStop(1,palette.planetRim);
     pen.fillStyle=edge;pen.fill();
     planetFaceShade=document.createElement('canvas');planetFaceShade.width=planetFaceShade.height=96;
     const shade=planetFaceShade.getContext('2d');shade.beginPath();shade.arc(48,48,47,0,Math.PI*2);shade.clip();
@@ -574,28 +578,44 @@
     const compact=width<900;
     const radius=compact ? Math.min(width*.70,height*.29) : Math.min(height*.9,width*.52);
     planetGeometry={x:compact ? width*1.02 : width*1.035,y:compact ? Math.min(height*.46,copyBounds.top-bounds.top-24) : height*1.10,radius,compact};
+    Object.assign(planetGeometry,{baseX:planetGeometry.x,baseY:planetGeometry.y,baseRadius:radius,scroll:0});
     planetFaces=Array.from({length:compact ? 17 : palette.planetCount},(_,index)=>({
       phase:index*(Math.PI*2/(compact ? 17 : palette.planetCount))+.23,
-      lane:index%3,featuredProfile:index%featuredProfiles.length,
+      lane:index%(compact ? 3 : palette.planetRingCount),featuredProfile:index%featuredProfiles.length,
       scale:index%9===0 ? 1.6 : .66+(index%5)*.16,
     }));
   }
   function planetOrbit(face) {
     const g=planetGeometry;
-    const angle=face.phase+flowTime*palette.planetSpeed*(face.lane===1 ? .85 : 1);
+    const angle=face.phase+flowTime*palette.planetSpeed*(1-face.lane*.08)+g.scroll*.9;
     const rx=g.radius*(1.23+face.lane*.065),ry=g.radius*(.40+face.lane*.022);
-    const tilt=.48,dx=Math.cos(angle)*rx,dy=Math.sin(angle)*ry;
+    const tilt=.48+(face.lane-1)*.19+Math.sin(flowTime*palette.planetSpeed*.35+face.lane)*.04;
+    const dx=Math.cos(angle)*rx,dy=Math.sin(angle)*ry;
     return {x:g.x+dx*Math.cos(tilt)-dy*Math.sin(tilt),y:g.y+dx*Math.sin(tilt)+dy*Math.cos(tilt),depth:-Math.sin(angle),angle};
   }
   function paintPlanetRing(front) {
-    const g=planetGeometry;context.beginPath();let connected=false;
-    for(let i=0;i<=100;i++) {
-      const point=planetOrbit({phase:i/100*Math.PI*2,lane:1});
-      if((point.depth>=0)!==front){connected=false;continue;}
-      if(connected)context.lineTo(point.x,point.y);else context.moveTo(point.x,point.y);
-      connected=true;
+    const count=planetGeometry.compact ? 3 : palette.planetRingCount;
+    for(let lane=0;lane<count;lane++) {
+      context.beginPath();let connected=false;
+      for(let i=0;i<=160;i++) {
+        const point=planetOrbit({phase:i/160*Math.PI*2,lane});
+        if((point.depth>=0)!==front){connected=false;continue;}
+        if(connected)context.lineTo(point.x,point.y);else context.moveTo(point.x,point.y);
+        connected=true;
+      }
+      context.strokeStyle=palette.planetRim;context.lineWidth=.75;
+      context.globalAlpha=front ? .24 : .10;context.stroke();
+      // A short travelling highlight makes orbital movement legible even
+      // where the avatars are sparse. Back arcs remain behind the sphere.
+      context.beginPath();connected=false;
+      for(let i=0;i<=20;i++) {
+        const point=planetOrbit({phase:lane*1.7-i*.012,lane});
+        if((point.depth>=0)!==front){connected=false;continue;}
+        if(connected)context.lineTo(point.x,point.y);else context.moveTo(point.x,point.y);
+        connected=true;
+      }
+      context.lineWidth=1.35;context.globalAlpha=front ? .7 : .24;context.stroke();
     }
-    context.strokeStyle=palette.planetRim;context.lineWidth=.6;context.globalAlpha=front ? .15 : .07;context.stroke();
   }
   function paintPlanetFace(face,position,front) {
     const g=planetGeometry;
@@ -617,6 +637,13 @@
   function drawPlanet(elapsed,staticField,ready) {
     if(!planetGeometry)buildPlanet();
     const g=planetGeometry;
+    const scroll=Math.max(0,Math.min(1,Number(canvas.style.getPropertyValue('--fire-scroll') || 0)));
+    // Derive from the resting geometry on every frame: reverse scrolling and
+    // resizing recover the exact starting size instead of accumulating drift.
+    g.scroll=scroll;
+    g.radius=g.baseRadius*(1-(1-palette.planetScrollScale)*scroll);
+    g.x=g.baseX+(width*.83-g.baseX)*scroll;
+    g.y=g.baseY+(height*palette.planetScrollY-g.baseY)*scroll;
     context.clearRect(0,0,width,height);planetCandidates=[];
     // Space remains open around the copy. Geometry is clipped before any face
     // or ring can cross text, navigation, or the primary actions.
@@ -634,6 +661,11 @@
     context.globalAlpha=1;
     const diameter=g.radius*1024/360;
     context.drawImage(planetSprite,g.x-diameter/2,g.y-diameter/2,diameter,diameter);
+    // Draw the silhouette at the actual canvas resolution, independent of
+    // the enlarged atmosphere texture, so the horizon remains crisp.
+    context.beginPath();context.arc(g.x,g.y,g.radius,0,Math.PI*2);
+    context.strokeStyle=palette.planetRim;context.lineWidth=1;context.globalAlpha=.85;context.stroke();
+    context.globalAlpha=1;
     context.save();context.beginPath();
     if(g.compact)context.rect(0,90,width,Math.max(0,copyBounds.top-bounds.top-110));
     else {context.rect(0,100,width,Math.max(0,copyBounds.top-bounds.top-130));context.rect(Math.max(width*.49,copyBounds.right-bounds.left+20),100,width,height-100);}

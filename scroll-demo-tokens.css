@@ -111,6 +111,9 @@
   --hero-dot-planet-shadow: rgba(0,0,0,.62);
   --hero-dot-planet-orbit-speed: .055;
   --hero-dot-planet-face-count: 38;
+  --hero-dot-planet-ring-count: 5;
+  --hero-dot-planet-scroll-scale: .38;
+  --hero-dot-planet-scroll-y: .28;
   --hero-dot-meteor-tail: rgba(124,132,255,1);
   --hero-dot-meteor-core: rgba(236,243,255,1);
   --hero-dot-meteor-count: 36;
