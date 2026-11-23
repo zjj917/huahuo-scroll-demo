@@ -19,6 +19,7 @@
   let assetsReady = false;
   let pageReady = document.readyState === 'complete';
   let entryFinished = false;
+  let handoffElapsed = 0;
   let starSprites = [];
   let ambientSprite;
   let meteorTail;
@@ -116,7 +117,11 @@
       starCore: token('star-core'), starPink: token('star-pink'), starBlue: token('star-blue'),
       sparkColors: ['cyan','violet','blue','yellow','white'].map(name => token(`spark-${name}`)),
       underlight: token('underlight'), underlightOpacity: Number(token('underlight-opacity')),
-      entryDuration: Number(token('entry-duration')),
+      entryDuration: effect==='meteor' ? Number(token('meteor-entry-duration')) || 4.2 : Number(token('entry-duration')),
+      cinemaEntryDuration: Number(token('entry-duration')),
+      meteorEntryDuration: Number(token('meteor-entry-duration')) || 4.2,
+      meteorSettleDuration: Number(token('meteor-settle-duration')) || 2,
+      meteorRestFlow: Number(token('meteor-rest-flow')) || .35,
       entryMediaCount: Number(token('entry-media-count')) || 18,
       entryCoverCount: Number(token('entry-cover-count')) || 10,
       entryMediaSize: Number(token('entry-media-size')) || 112,
@@ -365,7 +370,8 @@
     return (1/(1+progress*4)-.2)/.8;
   }
   function entryReveal(point) {
-    const p = Math.max(0,Math.min(1,(entryProgress(point)-.76)/.24));
+    const start=effect==='meteor' ? .62 : .76;
+    const p = Math.max(0,Math.min(1,(entryProgress(point)-start)/(1-start)));
     return p*p*(3-2*p);
   }
   function goalFor(point, shapeBlend) {
@@ -410,9 +416,10 @@
         x += Math.cos(orbit) * volume * fireArea.width * palette.volumeSpread * shapeBlend;
         y += Math.sin(orbit) * volume * fireArea.height * palette.volumeSpread * .45 * shapeBlend;
         const edge = Math.min(palette.featuredSize, fireArea.width*.2)/2 + 12;
-        if (!flying) {
-          if (width >= 900) x = Math.max(interactionLeft+edge, Math.min(width-edge, x));
-          y = Math.max(100+edge, Math.min(height-edge, y));
+        if (!flying || effect==='meteor') {
+          const settle=flying ? entryReveal(point) : 1;
+          if (width >= 900) x += (Math.max(interactionLeft+edge, Math.min(width-edge, x))-x)*settle;
+          y += (Math.max(100+edge, Math.min(height-edge, y))-y)*settle;
         }
       }
     }
@@ -450,8 +457,14 @@
       entryFinished = true; entryElapsed = palette.entryDuration; entryAmount = 1;
     }
     const ready = pageReady && assetsReady;
+    if (scrollProgress>=.02 || staticField) { meteors.length=0;arrivals.length=0;nextMeteorAt=0; }
     // Hover builds a whole-field current; release takes longer to settle.
-    const flowTarget = responsive ? 1 : 0;
+    if (effect==='meteor' && entryFinished && !staticField && ready) handoffElapsed+=elapsed;
+    // Carry the last gathering energy into a moving field, then ease to a
+    // non-zero resting current. Hover can still strengthen that current.
+    const energy=entryFinished ? Math.exp(-handoffElapsed/palette.meteorSettleDuration) : entryAmount;
+    const restingFlow=effect==='meteor' && ready && !staticField && scrollProgress<.02 ? palette.meteorRestFlow+.5*energy : 0;
+    const flowTarget = responsive ? 1 : restingFlow;
     interactionFlow += (flowTarget - interactionFlow) * (1 - Math.exp(-elapsed / (responsive ? .35 : .9)));
     pointer.vx *= Math.exp(-elapsed / .18);
     pointer.vy *= Math.exp(-elapsed / .18);
@@ -477,10 +490,11 @@
     let featuredClosest = null;
     let featuredDistance = Infinity;
     for (const point of points) {
+      const previousX=point.x, previousY=point.y;
       const goal = goalFor(point, shapeBlend);
       const goalX = goal.x;
       const goalY = goal.y;
-      if (scrollProgress > 0 || (wasEntering && point.fire)) {
+      if (scrollProgress > 0 || (wasEntering && point.fire && effect==='cinema')) {
         point.x = goalX;
         point.y = goalY;
         point.vx = 0;
@@ -509,7 +523,10 @@
       point.x += point.vx * elapsed;
       point.y += point.vy * elapsed;
       if (wasEntering && point.fire) {
-        point.x = goalX; point.y = goalY; point.vx = 0; point.vy = 0;
+        point.x = goalX; point.y = goalY;
+        const carry=effect==='meteor' && ready && !staticField && scrollProgress===0;
+        point.vx=carry ? (goalX-previousX)/elapsed : 0;
+        point.vy=carry ? (goalY-previousY)/elapsed : 0;
       }
       point.heat += (force - point.heat) * blend;
       if (staticField) { point.x = goalX; point.y = goalY; point.vx = 0; point.vy = 0; point.heat = 0; }
@@ -537,7 +554,7 @@
       if (effect==='cinema') points.filter(point => point.introMedia).forEach(paintIncomingMedia);
       else paintMeteorEntrance();
     }
-    if (effect==='meteor' && !staticField && width>=900 && ready && scrollProgress<.02 && entryFinished) paintMeteorSupply(elapsed);
+    if (effect==='meteor' && !staticField && width>=900 && ready && scrollProgress<.02 && (entryFinished || entryElapsed/palette.entryDuration>=.55)) paintMeteorSupply(elapsed);
     updateCard(responsive, featuredClosest || closest, featuredClosest ? featuredDistance : closestDistance);
     context.globalAlpha = 1;
     if (moving) frame = requestAnimationFrame(draw);
@@ -570,7 +587,7 @@
   }
   function paintMeteorSupply(elapsed) {
     if (!meteorTargets.length) return;
-    if (!nextMeteorAt) nextMeteorAt=flowTime+.45;
+    if (!nextMeteorAt) nextMeteorAt=flowTime;
     if (flowTime>=nextMeteorAt && meteors.length<4) {
       const target=meteorTargets[Math.floor(Math.random()*meteorTargets.length)];
       const travel=Math.min(width*.65,height*1.05);
@@ -755,7 +772,7 @@
   window.addEventListener('pointercancel', release, { passive: true });
   window.addEventListener('keydown', event => { if (event.key === 'Escape') release(); });
   window.addEventListener('blur', release);
-  window.addEventListener('scroll', () => { viewNeeded = true; release(); }, { passive: true });
+  window.addEventListener('scroll', () => { viewNeeded = true; meteors.length=0;arrivals.length=0;nextMeteorAt=0;release(); }, { passive: true });
   canvas.addEventListener('hero-progress', () => { viewNeeded = true; requestDraw(); });
   window.addEventListener('resize', () => { resizeNeeded = true; requestDraw(); }, { passive: true });
   new ResizeObserver(() => { resizeNeeded = true; requestDraw(); }).observe(canvas);
@@ -786,6 +803,8 @@
     effect=effect==='meteor' ? 'cinema' : 'meteor';
     try { localStorage.setItem('huahuo-hero-effect',effect); } catch (_) {}
     updateEffectControl();
+    palette.entryDuration=effect==='meteor' ? palette.meteorEntryDuration : palette.cinemaEntryDuration;
+    handoffElapsed=0;
     entryFinished=false;entryElapsed=0;entryAmount=0;hasBuilt=false;resizeNeeded=true;viewNeeded=true;lastTime=0;
     meteors.length=0;arrivals.length=0;nextMeteorAt=0;
     release();

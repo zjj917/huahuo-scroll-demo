@@ -109,6 +109,9 @@
   --hero-dot-meteor-tail: rgba(124,132,255,1);
   --hero-dot-meteor-core: rgba(236,243,255,1);
   --hero-dot-meteor-count: 36;
+  --hero-dot-meteor-entry-duration: 4.2;
+  --hero-dot-meteor-settle-duration: 2;
+  --hero-dot-meteor-rest-flow: .35;
   --hero-dot-meteor-duration-min: 3.6;
   --hero-dot-meteor-duration-max: 4.8;
   --hero-dot-meteor-gap-min: .9;
