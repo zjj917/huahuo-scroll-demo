@@ -45,7 +45,6 @@
 .hero-effect-select { min-height:var(--hero-effect-control-size); max-width:142px; padding:0 var(--space-12); background:var(--subtle); color:var(--ink); font:inherit; font-size:var(--text-sm); border:0; border-radius:var(--radius-l); flex:none; }
 .hero-effect-select:hover { background:var(--color-container-bg-behavior-hover); }
 html[data-hero-effect="planet"] .hero-dots { mask-image:none; }
-html[data-hero-effect="meteor"] .scene-hero::before { content:''; position:absolute; pointer-events:none; z-index:0; left:-12%; top:-30%; width:140%; height:65%; transform:rotate(32deg); transform-origin:10% 50%; background:radial-gradient(ellipse at 20% 50%,var(--hero-meteor-beam-core),var(--hero-meteor-beam) 35%,transparent 70%); }
 @media (max-width:760px) {
   .hero-effect-select { max-width:112px; padding:0 var(--space-8); }
 }

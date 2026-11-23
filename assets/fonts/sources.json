@@ -1,0 +1,143 @@
+{
+  "family": "MiSans",
+  "version": "misans@5.0.0",
+  "official": "https://hyperos.mi.com/font/zh/",
+  "license": "https://hyperos.mi.com/font-download/MiSans%E5%AD%97%E4%BD%93%E7%9F%A5%E8%AF%86%E4%BA%A7%E6%9D%83%E8%AE%B8%E5%8F%AF%E5%8D%8F%E8%AE%AE.pdf",
+  "files": [
+    {
+      "file": "MiSans-Heavy.00029651508384cb.50.woff2",
+      "source": "https://cdn.jsdelivr.net/npm/misans@5.0.0/lib/Normal/MiSans-Heavy.00029651508384cb.50.woff2",
+      "bytes": 20804
+    },
+    {
+      "file": "MiSans-Regular.3a6e471c7bda67a3.0.woff2",
+      "source": "https://cdn.jsdelivr.net/npm/misans@5.0.0/lib/Normal/MiSans-Regular.3a6e471c7bda67a3.0.woff2",
+      "bytes": 22248
+    },
+    {
+      "file": "MiSans-Heavy.ad4990511d2c064c.6.woff2",
+      "source": "https://cdn.jsdelivr.net/npm/misans@5.0.0/lib/Normal/MiSans-Heavy.ad4990511d2c064c.6.woff2",
+      "bytes": 32720
+    },
+    {
+      "file": "MiSans-Heavy.83db06616a0e0b18.1.woff2",
+      "source": "https://cdn.jsdelivr.net/npm/misans@5.0.0/lib/Normal/MiSans-Heavy.83db06616a0e0b18.1.woff2",
+      "bytes": 26792
+    },
+    {
+      "file": "MiSans-Regular.b42065a478a6dfa8.15.woff2",
+      "source": "https://cdn.jsdelivr.net/npm/misans@5.0.0/lib/Normal/MiSans-Regular.b42065a478a6dfa8.15.woff2",
+      "bytes": 34992
+    },
+    {
+      "file": "MiSans-Demibold.45ae9a0fb8221570.50.woff2",
+      "source": "https://cdn.jsdelivr.net/npm/misans@5.0.0/lib/Normal/MiSans-Demibold.45ae9a0fb8221570.50.woff2",
+      "bytes": 22912
+    },
+    {
+      "file": "MiSans-Regular.665fe5dad64295f4.4.woff2",
+      "source": "https://cdn.jsdelivr.net/npm/misans@5.0.0/lib/Normal/MiSans-Regular.665fe5dad64295f4.4.woff2",
+      "bytes": 30020
+    },
+    {
+      "file": "MiSans-Regular.e64b1471167de51a.1.woff2",
+      "source": "https://cdn.jsdelivr.net/npm/misans@5.0.0/lib/Normal/MiSans-Regular.e64b1471167de51a.1.woff2",
+      "bytes": 26672
+    },
+    {
+      "file": "MiSans-Heavy.210748158f1821d2.0.woff2",
+      "source": "https://cdn.jsdelivr.net/npm/misans@5.0.0/lib/Normal/MiSans-Heavy.210748158f1821d2.0.woff2",
+      "bytes": 22520
+    },
+    {
+      "file": "MiSans-Regular.f9c51a1f2067a94a.18.woff2",
+      "source": "https://cdn.jsdelivr.net/npm/misans@5.0.0/lib/Normal/MiSans-Regular.f9c51a1f2067a94a.18.woff2",
+      "bytes": 36728
+    },
+    {
+      "file": "MiSans-Demibold.6f8ac44082e4a69c.10.woff2",
+      "source": "https://cdn.jsdelivr.net/npm/misans@5.0.0/lib/Normal/MiSans-Demibold.6f8ac44082e4a69c.10.woff2",
+      "bytes": 34160
+    },
+    {
+      "file": "MiSans-Regular.f06a173509fe9b65.50.woff2",
+      "source": "https://cdn.jsdelivr.net/npm/misans@5.0.0/lib/Normal/MiSans-Regular.f06a173509fe9b65.50.woff2",
+      "bytes": 20936
+    },
+    {
+      "file": "MiSans-Demibold.d5281ad267d9a528.15.woff2",
+      "source": "https://cdn.jsdelivr.net/npm/misans@5.0.0/lib/Normal/MiSans-Demibold.d5281ad267d9a528.15.woff2",
+      "bytes": 35116
+    },
+    {
+      "file": "MiSans-Heavy.b15383b85e900748.15.woff2",
+      "source": "https://cdn.jsdelivr.net/npm/misans@5.0.0/lib/Normal/MiSans-Heavy.b15383b85e900748.15.woff2",
+      "bytes": 35372
+    },
+    {
+      "file": "MiSans-Demibold.967f933bd2859ac3.2.woff2",
+      "source": "https://cdn.jsdelivr.net/npm/misans@5.0.0/lib/Normal/MiSans-Demibold.967f933bd2859ac3.2.woff2",
+      "bytes": 28884
+    },
+    {
+      "file": "MiSans-Demibold.a8a0bbaf69ff19bb.6.woff2",
+      "source": "https://cdn.jsdelivr.net/npm/misans@5.0.0/lib/Normal/MiSans-Demibold.a8a0bbaf69ff19bb.6.woff2",
+      "bytes": 32472
+    },
+    {
+      "file": "MiSans-Regular.71975ee0d4e977eb.2.woff2",
+      "source": "https://cdn.jsdelivr.net/npm/misans@5.0.0/lib/Normal/MiSans-Regular.71975ee0d4e977eb.2.woff2",
+      "bytes": 28800
+    },
+    {
+      "file": "MiSans-Heavy.e9277525c0b9290c.10.woff2",
+      "source": "https://cdn.jsdelivr.net/npm/misans@5.0.0/lib/Normal/MiSans-Heavy.e9277525c0b9290c.10.woff2",
+      "bytes": 34492
+    },
+    {
+      "file": "MiSans-Heavy.cd25629dae385fdb.2.woff2",
+      "source": "https://cdn.jsdelivr.net/npm/misans@5.0.0/lib/Normal/MiSans-Heavy.cd25629dae385fdb.2.woff2",
+      "bytes": 29228
+    },
+    {
+      "file": "MiSans-Demibold.194b5a4df49b960c.4.woff2",
+      "source": "https://cdn.jsdelivr.net/npm/misans@5.0.0/lib/Normal/MiSans-Demibold.194b5a4df49b960c.4.woff2",
+      "bytes": 30188
+    },
+    {
+      "file": "MiSans-Demibold.bdf4a1a2cfbf93b3.0.woff2",
+      "source": "https://cdn.jsdelivr.net/npm/misans@5.0.0/lib/Normal/MiSans-Demibold.bdf4a1a2cfbf93b3.0.woff2",
+      "bytes": 22480
+    },
+    {
+      "file": "MiSans-Demibold.fdb84316807eb19b.18.woff2",
+      "source": "https://cdn.jsdelivr.net/npm/misans@5.0.0/lib/Normal/MiSans-Demibold.fdb84316807eb19b.18.woff2",
+      "bytes": 37028
+    },
+    {
+      "file": "MiSans-Heavy.aca834cbef3931a0.4.woff2",
+      "source": "https://cdn.jsdelivr.net/npm/misans@5.0.0/lib/Normal/MiSans-Heavy.aca834cbef3931a0.4.woff2",
+      "bytes": 30464
+    },
+    {
+      "file": "MiSans-Regular.a6cde7cf4f99586b.6.woff2",
+      "source": "https://cdn.jsdelivr.net/npm/misans@5.0.0/lib/Normal/MiSans-Regular.a6cde7cf4f99586b.6.woff2",
+      "bytes": 32328
+    },
+    {
+      "file": "MiSans-Heavy.fbd81cf1b5ed860f.18.woff2",
+      "source": "https://cdn.jsdelivr.net/npm/misans@5.0.0/lib/Normal/MiSans-Heavy.fbd81cf1b5ed860f.18.woff2",
+      "bytes": 37404
+    },
+    {
+      "file": "MiSans-Demibold.2943b12fc4acb179.1.woff2",
+      "source": "https://cdn.jsdelivr.net/npm/misans@5.0.0/lib/Normal/MiSans-Demibold.2943b12fc4acb179.1.woff2",
+      "bytes": 26628
+    },
+    {
+      "file": "MiSans-Regular.849a17e23a8dd164.10.woff2",
+      "source": "https://cdn.jsdelivr.net/npm/misans@5.0.0/lib/Normal/MiSans-Regular.849a17e23a8dd164.10.woff2",
+      "bytes": 34000
+    }
+  ]
+}

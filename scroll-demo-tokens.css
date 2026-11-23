@@ -47,6 +47,7 @@
   --hero-action-font-size: 1.25rem;
   --hero-action-min-width: 168px;
   --hero-action-mobile-height: 56px;
+  --hero-font-family: "Huahuo MiSans", "MiSans", var(--font-sans);
   --hero-title-weight: 900;
   --service-intro-title-size: clamp(56px,6.1vw,80px);
   --service-intro-title-weight: 900;
@@ -103,8 +104,6 @@
   --hero-dot-star-blue: rgba(155,205,255,1);
   --hero-dot-underlight: rgba(190,80,133,1);
   --hero-dot-underlight-opacity: .055;
-  --hero-meteor-beam: rgba(105,110,255,.20);
-  --hero-meteor-beam-core: rgba(210,222,255,.32);
   --hero-effect-control-size: 44px;
   --hero-dot-planet-rim: rgba(255,142,181,1);
   --hero-dot-planet-glow: rgba(255,60,130,.26);
@@ -123,9 +122,6 @@
   --hero-dot-meteor-gap-min: .9;
   --hero-dot-meteor-gap-max: 2;
   --hero-dot-entry-duration: 2.6;
-  --hero-dot-entry-media-count: 18;
-  --hero-dot-entry-cover-count: 10;
-  --hero-dot-entry-media-size: 112;
   --hero-dot-featured-drift: 64;
   --hero-dot-reach: 225;
   --hero-dot-flow-boost: 1.5;

@@ -34,3 +34,8 @@ The ten featured profile photos were retrieved from Bilibili public account card
 ## Video thumbnails in the opening animation
 
 Eight public Bilibili video thumbnails are bundled at 320×180 WebP resolution as decorative motion samples. Titles, creators, original image URLs and video URLs are recorded in `assets/covers/sources.json`. These samples do not represent Huahuo campaign cases, commercial partnerships, or endorsements. Copyright remains with the respective rights holders. No video playback or audio is included.
+
+
+## MiSans in the opening copy
+
+The opening copy and moving title use MiSans, created by Xiaomi. Webfont slices are bundled without alteration from the pinned `misans@5.0.0` package (Regular 400, Demibold 600 and Heavy 900), selecting only slices needed by the current opening copy. Source URLs are recorded in `assets/fonts/sources.json`; the Xiaomi font license is bundled in `assets/fonts/MiSans-License.pdf`. Official source: https://hyperos.mi.com/font/zh/ . The font is part of this website and is not offered as a separate font distribution.

@@ -15,7 +15,6 @@
   const portraits = [];
   const featuredPortraits = [];
   const softPortraits = [];
-  const covers = [];
   let assetsReady = false;
   let pageReady = document.readyState === 'complete';
   let entryFinished = false;
@@ -126,9 +125,6 @@
       meteorEntryDuration: Number(token('meteor-entry-duration')) || 4.2,
       meteorSettleDuration: Number(token('meteor-settle-duration')) || 2,
       meteorRestFlow: Number(token('meteor-rest-flow')) || .35,
-      entryMediaCount: Number(token('entry-media-count')) || 18,
-      entryCoverCount: Number(token('entry-cover-count')) || 10,
-      entryMediaSize: Number(token('entry-media-size')) || 112,
       meteorCount: Number(token('meteor-count')) || 36,
       meteorDurationMin: Number(token('meteor-duration-min')) || 3.6,
       meteorDurationMax: Number(token('meteor-duration-max')) || 4.8,
@@ -325,25 +321,12 @@
       }
     }
     if (fireArea && desktop && effect === 'cinema') {
-      const faces = points.filter(point => point.featured || point.tier);
-      const media = [...faces.filter(point => point.featured), ...faces.filter(point => !point.featured).sort((a,b) => a.phase-b.phase)].slice(0,palette.entryMediaCount);
-      let coverCount = 0;
-      media.forEach((point,index) => {
-        point.introMedia = true;
-        point.entrySize = (.85+random()*.25) * palette.entryMediaSize;
-        // A shallow ordered delay reads as a film moving through depth.
-        point.entryDelay = (index%3)*.035;
-        if (!point.featured && coverCount < palette.entryCoverCount) {
-          point.coverIndex = coverCount++ % 8;
-        }
-      });
-      const vanishingX = fireArea.x+fireArea.width*.5;
-      const vanishingY = fireArea.y+fireArea.height*.5;
-      points.filter(point => point.fire).forEach(point => {
-        // All cards retreat on their own straight projection ray. No crossing,
-        // edge sources, or random rotation; the rest of the logo fades in place.
-        point.entryX = vanishingX+(point.targetX-vanishingX)*2.05;
-        point.entryY = vanishingY+(point.targetY-vanishingY)*2.05;
+      points.filter(point=>point.fire).forEach((point,index)=>{
+        // Four sides, small particles only: restore the original gathering feel.
+        const side=index%4, margin=24;
+        point.entryX=side===0 ? -margin : side===1 ? width+margin : random()*width;
+        point.entryY=side===2 ? 80 : side===3 ? height+margin : 100+random()*(height-100);
+        point.entryDelay=random()*.12;
       });
     }
     if (fireArea && desktop && effect === 'meteor') {
@@ -375,11 +358,6 @@
     const delay = point.entryDelay || 0;
     return Math.max(0,Math.min(1,(entryElapsed/palette.entryDuration-delay)/(1-delay)));
   }
-  function entryDepth(point) {
-    const progress = entryProgress(point);
-    // Perspective projection through depth, normalized to land at zero.
-    return (1/(1+progress*4)-.2)/.8;
-  }
   function entryReveal(point) {
     const start=effect==='meteor' ? .62 : .76;
     const p = Math.max(0,Math.min(1,(entryProgress(point)-start)/(1-start)));
@@ -396,10 +374,9 @@
       y=point.introMeteor ? point.entryY+(point.targetY-point.entryY)*t : point.spreadY+(point.targetY-point.spreadY)*gather;
     }
     if (effect==='cinema' && flying && point.entryX !== undefined) {
-      const retreat = entryDepth(point);
-      x = point.targetX+(point.entryX-point.targetX)*retreat;
-      y = point.targetY+(point.entryY-point.targetY)*retreat;
-      if (!point.introMedia) { x=point.targetX; y=point.targetY; }
+      const p=entryProgress(point),gather=p*p*(3-2*p);
+      x=point.entryX+(point.targetX-point.entryX)*gather;
+      y=point.entryY+(point.targetY-point.entryY)*gather;
     }
     if (!reduced.matches && finePointer.matches) {
       const depth = point.depth * 2 - 1;
@@ -569,8 +546,7 @@
     enlarged.forEach(paintPortrait);
     // Large incoming media stay readable over the tiny-particle field.
     if (wasEntering && !entryFinished) {
-      if (effect==='cinema') points.filter(point => point.introMedia).forEach(paintIncomingMedia);
-      else paintMeteorEntrance();
+      if (effect==='meteor') paintMeteorEntrance();
     }
     if (effect==='meteor' && !staticField && width>=900 && ready && scrollProgress<.02 && (entryFinished || entryElapsed/palette.entryDuration>=.55)) paintMeteorSupply(elapsed);
     updateCard(responsive, featuredClosest || closest, featuredClosest ? featuredDistance : closestDistance);
@@ -654,9 +630,14 @@
     const orbit=planetFaces.map(face=>({face,position:planetOrbit(face)}));
     paintPlanetRing(false);
     orbit.filter(item=>item.position.depth<0).forEach(item=>paintPlanetFace(item.face,item.position,false));
+    context.restore();
     context.globalAlpha=1;
     const diameter=g.radius*1024/360;
     context.drawImage(planetSprite,g.x-diameter/2,g.y-diameter/2,diameter,diameter);
+    context.save();context.beginPath();
+    if(g.compact)context.rect(0,90,width,Math.max(0,copyBounds.top-bounds.top-110));
+    else {context.rect(0,100,width,Math.max(0,copyBounds.top-bounds.top-130));context.rect(Math.max(width*.49,copyBounds.right-bounds.left+20),100,width,height-100);}
+    context.clip();
     paintPlanetRing(true);
     orbit.filter(item=>item.position.depth>=0).sort((a,b)=>a.position.depth-b.position.depth).forEach(item=>paintPlanetFace(item.face,item.position,true));
     // A few quiet meteors run toward the illuminated horizon indefinitely.
@@ -758,24 +739,8 @@
       }
     }
   }
-  function paintIncomingMedia(point) {
-    const progress = entryProgress(point);
-    const resting = palette.size*point.sizeFactor;
-    const size = resting+(point.entrySize-resting)*entryDepth(point);
-    const cover = point.coverIndex !== undefined && covers[point.coverIndex];
-    const sprite = cover || featuredPortraits[point.featuredProfile] || portraits[point.portrait];
-    if (!sprite) return;
-    const h = cover ? size*9/16 : size;
-    // Clip the decorative flight to the right of copy, preserving readable UI.
-    context.save(); context.beginPath();
-    context.rect(Math.min(interactionLeft, width),0,Math.max(0,width-interactionLeft),height); context.clip();
-    context.globalAlpha = Math.min(1,progress*16)*.85*(1-entryReveal(point));
-    context.translate(point.x,point.y);
-    context.drawImage(sprite,-size/2,-h/2,size,h);
-    context.restore();
-  }
   function paintPortrait(point) {
-    if ((point.introMedia || point.introMeteor) && !entryFinished && entryReveal(point) === 0) return;
+    if (point.introMeteor && !entryFinished && entryReveal(point) === 0) return;
     if (point.sparkIndex !== undefined) return;
     const x = point.x;
     const y = point.y;
@@ -806,7 +771,7 @@
     const smallOpacity = portraitOpacity * (.28 + point.depth * .72) * point.softness;
     const depthOpacity = 1 - (1-point.depth) * palette.depthFade;
     const faceOpacity = (point.featured ? palette.featuredOpacity : point.tier==='medium' ? palette.mediumOpacity : palette.smallOpacity) * depthOpacity;
-    context.globalAlpha = Math.min(1, smallOpacity + (faceOpacity - smallOpacity) * featuredBlend + .42 * point.heat) * ((point.introMedia || point.introMeteor) && !entryFinished ? entryReveal(point) : 1);
+    context.globalAlpha = Math.min(1, smallOpacity + (faceOpacity - smallOpacity) * featuredBlend + .42 * point.heat) * (point.introMeteor && !entryFinished ? entryReveal(point) : 1);
     const rear = point.tier === 'medium' && point.depth < .3 && point.heat < .1 && currentShape > .5;
     const portrait = ((point.featured || point.tier) && ((rear && softPortraits[point.featuredProfile]) || featuredPortraits[point.featuredProfile])) || portraits[point.portrait];
     if (portrait) context.drawImage(portrait, x - radius, y - radius, size, size);
@@ -948,21 +913,8 @@
     });
   }
   const assetTasks = featuredProfiles.map((profile, index) => loadPortrait(`assets/creators/featured-${profile.mid}.jpg`, featuredPortraits, index));
-  for (let index=0;index<8;index++) assetTasks.push(new Promise(resolve => {
-    const image = new Image();
-    image.onload = () => {
-      const sprite = document.createElement('canvas'); sprite.width=320; sprite.height=180;
-      const pen = sprite.getContext('2d');
-      if (pen) {
-        pen.beginPath();pen.roundRect(0,0,320,180,18);pen.clip();
-        pen.drawImage(image,0,0,320,180);covers[index]=sprite;
-      }
-      resolve();
-    };
-    image.onerror = () => resolve();
-    image.src = `assets/covers/video-${String(index+1).padStart(2,'0')}.webp`;
-  }));
-  Promise.all(assetTasks).then(() => { assetsReady=true; lastTime=0; requestDraw(); });
+  if(document.fonts?.ready)assetTasks.push(document.fonts.ready);
+  Promise.all(assetTasks).then(() => { assetsReady=true; hasBuilt=false;resizeNeeded=true;viewNeeded=true;lastTime=0;requestDraw(); });
   window.addEventListener('load',() => { pageReady=true;lastTime=0;requestDraw(); },{once:true});
   // Small background particles retain the project's original illustrations.
   for (let index = 0; index < 20; index++) {

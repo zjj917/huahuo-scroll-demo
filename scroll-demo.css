@@ -303,3 +303,6 @@ html.is-linear .case-awards { position: relative; inset: auto; padding: 0 0 var(
 
 .services-intro-copy > p:last-child strong { color:var(--muted); font-weight:inherit; }
 html.is-pinned .scene-values h2 { font-weight:var(--hero-title-weight); }
+
+/* Real MiSans Heavy, including the moving title and its destination. */
+.hero-copy, .opening-title, #values-title { font-family:var(--hero-font-family); }

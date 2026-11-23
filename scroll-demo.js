@@ -395,7 +395,7 @@
   compact.addEventListener('change', () => configure());
   document.addEventListener('visibilitychange', () => { if (document.hidden) { cancelAnimationFrame(frame); frame = 0; } else requestUpdate(); });
   configure(false);
-  if (document.fonts?.ready) document.fonts.ready.then(() => { measurePortal(); requestUpdate(); });
+  if (document.fonts?.ready) document.fonts.ready.then(() => { measureOpening(); measurePortal(); requestUpdate(); });
   if (location.hash.startsWith('#demo-')) {
     const index = scenes.findIndex(scene => `#${scene.id}` === location.hash);
     if (index >= 0) requestAnimationFrame(() => jumpTo(index));
