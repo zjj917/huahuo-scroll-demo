@@ -21,6 +21,14 @@
   let entryFinished = false;
   let starSprites = [];
   let ambientSprite;
+  let meteorTail;
+  let meteorTargets = [];
+  const meteors = [];
+  const arrivals = [];
+  let nextMeteorAt = 0;
+  let effect = 'meteor';
+  try { effect = localStorage.getItem('huahuo-hero-effect') === 'cinema' ? 'cinema' : 'meteor'; } catch (_) {}
+  const effectButton = document.querySelector('[data-hero-effect-toggle]');
   // Verified public accounts; representative leading creators, not a ranking.
   const featuredProfiles = [
     { mid: 546195, name: '老番茄', category: '游戏创作' },
@@ -112,6 +120,10 @@
       entryMediaCount: Number(token('entry-media-count')) || 18,
       entryCoverCount: Number(token('entry-cover-count')) || 10,
       entryMediaSize: Number(token('entry-media-size')) || 112,
+      meteorCount: Number(token('meteor-count')) || 36,
+      meteorGapMin: Number(token('meteor-gap-min')) || .9,
+      meteorGapMax: Number(token('meteor-gap-max')) || 2,
+      meteorTail: token('meteor-tail'), meteorCore: token('meteor-core'),
       featuredDrift: Number(token('featured-drift')),
       reach: Number(token('reach')),
       shapeSamples: Number(token('shape-samples')) || 2400,
@@ -146,12 +158,18 @@
     const ambient = ambientPen.createRadialGradient(64,64,0,64,64,64);
     ambient.addColorStop(0,palette.underlight); ambient.addColorStop(.35,palette.underlight); ambient.addColorStop(1,'transparent');
     ambientPen.fillStyle=ambient; ambientPen.fillRect(0,0,128,128);
+    meteorTail = document.createElement('canvas'); meteorTail.width=256; meteorTail.height=16;
+    const tailPen=meteorTail.getContext('2d');
+    const tail=tailPen.createLinearGradient(0,0,256,0);
+    tail.addColorStop(0,'transparent');tail.addColorStop(.55,palette.meteorTail);tail.addColorStop(1,palette.meteorCore);
+    tailPen.fillStyle=tail;tailPen.fillRect(0,6,256,4);
   }
   function resetPoints() {
     pointer.active = false;
     pointer.vx = pointer.vy = pointer.time = interactionFlow = 0;
     card.hidden = true;
     selected = null;
+    meteors.length=0;arrivals.length=0;nextMeteorAt=0;
     const shapeBlend = shapeAmount();
     points.forEach(point => {
       const goal = goalFor(point, shapeBlend);
@@ -289,7 +307,7 @@
         }
       }
     }
-    if (fireArea && desktop) {
+    if (fireArea && desktop && effect === 'cinema') {
       const faces = points.filter(point => point.featured || point.tier);
       const media = [...faces.filter(point => point.featured), ...faces.filter(point => !point.featured).sort((a,b) => a.phase-b.phase)].slice(0,palette.entryMediaCount);
       let coverCount = 0;
@@ -311,6 +329,19 @@
         point.entryY = vanishingY+(point.targetY-vanishingY)*2.05;
       });
     }
+    if (fireArea && desktop && effect === 'meteor') {
+      const candidates=points.filter(point => point.fire && point.softness>.8);
+      const faces=candidates.filter(point => point.featured || point.tier==='medium').slice(0,8);
+      const stars=candidates.filter(point => !point.featured && !point.tier);
+      [...faces,...stars.filter((point,index)=>index%Math.max(1,Math.floor(stars.length/(palette.meteorCount-faces.length)))===0).slice(0,palette.meteorCount-faces.length)].forEach((point,index)=>{
+        point.introMeteor=true;point.meteorFace=index<faces.length;
+        point.entryDelay=(index%6)*.025;
+        const travel=Math.min(width*.72,height*1.15);
+        point.entryX=point.targetX-travel;
+        point.entryY=point.targetY-travel*.62;
+      });
+    }
+    meteorTargets=points.filter(point=>point.fire && point.softness>.8);
     // Reuse a small subset of tiny particles as saturated lights.
     points.forEach(point => {
       if (point.fire && !point.featured && !point.tier && random() < .1) point.sparkIndex = Math.floor(random()*5);
@@ -336,8 +367,13 @@
   function goalFor(point, shapeBlend) {
     let x = point.fire ? point.spreadX + (point.targetX - point.spreadX) * shapeBlend : point.targetX;
     let y = point.fire ? point.spreadY + (point.targetY - point.spreadY) * shapeBlend : point.targetY;
-    const flying = point.fire && point.entryX !== undefined && !entryFinished && entryProgress(point) < 1;
-    if (flying) {
+    const flying = point.fire && !entryFinished && entryProgress(point) < 1;
+    if (effect==='meteor' && flying) {
+      const progress=entryProgress(point), t=1-(1-progress)**2;
+      x=point.introMeteor ? point.entryX+(point.targetX-point.entryX)*t : point.targetX;
+      y=point.introMeteor ? point.entryY+(point.targetY-point.entryY)*t : point.targetY;
+    }
+    if (effect==='cinema' && flying && point.entryX !== undefined) {
       const retreat = entryDepth(point);
       x = point.targetX+(point.entryX-point.targetX)*retreat;
       y = point.targetY+(point.entryY-point.targetY)*retreat;
@@ -492,11 +528,70 @@
     if (responsive) enlarged.sort((a, b) => (a.heat > .1) - (b.heat > .1) || a.depth - b.depth);
     enlarged.forEach(paintPortrait);
     // Large incoming media stay readable over the tiny-particle field.
-    if (wasEntering && !entryFinished) points.filter(point => point.introMedia).forEach(paintIncomingMedia);
+    if (wasEntering && !entryFinished) {
+      if (effect==='cinema') points.filter(point => point.introMedia).forEach(paintIncomingMedia);
+      else paintMeteorEntrance();
+    }
+    if (effect==='meteor' && !staticField && width>=900 && ready && scrollProgress<.02 && entryFinished) paintMeteorSupply(elapsed);
     updateCard(responsive, featuredClosest || closest, featuredClosest ? featuredDistance : closestDistance);
     context.globalAlpha = 1;
     if (moving) frame = requestAnimationFrame(draw);
     else lastTime = 0;
+  }
+  function clipMeteorField() {
+    context.beginPath();
+    // Two regions admit light above the title and to its right, protecting copy.
+    context.rect(0,100,width,Math.max(0,copyBounds.top-bounds.top-130));
+    context.rect(interactionLeft,100,Math.max(0,width-interactionLeft),height-100);
+    context.clip();
+  }
+  function paintMeteor(x,y,size,tail,alpha,profile) {
+    context.save();clipMeteorField();context.translate(x,y);
+    context.rotate(Math.atan2(.62,1));context.globalAlpha=alpha*.65;
+    context.drawImage(meteorTail,-tail,-2,tail,4);
+    context.rotate(-Math.atan2(.62,1));
+    context.globalAlpha=alpha;
+    if (profile!==undefined && featuredPortraits[profile]) context.drawImage(featuredPortraits[profile],-size/2,-size/2,size,size);
+    else context.drawImage(starSprites[3],-size/2,-size/2,size,size);
+    context.restore();
+  }
+  function paintMeteorEntrance() {
+    points.forEach(point=>{
+      if (!point.introMeteor) return;
+      const p=entryProgress(point), fade=Math.sin(Math.PI*p);
+      const size=point.meteorFace ? 6+24*(1-p) : 5+5*(1-p);
+      paintMeteor(point.x,point.y,size,45+90*(1-p),fade*.8,point.meteorFace ? point.featuredProfile : undefined);
+    });
+  }
+  function paintMeteorSupply(elapsed) {
+    if (!meteorTargets.length) return;
+    if (!nextMeteorAt) nextMeteorAt=flowTime+.45;
+    if (flowTime>=nextMeteorAt && meteors.length<4) {
+      const target=meteorTargets[Math.floor(Math.random()*meteorTargets.length)];
+      const travel=Math.min(width*.65,height*1.05);
+      meteors.push({target,age:0,duration:1.25+Math.random()*.55,travel,profile:Math.random()<.3 ? Math.floor(Math.random()*featuredProfiles.length) : undefined});
+      nextMeteorAt=flowTime+palette.meteorGapMin+Math.random()*(palette.meteorGapMax-palette.meteorGapMin);
+    }
+    for (let index=meteors.length-1;index>=0;index--) {
+      const meteor=meteors[index];meteor.age+=elapsed;
+      const p=Math.min(1,meteor.age/meteor.duration), t=1-(1-p)**2;
+      const x=meteor.target.x-meteor.travel*(1-t),y=meteor.target.y-meteor.travel*.62*(1-t);
+      const fade=Math.min(1,p*8)*Math.min(1,(1-p)*6);
+      paintMeteor(x,y,meteor.profile!==undefined ? 5+12*(1-p) : 6,65+55*(1-p),fade*.7,meteor.profile);
+      if (p>=1) {
+        arrivals.push({target:meteor.target,age:0});if(arrivals.length>4)arrivals.shift();
+        meteors.splice(index,1);
+      }
+    }
+    context.globalCompositeOperation='lighter';
+    for (let index=arrivals.length-1;index>=0;index--) {
+      const arrival=arrivals[index];arrival.age+=elapsed;
+      const p=Math.min(1,arrival.age/.5),size=18+p*14;
+      context.globalAlpha=(1-p)*.32;
+      context.drawImage(starSprites[3],arrival.target.x-size/2,arrival.target.y-size/2,size,size);
+      if(p>=1)arrivals.splice(index,1);
+    }
+    context.globalCompositeOperation='source-over';
   }
   function portraitSize(point) {
     const size = point.featured ? palette.featuredSize : point.tier==='medium' ? palette.mediumSize : palette.smallSize;
@@ -547,7 +642,7 @@
     context.restore();
   }
   function paintPortrait(point) {
-    if (point.introMedia && !entryFinished && entryReveal(point) === 0) return;
+    if ((point.introMedia || point.introMeteor) && !entryFinished && entryReveal(point) === 0) return;
     if (point.sparkIndex !== undefined) return;
     const x = point.x;
     const y = point.y;
@@ -578,7 +673,7 @@
     const smallOpacity = portraitOpacity * (.28 + point.depth * .72) * point.softness;
     const depthOpacity = 1 - (1-point.depth) * palette.depthFade;
     const faceOpacity = (point.featured ? palette.featuredOpacity : point.tier==='medium' ? palette.mediumOpacity : palette.smallOpacity) * depthOpacity;
-    context.globalAlpha = Math.min(1, smallOpacity + (faceOpacity - smallOpacity) * featuredBlend + .42 * point.heat) * (point.introMedia && !entryFinished ? entryReveal(point) : 1);
+    context.globalAlpha = Math.min(1, smallOpacity + (faceOpacity - smallOpacity) * featuredBlend + .42 * point.heat) * ((point.introMedia || point.introMeteor) && !entryFinished ? entryReveal(point) : 1);
     const rear = point.tier === 'medium' && point.depth < .3 && point.heat < .1 && currentShape > .5;
     const portrait = ((point.featured || point.tier) && ((rear && softPortraits[point.featuredProfile]) || featuredPortraits[point.featuredProfile])) || portraits[point.portrait];
     if (portrait) context.drawImage(portrait, x - radius, y - radius, size, size);
@@ -672,6 +767,24 @@
     resetPoints();
     viewNeeded = true;
     requestDraw();
+  });
+  function updateEffectControl() {
+    root.dataset.heroEffect=effect;
+    if (!effectButton) return;
+    effectButton.setAttribute('aria-pressed',String(effect==='meteor'));
+    const next=effect==='meteor' ? '景深汇聚' : '流星汇聚';
+    effectButton.setAttribute('aria-label',`切换为${next}`);effectButton.title=`切换为${next}`;
+    effectButton.querySelector('[data-hero-effect-label]').textContent=effect==='meteor' ? '流星汇聚' : '景深汇聚';
+  }
+  updateEffectControl();
+  effectButton?.addEventListener('click',()=>{
+    effect=effect==='meteor' ? 'cinema' : 'meteor';
+    try { localStorage.setItem('huahuo-hero-effect',effect); } catch (_) {}
+    updateEffectControl();
+    entryFinished=false;entryElapsed=0;entryAmount=0;hasBuilt=false;resizeNeeded=true;viewNeeded=true;lastTime=0;
+    meteors.length=0;arrivals.length=0;nextMeteorAt=0;
+    release();
+    if (window.scrollY>10) window.scrollTo({top:0,behavior:'instant'});
   });
   readPalette();
   function loadPortrait(path, target, index) {

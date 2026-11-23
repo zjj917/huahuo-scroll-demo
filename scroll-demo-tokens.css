@@ -103,6 +103,14 @@
   --hero-dot-star-blue: rgba(155,205,255,1);
   --hero-dot-underlight: rgba(190,80,133,1);
   --hero-dot-underlight-opacity: .055;
+  --hero-meteor-beam: rgba(105,110,255,.10);
+  --hero-meteor-beam-core: rgba(200,211,255,.15);
+  --hero-effect-control-size: 44px;
+  --hero-dot-meteor-tail: rgba(124,132,255,1);
+  --hero-dot-meteor-core: rgba(236,243,255,1);
+  --hero-dot-meteor-count: 36;
+  --hero-dot-meteor-gap-min: .9;
+  --hero-dot-meteor-gap-max: 2;
   --hero-dot-entry-duration: 2.6;
   --hero-dot-entry-media-count: 18;
   --hero-dot-entry-cover-count: 10;

@@ -40,3 +40,19 @@
 @media (prefers-reduced-motion: reduce) {
   .demo-menu-toggle, #demo-site-nav *, .demo-contact-dialog * { transition: none !important; }
 }
+
+/* The current effect is named; pressing the control previews the alternative. */
+.hero-effect-toggle { min-height:var(--hero-effect-control-size); display:inline-flex; align-items:center; justify-content:center; gap:var(--space-8); padding:0 var(--space-12); background:var(--subtle); color:var(--ink); font-size:var(--text-sm); border-radius:var(--radius-l); white-space:nowrap; flex:none; }
+.hero-effect-toggle svg { width:18px; height:18px; fill:none; stroke:currentColor; stroke-width:1.5; stroke-linecap:round; stroke-linejoin:round; }
+.hero-effect-toggle:hover { background:var(--color-container-bg-behavior-hover); }
+.hero-effect-toggle:active { transform:scale(.97); }
+html[data-hero-effect="meteor"] .scene-hero::before { content:''; position:absolute; pointer-events:none; z-index:0; left:-12%; top:-30%; width:140%; height:65%; transform:rotate(32deg); transform-origin:10% 50%; background:radial-gradient(ellipse at 20% 50%,var(--hero-meteor-beam-core),var(--hero-meteor-beam) 35%,transparent 70%); }
+@media (max-width:760px) {
+  .hero-effect-toggle { width:var(--hero-effect-control-size); padding:0; }
+  .hero-effect-toggle [data-hero-effect-label] { display:none; }
+}
+@media (max-width:480px) {
+  .demo-header { --header-padding-expanded:var(--space-16); gap:var(--space-8); }
+  .demo-brand-logo { width:90px; height:auto; }
+  .demo-actions { gap:var(--space-2); }
+}
