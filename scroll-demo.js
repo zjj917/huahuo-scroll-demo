@@ -90,6 +90,7 @@
       savedTheme = mode;
       try { localStorage.setItem('huahuo-theme', mode); } catch { /* Storage is optional. */ }
     }
+    requestUpdate();
   }
   setTheme(savedTheme || (themePreference.matches ? 'dark' : 'light'));
   themeButton.addEventListener('click', () => setTheme(root.dataset.mode === 'dark' ? 'light' : 'dark', true));
@@ -393,12 +394,39 @@
     } else {
       ['left','top','width','height','borderRadius','visibility'].forEach(key => { film.style[key] = ''; });
     }
+    syncPlanetHeader();
     header.classList.remove('is-submerged');
     root.classList.remove('is-portal');
     const railProgress = clamp((units - awardsStart - .15) / 1.15);
     rail.style.transform = pinned ? `translateX(${-railTravel*railProgress}px)` : 'none';
     document.querySelector('[data-case-direction="-1"]').disabled = railProgress <= .01;
     document.querySelector('[data-case-direction="1"]').disabled = railProgress >= .99;
+  }
+  function syncPlanetHeader() {
+    if(root.dataset.heroEffect!=='planet') {
+      delete header.dataset.surface;delete header.dataset.stuck;return;
+    }
+    header.dataset.stuck=String(window.scrollY>1);
+    // Ignore header descendants when sampling the content underneath it.
+    // Sample either side of the central nav; use the first painted backdrop.
+    const sampleX=Math.min(window.innerWidth-24,window.innerWidth*.3);
+    const sampleY=Math.min(header.getBoundingClientRect().bottom/2,40);
+    const layers=document.elementsFromPoint(sampleX,sampleY);
+    let color=null;
+    for(const element of layers) {
+      if(element===header||header.contains(element)||element.closest('.opening-title,.hero-creator-card'))continue;
+      const style=getComputedStyle(element);
+      if(Number(style.opacity)<.05)continue;
+      const rgba=style.backgroundColor.match(/[\d.]+/g)?.map(Number);
+      if(rgba?.length>=3&&(rgba[3]??1)>.8){color=rgba;break;}
+    }
+    if(!color) {
+      const bg=getComputedStyle(document.body).backgroundColor.match(/[\d.]+/g)?.map(Number);
+      color=bg||[0,0,0];
+    }
+    const linear=color.slice(0,3).map(v=>{v/=255;return v<=.04045?v/12.92:((v+.055)/1.055)**2.4;});
+    const luminance=.2126*linear[0]+.7152*linear[1]+.0722*linear[2];
+    header.dataset.surface=luminance>.42?'light':'dark';
   }
   function tick() {
     frame = 0;
@@ -410,7 +438,10 @@
   reduced.addEventListener('change', () => configure());
   compact.addEventListener('change', () => configure());
   document.addEventListener('visibilitychange', () => { if (document.hidden) { cancelAnimationFrame(frame); frame = 0; } else requestUpdate(); });
-  window.addEventListener('hero-effect-change',()=>configure());
+  window.addEventListener('hero-effect-change',()=>{
+    if(root.dataset.heroEffect==='planet'&&!savedTheme)setTheme('dark');
+    configure();
+  });
   configure(false);
   if (document.fonts?.ready) document.fonts.ready.then(() => { measureOpening(); measurePortal(); requestUpdate(); });
   if (location.hash.startsWith('#demo-')) {
