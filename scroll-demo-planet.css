@@ -71,3 +71,7 @@ html[data-hero-effect="planet"][data-mode="light"] .planet-scroll-cue img { filt
   html[data-hero-effect="planet"] .hero-effect-select { position:absolute; right:var(--space-16); top:72px; }
   html[data-hero-effect="planet"] .planet-scroll-cue { font-size:var(--text-xs); }
 }
+
+html[data-hero-effect="planet"][data-mode="light"] .hero-actions .primary-button img { filter:invert(1); }
+html[data-hero-effect="planet"] #demo-site-nav [aria-current="page"] { position:relative; text-decoration:none; }
+html[data-hero-effect="planet"] #demo-site-nav [aria-current="page"]::after { content:''; position:absolute; left:calc(50% - 12px); bottom:0; width:24px; height:4px; border-radius:var(--radius-xs); background:currentColor; }
