@@ -62,7 +62,7 @@ html[data-hero-effect="planet"][data-mode="light"] .planet-scroll-cue img { filt
 }
 @media(max-width:760px) {
   html[data-hero-effect="planet"] { --display:clamp(28px,6.9vw,44px); --planet-hero-bottom:100px; --planet-action-gap:40px; --planet-cue-bottom:20px; }
-  html[data-hero-effect="planet"] .demo-header { padding:0 var(--space-16); }
+  html[data-hero-effect="planet"] .demo-header { padding:0 var(--space-16); background:var(--glass); backdrop-filter:blur(20px); }
   html[data-hero-effect="planet"] .demo-actions { gap:var(--space-2); }
   html[data-hero-effect="planet"] .planet-header-join { display:none; }
   html[data-hero-effect="planet"] .hero-copy .scene-kicker { font-size:var(--text-sm); }

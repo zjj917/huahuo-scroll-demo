@@ -598,7 +598,7 @@
   function planetOrbit(face) {
     const g=planetGeometry;
     // Avatars live on a sphere, rather than on a detached orbital ellipse.
-    const angle=face.phase+flowTime*palette.planetSpeed*.22+g.scroll*.15;
+    const angle=face.phase+Math.sin(flowTime*.08+face.phase)*.035+g.scroll*.15;
     const latitude=face.latitude??0;
     const x=Math.cos(latitude)*Math.sin(angle),y=Math.sin(latitude),z=Math.cos(latitude)*Math.cos(angle);
     const tilt=-Math.PI/6,dx=x*Math.cos(tilt)-y*Math.sin(tilt),dy=x*Math.sin(tilt)+y*Math.cos(tilt);
@@ -626,7 +626,7 @@
   function paintPlanetFace(face,position,front) {
     const g=planetGeometry;
     const depth=(position.depth+1)/2;
-    const size=16*face.scale*(.7+depth*.3)*Math.min(1.2,g.radius/420.5);
+    const size=16*face.scale*(.7+depth*.3)*Math.min(1.2,Math.max(g.compact ? .8 : .4,g.radius/420.5));
     const alpha=(.24+depth*.68)*Math.min(1,entryAmount*2);
     if(position.x+size<0||position.x-size>width||position.y+size<100||position.y-size>height)return;
     if(position.depth<=.06)return;
