@@ -196,6 +196,9 @@
     });
   }
   function resize() {
+    // Restore CSS sizing before measuring a non-planet theme; otherwise its
+    // first frame could inherit the planet's larger atmosphere canvas.
+    if(effect!=='planet') { canvas.style.left='';canvas.style.top='';canvas.style.width='';canvas.style.height=''; }
     const nextWidth = effect==='planet' ? hero.clientWidth || canvas.clientWidth : canvas.clientWidth;
     const nextHeight = effect==='planet' ? hero.clientHeight || canvas.clientHeight : canvas.clientHeight;
     const ratio = Math.min(window.devicePixelRatio || 1, 1.5);
