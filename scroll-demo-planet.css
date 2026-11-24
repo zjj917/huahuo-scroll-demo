@@ -118,7 +118,7 @@ html[data-hero-effect="planet"] .demo-header[data-surface="light"] {
   --planet-line:rgba(47,50,56,.08);
   background:rgba(255,255,255,.24);
 }
-html[data-hero-effect="planet"] #demo-site-nav { border-radius:var(--planet-button-radius); }
+html[data-hero-effect="planet"] #demo-site-nav { border-radius:var(--space-24); }
 @media(max-width:1250px) {
   html[data-hero-effect="planet"] #demo-site-nav.is-open { background:var(--page); }
 }
@@ -127,3 +127,9 @@ html[data-hero-effect="planet"] #demo-site-nav { border-radius:var(--planet-butt
   html[data-hero-effect="planet"] .planet-scroll-cue > * { animation:none; }
   html[data-hero-effect="planet"] .demo-header { transition:none; }
 }
+
+/* Let the atmosphere extend beyond the hero's layout box. Only the browser's
+   horizontal viewport boundary clips it; the hero and stage do not. */
+html[data-hero-effect="planet"] body { overflow-x:clip; }
+html[data-hero-effect="planet"] .story-stage,
+html[data-hero-effect="planet"] .scene-hero { overflow:visible; }
