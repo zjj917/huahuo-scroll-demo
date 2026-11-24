@@ -12,19 +12,22 @@
     let returnFocus = null;
 
     function setMenu(open, restoreFocus = false) {
-      const expanded = mobile.matches && open;
+      const isMobile=mobile.matches || (document.documentElement.dataset.heroEffect==='planet' && innerWidth<=1250);
+      const expanded = isMobile && open;
       nav.classList.toggle('is-open', expanded);
       toggle.setAttribute('aria-expanded', String(expanded));
       toggle.setAttribute('aria-label', expanded ? '收起导航菜单' : '展开导航菜单');
-      nav.toggleAttribute('inert', mobile.matches && !expanded);
-      if (mobile.matches && !expanded) nav.setAttribute('aria-hidden', 'true');
+      nav.toggleAttribute('inert', isMobile && !expanded);
+      if (isMobile && !expanded) nav.setAttribute('aria-hidden', 'true');
       else nav.removeAttribute('aria-hidden');
-      if (restoreFocus && mobile.matches) toggle.focus({ preventScroll: true });
+      if (restoreFocus && isMobile) toggle.focus({ preventScroll: true });
     }
 
     setMenu(false);
     toggle.addEventListener('click', () => setMenu(toggle.getAttribute('aria-expanded') !== 'true'));
     mobile.addEventListener('change', () => setMenu(false));
+    window.addEventListener('resize',()=>setMenu(false),{passive:true});
+    window.addEventListener('hero-effect-change',()=>setMenu(false));
     nav.querySelectorAll('a').forEach(link => {
       link.addEventListener('click', () => setMenu(false, true));
     });

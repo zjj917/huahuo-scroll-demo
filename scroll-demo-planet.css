@@ -1,0 +1,73 @@
+/* Figma's 1600×900 hero. All overrides belong to the creator planet theme. */
+.planet-only { display:none; }
+html[data-hero-effect="planet"] {
+  --display:64px;
+  --hero-dot-planet-rim:rgba(255,255,255,1);
+  --hero-dot-planet-glow:rgba(219,139,255,.7);
+  --planet-canvas-bg:rgba(0,0,0,1);
+  --planet-line:rgba(255,255,255,.12);
+  --planet-muted:rgba(255,255,255,.5);
+  --planet-button-bg:rgba(255,255,255,.08);
+  --planet-hero-bottom:112px;
+  --planet-cue-bottom:40px;
+  --planet-title-gap:24px;
+  --planet-button-radius:20px;
+  --planet-action-gap:64px;
+  --planet-title-leading:1.35;
+  --planet-hero-gutter:clamp(24px,6vw,144px);
+}
+html[data-hero-effect="planet"][data-mode="light"] {
+  --planet-canvas-bg:rgba(246,245,250,1);
+  --planet-line:rgba(24,25,28,.12);
+  --planet-muted:rgba(24,25,28,.55);
+  --planet-button-bg:rgba(24,25,28,.06);
+}
+html[data-hero-effect="planet"] .planet-only { display:inline-flex; }
+html[data-hero-effect="planet"] .planet-original-label { display:none; }
+html[data-hero-effect="planet"] .scene-hero { padding-inline:var(--planet-hero-gutter); padding-bottom:var(--planet-hero-bottom); background:var(--planet-canvas-bg); }
+html[data-hero-effect="planet"] .hero-copy h1,
+html[data-hero-effect="planet"] .opening-title { line-height:var(--planet-title-leading); letter-spacing:0; }
+html[data-hero-effect="planet"] .hero-copy .scene-kicker { margin-bottom:var(--planet-title-gap); color:var(--planet-muted); font-size:var(--hero-action-font-size); font-weight:600; line-height:1.6; }
+html[data-hero-effect="planet"] .hero-actions { margin-top:var(--planet-action-gap); }
+html[data-hero-effect="planet"] .hero-actions button { width:188px; gap:var(--space-8); border-radius:var(--planet-button-radius); padding:0 var(--space-40); }
+html[data-hero-effect="planet"] .hero-actions .secondary-button { border:0; background:var(--planet-button-bg); }
+html[data-hero-effect="planet"] .hero-emphasis > .hero-underline { display:none; }
+html[data-hero-effect="planet"] .planet-underline { position:absolute; left:0; bottom:-.35em; width:246px; height:19px; max-width:none; }
+html[data-hero-effect="planet"] .planet-scroll-cue { position:absolute; z-index:10; bottom:var(--planet-cue-bottom); left:calc(50% - 48px); width:96px; align-items:center; flex-direction:column; gap:var(--space-8); color:var(--planet-muted); text-decoration:none; font-size:var(--navigation-font-size); font-weight:600; min-height:52px; }
+html[data-hero-effect="planet"] .planet-scroll-cue:hover { color:var(--ink); }
+html[data-hero-effect="planet"] .demo-header { inset:0 0 auto; height:80px; padding:0 var(--space-40); gap:var(--space-16); border-radius:0; background:transparent; backdrop-filter:none; }
+html[data-hero-effect="planet"] .demo-header::before,
+html[data-hero-effect="planet"] .demo-header::after { display:none; }
+html[data-hero-effect="planet"] #demo-site-nav { position:absolute; left:50%; transform:translateX(-50%); margin:0; padding:var(--space-8) var(--space-16); gap:0; min-height:54px; border:1px solid var(--planet-line); border-radius:var(--radius-full); background:var(--glass); backdrop-filter:blur(20px); }
+html[data-hero-effect="planet"] #demo-site-nav a,
+html[data-hero-effect="planet"] #demo-site-nav .demo-contact-trigger { padding:0 var(--space-12); min-height:36px; }
+html[data-hero-effect="planet"] .demo-actions { margin-left:auto; gap:var(--space-12); }
+html[data-hero-effect="planet"] .planet-header-join { order:0; padding:0 var(--space-24); min-height:36px; background:transparent; border:1px solid var(--planet-line); border-radius:var(--radius-l); color:var(--ink); font:inherit; font-size:var(--text-sm); font-weight:600; }
+html[data-hero-effect="planet"] .login-button { order:1; min-height:36px; }
+html[data-hero-effect="planet"] .theme-toggle { order:2; }
+html[data-hero-effect="planet"] .hero-effect-select { order:3; }
+html[data-hero-effect="planet"] .demo-menu-toggle { order:4; }
+html[data-hero-effect="planet"][data-mode="light"] .planet-underline,
+html[data-hero-effect="planet"][data-mode="light"] .hero-actions .secondary-button img,
+html[data-hero-effect="planet"][data-mode="light"] .planet-scroll-cue img { filter:brightness(.35); }
+@media(max-width:1250px) {
+  html[data-hero-effect="planet"] .demo-menu-toggle { display:grid; }
+  html[data-hero-effect="planet"] #demo-site-nav { display:none; left:auto; right:var(--space-24); top:72px; transform:none; width:240px; border-radius:var(--planet-button-radius); }
+  html[data-hero-effect="planet"] #demo-site-nav.is-open { display:flex; flex-direction:column; align-items:stretch; }
+  html[data-hero-effect="planet"] #demo-site-nav a,
+  html[data-hero-effect="planet"] #demo-site-nav .demo-contact-trigger { min-height:44px; justify-content:flex-start; }
+}
+@media(max-height:740px) and (min-width:761px) {
+  html[data-hero-effect="planet"] { --planet-hero-bottom:80px; --planet-action-gap:48px; --planet-cue-bottom:24px; }
+}
+@media(max-width:760px) {
+  html[data-hero-effect="planet"] { --display:clamp(28px,6.9vw,44px); --planet-hero-bottom:100px; --planet-action-gap:40px; --planet-cue-bottom:20px; }
+  html[data-hero-effect="planet"] .demo-header { padding:0 var(--space-16); }
+  html[data-hero-effect="planet"] .demo-actions { gap:var(--space-2); }
+  html[data-hero-effect="planet"] .planet-header-join { display:none; }
+  html[data-hero-effect="planet"] .hero-copy .scene-kicker { font-size:var(--text-sm); }
+  html[data-hero-effect="planet"] .hero-actions button { width:auto; padding:0 var(--space-16); }
+  html[data-hero-effect="planet"] .planet-underline { width:123px; height:9.5px; }
+  html[data-hero-effect="planet"] .hero-effect-select { position:absolute; right:var(--space-16); top:72px; }
+  html[data-hero-effect="planet"] .planet-scroll-cue { font-size:var(--text-xs); }
+}

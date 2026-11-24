@@ -11,11 +11,12 @@
   <link rel="stylesheet" href="motion.css?v=20261120-user-underline-v3">
   <link rel="stylesheet" href="scroll-demo.css?v=20261123-values-reference-v29">
   <link rel="stylesheet" href="scroll-demo-tail.css?v=20261120-footer-clean-v6">
-  <link rel="stylesheet" href="scroll-demo-nav.css?v=20261123-effect-select-v7">
-  <script src="scroll-demo.js?v=20261123-values-reference-v28" defer></script>
-  <script src="scroll-demo-dots.js?v=20261123-planet-scroll-v17" defer></script>
+  <link rel="stylesheet" href="scroll-demo-nav.css?v=20261124-figma-planet-v1">
+  <link rel="stylesheet" href="scroll-demo-planet.css?v=20261124-figma-planet-v1">
+  <script src="scroll-demo.js?v=20261124-figma-planet-v1" defer></script>
+  <script src="scroll-demo-dots.js?v=20261124-figma-planet-v1" defer></script>
   <script src="scroll-demo-tail.js?v=20261120-footer-clean-v6" defer></script>
-  <script src="scroll-demo-nav.js?v=20261120-footer-menus-v1" defer></script>
+  <script src="scroll-demo-nav.js?v=20261124-figma-planet-v1" defer></script>
 </head>
 <body>
   <a class="skip-link" href="#story">跳到主要内容</a>
@@ -32,10 +33,11 @@
       <button class="demo-contact-trigger" type="button" data-contact="email" aria-haspopup="dialog" aria-controls="demo-contact-dialog">联系邮箱</button>
     </nav>
     <div class="demo-actions">
+      <button class="planet-only planet-header-join" type="button" data-contact="join" aria-haspopup="dialog" aria-controls="demo-contact-dialog">立即入驻</button>
       <button class="theme-toggle" type="button" data-theme-toggle aria-label="切换暗色主题">
         <span aria-hidden="true">◐</span><span class="sr-only">切换暗色主题</span>
       </button>
-      <button class="login-button" type="button" data-contact="login" aria-haspopup="dialog" aria-controls="demo-contact-dialog">立即登录</button>
+      <button class="login-button" type="button" data-contact="login" aria-haspopup="dialog" aria-controls="demo-contact-dialog"><span class="planet-original-label">立即登录</span><span class="planet-only">登录</span></button>
       <select class="hero-effect-select" data-hero-effect-select aria-label="首屏视觉效果"><option value="meteor">流星汇聚</option><option value="cinema">粒子汇聚</option><option value="planet">创作者星球</option></select>
       <button class="demo-menu-toggle" type="button" data-menu-toggle aria-label="展开导航菜单" aria-controls="demo-site-nav" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h14M5 16h14"/></svg></button>
     </div>
@@ -62,14 +64,17 @@
             </div>
           </div>
           <div class="hero-copy">
-            <p class="scene-kicker">UP 主商业合作 &amp; 服务平台</p>
-            <h1 id="hero-title"><span data-opening-line>以内容为杠杆，</span><br><span data-opening-line>撬动品牌<span class="hero-emphasis">深度心智<svg class="hero-underline" width="214" height="20" viewBox="0 0 214 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path pathLength="1" d="M3.7334 12.1773C14.2065 9.04531 66.8621 0.969296 78.9056 3.47517C64.2432 5.14628 56.8705 13.2222 56.8705 15.832C85.4528 10.4384 185.615 -0.0457783 209.233 15.832" stroke-width="6" stroke-linecap="square" stroke="url(#paint0_linear_85_36665)"/><defs><linearGradient id="paint0_linear_85_36665" x1="43.9689" y1="10.3642" x2="142.364" y2="7.99311" gradientUnits="userSpaceOnUse"><stop stop-color="#FF3077"/><stop offset="1" stop-color="#FF47DD"/></linearGradient></defs></svg></span>。</span></h1>
+            <p class="scene-kicker"><span class="planet-original-label">UP 主商业合作 &amp; 服务平台</span><span class="planet-only">UP主商业合作&amp;服务平台</span></p>
+            <h1 id="hero-title"><span data-opening-line>以内容为杠杆，</span><br><span data-opening-line>撬动品牌<span class="hero-emphasis">深度心智<svg class="hero-underline" width="214" height="20" viewBox="0 0 214 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path pathLength="1" d="M3.7334 12.1773C14.2065 9.04531 66.8621 0.969296 78.9056 3.47517C64.2432 5.14628 56.8705 13.2222 56.8705 15.832C85.4528 10.4384 185.615 -0.0457783 209.233 15.832" stroke-width="6" stroke-linecap="square" stroke="url(#paint0_linear_85_36665)"/><defs><linearGradient id="paint0_linear_85_36665" x1="43.9689" y1="10.3642" x2="142.364" y2="7.99311" gradientUnits="userSpaceOnUse"><stop stop-color="#FF3077"/><stop offset="1" stop-color="#FF47DD"/></linearGradient></defs></svg><img class="planet-only planet-underline" src="assets/planet-figma/img19.svg" width="246" height="19" alt=""></span>。</span></h1>
             <div class="hero-actions">
-              <button class="primary-button" type="button" data-contact="login" aria-haspopup="dialog" aria-controls="demo-contact-dialog">立即登录</button>
-              <button class="secondary-button" type="button" data-contact="join" aria-haspopup="dialog" aria-controls="demo-contact-dialog">立即入驻</button>
+              <button class="primary-button" type="button" data-contact="login" aria-haspopup="dialog" aria-controls="demo-contact-dialog">立即登录<img class="planet-only" src="assets/planet-figma/imgWebIconIconLineOutlink1.svg" width="20" height="20" alt=""></button>
+              <button class="secondary-button" type="button" data-contact="join" aria-haspopup="dialog" aria-controls="demo-contact-dialog">立即入驻<img class="planet-only" src="assets/planet-figma/imgWebIconIconLineOutlink2.svg" width="20" height="20" alt=""></button>
             </div>
           </div>
+        <a class="planet-only planet-scroll-cue" href="#demo-values" data-jump="values"><span>下滑了解更多</span><img src="assets/planet-figma/imgWebIconIconLineDoublearrowdown1.svg" width="20" height="20" alt=""></a>
         </section>
+
+
 
         <section class="story-scene scene-values" data-scene="values" aria-labelledby="values-title">
           <div class="section-heading">

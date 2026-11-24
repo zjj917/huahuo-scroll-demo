@@ -24,7 +24,7 @@
   const valuesTitle = document.getElementById('values-title');
   const heroActions = document.querySelector('.hero-actions');
   const heroDots = document.querySelector('[data-hero-dots]');
-  const heroDetails = [...document.querySelectorAll('.hero-copy .scene-kicker, .hero-actions')];
+  const heroDetails = [...document.querySelectorAll('.hero-copy .scene-kicker, .hero-actions, .planet-scroll-cue')];
   const valuesDetails = [...document.querySelectorAll('.scene-values .section-heading > p')];
   // Keep the original headings in the document for semantics and layout. One
   // decorative layer carries the exact same visible title across both scenes.
@@ -300,6 +300,10 @@
     });
     const underline=openingTitle.querySelector('.hero-underline');
     if(underline)underline.style.opacity=String(1-openingProgress);
+    const planetUnderline=openingTitle.querySelector('.planet-underline');
+    if(planetUnderline)planetUnderline.style.opacity=String(1-openingProgress);
+    const cue=document.querySelector('.planet-scroll-cue');
+    cue?.toggleAttribute('inert',pinned && openingProgress>.8);
     openingTitle.style.visibility = pinned && openingExit < 1 ? 'visible' : 'hidden';
     heroDetails.forEach(element => {
       element.style.opacity = pinned ? String(heroFade) : '';
@@ -406,6 +410,7 @@
   reduced.addEventListener('change', () => configure());
   compact.addEventListener('change', () => configure());
   document.addEventListener('visibilitychange', () => { if (document.hidden) { cancelAnimationFrame(frame); frame = 0; } else requestUpdate(); });
+  window.addEventListener('hero-effect-change',()=>configure());
   configure(false);
   if (document.fonts?.ready) document.fonts.ready.then(() => { measureOpening(); measurePortal(); requestUpdate(); });
   if (location.hash.startsWith('#demo-')) {
