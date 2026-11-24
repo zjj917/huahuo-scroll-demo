@@ -133,3 +133,7 @@ html[data-hero-effect="planet"] #demo-site-nav { border-radius:var(--space-24); 
 html[data-hero-effect="planet"] body { overflow-x:clip; }
 html[data-hero-effect="planet"] .story-stage,
 html[data-hero-effect="planet"] .scene-hero { overflow:visible; }
+
+/* The stage spans the viewport: constrain horizontal page overflow at that
+   outer boundary while allowing the atmosphere to spill vertically. */
+html[data-hero-effect="planet"] .story-stage { overflow-x:clip; overflow-y:visible; }
