@@ -590,7 +590,7 @@
     Object.assign(planetGeometry,{baseX:planetGeometry.x,baseY:planetGeometry.y,baseRadius:radius,scroll:0});
     planetFaces=Array.from({length:compact ? 17 : palette.planetCount},(_,index)=>({
       phase:-1.45+(index*.61803398875%1)*2.9,
-      latitude:-1.05+(index*.38196601125%1)*2.1,
+      latitude:Math.asin(-.9+1.8*(index+.5)/(compact ? 17 : palette.planetCount)),
       lane:index%(compact ? 3 : palette.planetRingCount),featuredProfile:index%featuredProfiles.length,
       scale:index%9===0 ? 1.6 : .45+(index%5)*.19,
     }));
