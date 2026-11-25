@@ -4,6 +4,7 @@
   const context = canvas?.getContext('2d');
   if (!context) return;
   const hero = canvas.closest('[data-scene="hero"]');
+  const storyStage = hero.parentElement;
   const card = hero.querySelector('[data-hero-creator-card]');
   const cardPortrait = card.querySelector('[data-creator-portrait]');
   const cardName = card.querySelector('[data-creator-name]');
@@ -233,7 +234,7 @@
     canvas.width = Math.round(width * ratio);
     canvas.height = Math.round((height+canvasBleed*2) * ratio);
     context.setTransform(ratio, 0, 0, ratio, 0, canvasBleed*ratio);
-    bounds = effect==='planet' ? hero.getBoundingClientRect() : canvas.getBoundingClientRect();
+    bounds = effect==='planet' ? (storyStage&&canvas.parentElement===storyStage ? storyStage : hero).getBoundingClientRect() : canvas.getBoundingClientRect();
     copyBounds = hero.querySelector('.hero-copy').getBoundingClientRect();
     interactionLeft = Math.max(width * .5, copyBounds.right - bounds.left + 32);
     let seed = 917;
@@ -448,19 +449,30 @@
     return entryAmount * (1 - Number(canvas.style.getPropertyValue('--fire-scroll') || 0));
   }
   function readView() {
-    if (!root.classList.contains('is-pinned')) {
+    const sharedPlanet=effect==='planet'&&root.classList.contains('is-pinned');
+    if (sharedPlanet && storyStage) bounds=storyStage.getBoundingClientRect();
+    else if (!root.classList.contains('is-pinned')) {
       bounds = effect==='planet' ? hero.getBoundingClientRect() : canvas.getBoundingClientRect();
       copyBounds = hero.querySelector('.hero-copy').getBoundingClientRect();
     }
     visible = bounds.bottom > 0 && bounds.top < innerHeight &&
       Number(canvas.style.opacity || 1) > .002 &&
-      (!root.classList.contains('is-pinned') || hero.classList.contains('is-current'));
+      (sharedPlanet || !root.classList.contains('is-pinned') || hero.classList.contains('is-current'));
     viewNeeded = false;
     if (!visible) resetPoints();
   }
   function draw(now) {
     frame = 0;
     if (document.hidden) { lastTime = 0; return; }
+    // Share the planet between the opening screens. Its cached hero reference
+    // still owns identity/hover UI, while the canvas escapes both scene boxes.
+    if (storyStage?.insertBefore && hero.prepend) {
+      const host=effect==='planet'&&root.classList.contains('is-pinned') ? storyStage : hero;
+      if (canvas.parentElement!==host) {
+        if (host===storyStage) host.insertBefore(canvas,hero); else host.prepend(canvas);
+        resizeNeeded=true;viewNeeded=true;
+      }
+    }
     if (resizeNeeded) resize();
     if (viewNeeded) readView();
     if (!visible) { lastTime = 0; return; }

@@ -22,6 +22,7 @@
   const valueCards = [...document.querySelectorAll('.value-card')];
   const heroTitle = document.getElementById('hero-title');
   const valuesTitle = document.getElementById('values-title');
+  const planetTitleTarget = document.querySelector('[data-planet-title-target]');
   const heroActions = document.querySelector('.hero-actions');
   const heroDots = document.querySelector('[data-hero-dots]');
   const heroDetails = [...document.querySelectorAll('.hero-copy .scene-kicker, .hero-actions, .planet-scroll-cue')];
@@ -136,11 +137,30 @@
     return index;
   }
   function measureOpening() {
-    if (!pinned || root.dataset.heroEffect==='planet') return;
+    if (!pinned) return;
     const start = heroTitle.getBoundingClientRect();
     const end = valuesTitle.getBoundingClientRect();
     const hero = scenes[0].getBoundingClientRect();
     const values = scenes[1].getBoundingClientRect();
+    if (root.dataset.heroEffect==='planet') {
+      const sourceStyle=getComputedStyle(heroTitle);
+      const targetStyle=getComputedStyle(planetTitleTarget);
+      const scale=parseFloat(targetStyle.fontSize)/parseFloat(sourceStyle.fontSize);
+      const leading=parseFloat(sourceStyle.lineHeight);
+      const targets=[...planetTitleTarget.querySelectorAll('[data-handoff-line]')];
+      openingGeometry={
+        scale,viewportWidth:stage.clientWidth,
+        stagger:parseFloat(getComputedStyle(root).getPropertyValue('--planet-title-handoff-stagger')) || 128,
+        lines:[...heroTitle.querySelectorAll(':scope > [data-opening-line]')].map((line,index)=>{
+          const target=targets[index].getBoundingClientRect();
+          return {startX:start.left-hero.left,startY:start.top-hero.top+index*leading,
+            endX:target.left-values.left,endY:target.top-values.top+(target.height-leading*scale)/2,
+            width:line.querySelector('.planet-title-ink').offsetWidth,leading};
+        })
+      };
+      openingTitle.style.width=`${heroTitle.offsetWidth}px`;
+      return;
+    }
     // Subtract the scene bounds so a resize during scrub cannot capture its
     // current translation as part of either layout endpoint.
     openingGeometry = {
@@ -252,7 +272,7 @@
     const headerProgress = reduced.matches ? Number(window.scrollY > 0) : smooth(window.scrollY / Math.min(280, height * .32));
     header.style.setProperty('--header-progress', String(headerProgress));
     const isPlanet=root.dataset.heroEffect==='planet';
-    const openingProgress = smooth((units - .06) / 1.04);
+    const openingProgress = isPlanet ? clamp((units-.04)/1.06) : smooth((units-.06)/1.04);
     const introEnter = smooth((units - serviceIntro.enterStart) / (serviceIntro.enterEnd - serviceIntro.enterStart));
     const serviceProgress = serviceTransitions.map(transition => smooth((units - transition.morphStart) / (transition.morphEnd - transition.morphStart)));
     const openingExit = introEnter;
@@ -279,8 +299,7 @@
         const morph = serviceProgress[outgoing];
         shift = (1-enter)*height - height*(.44*rise*(1-morph)+morph);
       }
-      const openingSceneShift=isPlanet ? i===0 ? -Math.min(units,1.1)*height : Math.max(0,1-units)*height+openingShift : openingShift;
-      scene.style.transform = pinned ? `translateY(${(i < 2 ? openingSceneShift : shift).toFixed(2)}px)` : 'none';
+      scene.style.transform = pinned ? `translateY(${(i < 2 ? openingShift : shift).toFixed(2)}px)` : 'none';
     });
     if (!pinned) nextIndex = nearestScene();
     // A target must leave inert before focus can move into it.
@@ -298,20 +317,45 @@
       if (available) scene.removeAttribute('aria-hidden'); else scene.setAttribute('aria-hidden','true');
     });
     const g = openingGeometry;
+    const planetRise=smooth(openingProgress*1.1);
+    const planetAlign=smooth((openingProgress-.35)/.65);
+    const planetJoin=smooth((openingProgress-.35)/.23);
+    const planetMerge=smooth((openingProgress-.58)/.42);
+    const planetNaturalScale=1+((g.scale||1)-1)*planetAlign;
+    const planetCombinedWidth=isPlanet&&g.lines?.length ? g.lines.reduce((sum,line)=>sum+line.width,0) : 0;
+    const planetFitScale=planetCombinedWidth ? Math.min(planetNaturalScale,(g.viewportWidth-2*g.lines[0].startX)/planetCombinedWidth) : planetNaturalScale;
+    // A narrow desktop must fit the joined sentence before its rows merge.
+    const planetScale=planetNaturalScale+(planetFitScale-planetNaturalScale)*planetJoin;
+    const planetTitleY=g.lines?.length ? g.lines[0].startY+(g.lines[0].endY-g.lines[0].startY)*planetRise : 0;
     openingTitle.style.transform = `translateY(${openingShift}px)`;
+    openingTitle.style.setProperty('--planet-title-handoff',String(isPlanet ? planetAlign : 0));
     openingLines.forEach((line,index)=>{
       const l=g.lines?.[index];
-      if (!pinned || isPlanet || !l) { line.style.transform=''; return; }
+      if (!pinned || !l) { line.style.transform=''; return; }
+      if (isPlanet) {
+        const first=g.lines[0];
+        const naturalX=first.startX+(first.endX-first.startX)*planetAlign;
+        const fittedX=Math.min(naturalX,g.viewportWidth-first.startX-planetCombinedWidth*planetScale);
+        const firstX=Math.max(first.startX,naturalX+(fittedX-naturalX)*planetJoin);
+        const stagger=Math.min(g.stagger,Math.max(0,g.viewportWidth-2*first.startX-l.width))*Math.sin(Math.PI*clamp(openingProgress/.7))*(1-planetJoin);
+        const offset=first.width*planetScale*planetJoin+stagger;
+        const x=index ? firstX+Math.min(offset,g.viewportWidth-first.startX-firstX-l.width*planetScale) : firstX;
+        const y=planetTitleY+(index ? (l.startY-first.startY)*planetScale*(1-planetMerge) : 0);
+        line.style.transform=`translate(${x}px,${y}px) scale(${planetScale})`;
+        return;
+      }
       line.style.transform=`translate(${l.startX+(l.endX-l.startX)*openingProgress}px,${l.startY+(l.endY-l.startY)*openingProgress}px) scale(${1+(g.scale-1)*openingProgress})`;
     });
     const underline=openingTitle.querySelector('.hero-underline');
     if(underline)underline.style.opacity=String(1-openingProgress);
     const cue=document.querySelector('.planet-scroll-cue');
     cue?.toggleAttribute('inert',pinned && openingProgress>.8);
-    openingTitle.style.visibility = pinned && openingExit < 1 ? 'visible' : 'hidden';
+    const planetTitleLanded=isPlanet&&openingProgress>=1;
+    openingTitle.style.visibility = pinned && openingExit < 1 && !planetTitleLanded ? 'visible' : 'hidden';
     heroDetails.forEach(element => {
       element.style.opacity = pinned ? String(heroFade) : '';
-      element.style.transform = pinned&&!isPlanet ? `translateY(${-openingProgress * 36}px)` : '';
+      const rise=isPlanet&&g.lines?.length ? planetTitleY-g.lines[0].startY : -openingProgress*36;
+      element.style.transform = pinned ? `translateY(${rise}px)` : '';
     });
     const fireScroll = pinned ? smooth((units - .02) / .83) : 0;
     const heroOpacity = pinned ? String(1 - smooth((units - .78) / .32)) : '1';
@@ -323,8 +367,11 @@
     const unavailable = pinned && heroFade < .02;
     if (unavailable && heroActions.contains(document.activeElement)) document.getElementById('story').focus({ preventScroll: true });
     heroActions.toggleAttribute('inert', unavailable);
-    const valuesFade=smooth((units-(isPlanet ? .38 : .65))/(isPlanet ? .5 : .45));
-    valuesDetails.forEach(element => { element.style.opacity = pinned ? String(valuesFade) : ''; });
+    const valuesFade=smooth((units-.65)/.45);
+    valuesDetails.forEach(element => { element.style.opacity = pinned ? String(isPlanet ? Number(planetTitleLanded) : valuesFade) : ''; });
+    const planetStatementEnter=smooth((units-.9)/.35);
+    valuesTitle.style.opacity=pinned&&isPlanet ? String(planetStatementEnter) : '';
+    valuesTitle.style.transform=pinned&&isPlanet ? `translateY(${(1-planetStatementEnter)*24}px)` : '';
     valueCards.forEach((card, i) => {
       const entry = isPlanet ? smooth((units-.35-i*.08)/.85) : smooth((units-.7-i*.055)/.5);
       card.style.opacity = pinned ? String(entry) : '1';
