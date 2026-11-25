@@ -127,7 +127,7 @@
       starCore: token('star-core'), starPink: token('star-pink'), starBlue: token('star-blue'),
       sparkColors: ['cyan','violet','blue','yellow','white'].map(name => token(`spark-${name}`)),
       underlight: token('underlight'), underlightOpacity: Number(token('underlight-opacity')),
-      entryDuration: effect==='meteor' ? Number(token('meteor-entry-duration')) || 4.2 : Number(token('entry-duration')),
+      entryDuration: effect==='planet' ? Number(token('planet-entry-duration')) || 2.4 : effect==='meteor' ? Number(token('meteor-entry-duration')) || 4.2 : Number(token('entry-duration')),
       cinemaEntryDuration: Number(token('entry-duration')),
       meteorEntryDuration: Number(token('meteor-entry-duration')) || 4.2,
       meteorSettleDuration: Number(token('meteor-settle-duration')) || 2,
@@ -146,9 +146,12 @@
       planetFaceFarScale:Number(token('planet-face-far-scale')) || .18,
       planetHoverStop:Number(token('planet-hover-stop')) || .16,
       planetHoverResume:Number(token('planet-hover-resume')) || .8,
-      planetRingCount:Number(token('planet-ring-count')) || 5,
-      planetScrollScale:Number(token('planet-scroll-scale')) || .38,
-      planetScrollY:Number(token('planet-scroll-y')) || .28,
+      planetRingCount:Number(token('planet-ring-count')) || 8,
+      planetEntryDuration:Number(token('planet-entry-duration')) || 2.4,
+      planetFlowSpeed:Number(token('planet-flow-speed')) || .12,
+      planetScrollX:Number(token('planet-scroll-x')) || .3,
+      planetScrollScale:Number(token('planet-scroll-scale')) || .24,
+      planetScrollY:Number(token('planet-scroll-y')) || .98,
       planetCount:Number(token('planet-face-count')) || 108,
       featuredDrift: Number(token('featured-drift')),
       reach: Number(token('reach')),
@@ -583,21 +586,22 @@
     else lastTime = 0;
   }
   function cachePlanetArtwork() {
-    planetSprite=document.createElement('canvas');planetSprite.width=2200;planetSprite.height=1500;
+    planetSprite=document.createElement('canvas');planetSprite.width=planetSprite.height=2048;
     const pen=planetSprite.getContext('2d');
-    const draw=(name,x,y,w,h,angle=0)=>{
+    const draw=(name,w,h=w,angle=0)=>{
       const img=planetArtImages[name];if(!img)return;
-      pen.save();pen.translate(x+w/2,y+h/2);pen.rotate(angle);pen.drawImage(img,-w/2,-h/2,w,h);pen.restore();
+      pen.save();pen.translate(1024,1024);pen.rotate(angle);pen.drawImage(img,-w/2,-h/2,w,h);pen.restore();
     };
-    // Original Figma sphere and atmosphere assets, at their design geometry.
-    pen.globalAlpha=.6;draw('img',761,61,1321,1321);draw('img1',881,181,1082,1082);pen.globalAlpha=1;
-    draw('img2',961,261,921,921);draw('img3',977,277,889,889);
-    draw('img4',1000,300,843,843);
-    draw('img5',986.5,286.5,870,870);draw('img6',992.5,292.5,858,858);
+    // The original two-sigma SVG filter boxes left faint straight seams.
+    // Derived exports keep the same circle/blur, with four-sigma bounds; the
+    // centered cache leaves transparent room on every side of the whole glow.
+    pen.globalAlpha=.6;draw('img',1801);draw('img1',1322);pen.globalAlpha=1;
+    draw('img2',1001);draw('img3',937);
+    draw('img4',843);draw('img5',870);draw('img6',858);
     // The new Figma atmosphere uses smooth, concentric dark bands in its glow.
     // They sit outside the sphere and soften the large light, without noise.
     const darkSizes=[1024,916,1036,990,1054,998,884,1002,1010,1080,1074,960,968,1034,1086];
-    darkSizes.forEach((size,i)=>draw(`dark-ring-${String(i+1).padStart(2,'0')}`,1421.5-size/2,721.5-size/2,size,size));
+    darkSizes.forEach((size,i)=>draw(`dark-ring-${String(i+1).padStart(2,'0')}`,size));
     // Surface curves and outer rings are projected in 3D below rather than
     // baked into the texture, so a scroll changes their depth and foreshortening.
     if(!planetMist)planetMist=createPlanetMist();
@@ -612,11 +616,11 @@
     const compact=width<900;
     const radius=compact ? Math.min(width*.64,height*.28) : width*420.5/1600;
     planetGeometry={x:compact ? width*.84 : width*1421.5/1600,y:compact ? Math.min(height*.27,copyBounds.top-bounds.top-radius-64) : height*721.5/900,radius,compact};
-    Object.assign(planetGeometry,{baseX:planetGeometry.x,baseY:planetGeometry.y,baseRadius:radius,scroll:0});
+    Object.assign(planetGeometry,{baseX:planetGeometry.x,baseY:planetGeometry.y,baseRadius:radius,scroll:0,intro:0});
     const count=compact ? 48 : palette.planetCount;
     planetFaces=Array.from({length:count},(_,index)=>({
       phase:(index*.61803398875%1)*Math.PI*2,
-      lane:index%6,index,motion:1,featuredProfile:index%featuredProfiles.length,
+      lane:index%palette.planetRingCount,index,motion:1,featuredProfile:index%featuredProfiles.length,
       scale:.92+(index%5)*.04,
     }));
   }
@@ -624,7 +628,8 @@
     const p=planetGeometry.scroll;
     // All surface geometry shares one three-dimensional orientation. Camera
     // lighting stays fixed while the texture landmarks turn through depth.
-    const pitch=-.62*p,yaw=1.08*p,roll=-.38*p;
+    const intro=planetGeometry.intro;
+    const pitch=.72*p-.48*intro,yaw=.98*p-1.12*intro,roll=-.52*p+.4*intro;
     const y=v.y*Math.cos(pitch)-v.z*Math.sin(pitch);
     const z=v.y*Math.sin(pitch)+v.z*Math.cos(pitch);
     const x=v.x*Math.cos(yaw)+z*Math.sin(yaw);
@@ -644,8 +649,11 @@
     return {x:g.x+x*g.radius,y:g.y+y*g.radius,depth:p.z/palette.planetOrbitRadius,visible};
   }
   function planetLinePoint(lane,angle,outer=false) {
-    const ratio=[.995,.87,.622,.409,.22,.068][lane];
-    const tilt=Math.PI/6,x=Math.cos(angle),y=Math.sin(angle)*ratio,z=Math.sin(angle)*Math.sqrt(1-ratio*ratio);
+    // Different orbital planes spread the front arcs over every quadrant,
+    // rather than stacking every visible half-circle below one shared axis.
+    const tilt=(-68+lane*180/palette.planetRingCount)*Math.PI/180;
+    const incline=[.48,1.02,.72,1.3,.9,1.46,.61,1.16][lane%8];
+    const x=Math.cos(angle),y=Math.sin(angle)*Math.cos(incline),z=Math.sin(angle)*Math.sin(incline);
     const r=palette.planetOrbitRadius;
     return projectPlanet({x:(x*Math.cos(tilt)-y*Math.sin(tilt))*r,y:(x*Math.sin(tilt)+y*Math.cos(tilt))*r,z:z*r},outer);
   }
@@ -654,7 +662,7 @@
     return {...position,angle:face.phase};
   }
   function paintPlanetRing() {
-    const count=planetGeometry.compact?4:6;
+    const count=palette.planetRingCount;
     // Quiet fixed curves make the roll readable. Back-facing segments disappear.
     for(let lane=0;lane<count;lane++) {
       context.beginPath();let connected=false;
@@ -663,14 +671,16 @@
         if(!p.visible){connected=false;continue;}
         if(connected)context.lineTo(p.x,p.y);else context.moveTo(p.x,p.y);connected=true;
       }
-      context.strokeStyle=palette.planetRim;context.lineWidth=.55;context.globalAlpha=.13;context.stroke();
-      for(let segment=0;segment<20;segment++) {
-        const a=planetTime*(.042+lane*.003)+lane*1.17-segment*.012;
-        const p=planetLinePoint(lane,a),q=planetLinePoint(lane,a-.016);
+      context.strokeStyle=palette.planetRim;context.lineWidth=.6;context.globalAlpha=.18;context.stroke();
+      // Three spaced light packets keep a flowing highlight in view while
+      // each tail fades along its own 3D path and respects sphere occlusion.
+      for(let packet=0;packet<3;packet++)for(let segment=0;segment<28;segment++) {
+        const a=planetTime*palette.planetFlowSpeed*(1+lane*.035)+lane*.71+packet*Math.PI*2/3-segment*.017;
+        const p=planetLinePoint(lane,a),q=planetLinePoint(lane,a-.02);
         if(!p.visible||!q.visible)continue;
         context.beginPath();context.moveTo(p.x,p.y);context.lineTo(q.x,q.y);
-        context.strokeStyle=segment<2?palette.planetRim:palette.planetGlow;
-        context.lineWidth=.8;context.globalAlpha=(1-segment/20)*.34;context.stroke();
+        context.strokeStyle=palette.planetRim;
+        context.lineWidth=segment<4?1.15:.8;context.globalAlpha=(1-segment/28)**1.6*.78;context.stroke();
       }
     }
   }
@@ -752,7 +762,7 @@
     const g=planetGeometry;
     const depth=Math.max(0,Math.min(1,position.depth));
     const size=palette.planetFaceSize*face.scale*(palette.planetFaceFarScale+(1-palette.planetFaceFarScale)*depth**1.25)*Math.min(1.2,Math.max(g.compact ? .7 : .4,g.radius/420.5));
-    const alpha=(.56+depth*.44)*Math.min(1,entryAmount*2);
+    const alpha=(.56+depth*.44);
     if(position.x+size<0||position.x-size>width||position.y+size<100||position.y-size>height)return;
     if(!position.visible)return;
     const sprite=featuredPortraits[face.featuredProfile];
@@ -772,10 +782,13 @@
     // Derive from the resting geometry on every frame: reverse scrolling and
     // resizing recover the exact starting size instead of accumulating drift.
     g.scroll=scroll;
+    const entering=ready&&!staticField&&scroll===0;
+    const progress=entering ? Math.min(1,entryElapsed/palette.planetEntryDuration) : 1;
+    g.intro=(1-progress)**3;
     const travel=scroll**1.15;
-    g.radius=g.baseRadius*(1-.24*travel);
-    g.x=g.baseX+width*.43*travel;
-    g.y=g.baseY-height*.78*travel;
+    g.radius=g.baseRadius*(1-palette.planetScrollScale*travel)*(1-.06*g.intro);
+    g.x=g.baseX+width*(palette.planetScrollX*travel+.12*g.intro);
+    g.y=g.baseY-height*palette.planetScrollY*travel+height*.1*g.intro;
     let hovered=-1,hoverDistance=Infinity;
     if(pointer.active&&!staticField&&scroll<.02)for(const candidate of planetCandidates){
       const d=Math.hypot(pointer.x-candidate.x,pointer.y-candidate.y);
@@ -798,11 +811,14 @@
       if(hovering)planetCursor.style.transform=`translate(${pointer.x+bounds.left-17.6}px,${pointer.y+bounds.top-16}px)`;
     }
     context.clearRect(-canvasBleed,-canvasBleed,width+canvasBleed*2,height+canvasBleed*2);planetCandidates=[];
-    context.globalAlpha=1;
-    // The Figma art is cached as a local asset composite; only its placement
-    // changes on scroll. Keep atmosphere outside and the surface edge sharp.
+    // Wait for decoded art before the first pose, then roll into place.
+    // Lighting stays fixed as the shared surface landmarks turn in depth.
+    context.save();
+    const fade=ready ? Math.min(1,entryElapsed/.25) : 0;
+    context.globalAlpha=fade;
     const artScale=g.radius/420.5;
-    if(planetArtworkReady)context.drawImage(planetSprite,g.x-1421.5*artScale,g.y-721.5*artScale,2200*artScale,1500*artScale);
+    if(planetArtworkReady&&ready)context.drawImage(planetSprite,g.x-1024*artScale,g.y-1024*artScale,2048*artScale,2048*artScale);
+    if(!ready){context.restore();return;}
     paintPlanetAtmosphere();
     paintPlanetOuterFlow();
     // Sparse stars remain quiet while thin streaks drift slowly upwards.
@@ -816,6 +832,7 @@
     // than a 2D circular clip, determines what the viewer can see.
     planetFaces.map(face=>({face,position:planetOrbit(face)})).filter(item=>item.position.visible).sort((a,b)=>a.position.depth-b.position.depth).forEach(item=>paintPlanetFace(item.face,item.position,true));
     context.globalAlpha=1;
+    context.restore();
     let closest=null,distance=Infinity;
     if(hovering){closest=planetCandidates.find(face=>face.index===hovered);if(closest)distance=Math.hypot(pointer.x-closest.x,pointer.y-closest.y);}
     updateCard(Boolean(closest),closest,distance);
@@ -1048,7 +1065,7 @@
     effect=effectSelect.value;
     try { localStorage.setItem('huahuo-hero-effect',effect); } catch (_) {}
     updateEffectControl();
-    palette.entryDuration=effect==='meteor' ? palette.meteorEntryDuration : palette.cinemaEntryDuration;
+    palette.entryDuration=effect==='planet' ? palette.planetEntryDuration : effect==='meteor' ? palette.meteorEntryDuration : palette.cinemaEntryDuration;
     handoffElapsed=0;
     entryFinished=false;entryElapsed=0;entryAmount=0;hasBuilt=false;resizeNeeded=true;viewNeeded=true;lastTime=0;
     meteors.length=0;arrivals.length=0;nextMeteorAt=0;planetCandidates=[];
@@ -1092,11 +1109,13 @@
   const planetWorker=async()=>{
     while(nextPlanetAsset<planetNames.length){
       const name=planetNames[nextPlanetAsset++];
+      const glowIndex=['img','img1','img2','img3'].indexOf(name);
+      const file=glowIndex<0 ? name : `glow-soft-${String(glowIndex+1).padStart(2,'0')}`;
       await new Promise(resolve=>{
         const img=new Image();let retried=false;
         img.onload=()=>{planetArtImages[name]=img;resolve();};
-        img.onerror=()=>{if(retried){resolve();return;}retried=true;img.src=`assets/planet-figma/${name}.svg?v=20261125-depth16&retry=1`;};
-        img.src=`assets/planet-figma/${name}.svg?v=20261125-depth16`;
+        img.onerror=()=>{if(retried){resolve();return;}retried=true;img.src=`assets/planet-figma/${file}.svg?v=20261125-orbit18&retry=1`;};
+        img.src=`assets/planet-figma/${file}.svg?v=20261125-orbit18`;
       });
     }
   };

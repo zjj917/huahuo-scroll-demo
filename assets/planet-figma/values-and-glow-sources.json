@@ -1,0 +1,82 @@
+{
+  "figmaFile": "FLuCRZBJ6U3e9PW7cwT9OZ",
+  "valuesFrame": "189:18961",
+  "interactionFrame": "188:18379",
+  "valuesAssets": [
+    {
+      "file": "values-stars.svg",
+      "node": "205:24021",
+      "slot": {
+        "x": 142.6195,
+        "y": 67,
+        "width": 1384.38,
+        "height": 674
+      }
+    },
+    {
+      "file": "values-icon-1.svg",
+      "node": "189:19006",
+      "size": [
+        72,
+        72
+      ]
+    },
+    {
+      "file": "values-icon-2.svg",
+      "node": "189:19025",
+      "size": [
+        72,
+        72
+      ]
+    },
+    {
+      "file": "values-icon-3.svg",
+      "node": "189:19035",
+      "size": [
+        72,
+        72
+      ]
+    },
+    {
+      "file": "values-icon-4.svg",
+      "node": "189:19045",
+      "size": [
+        72,
+        72
+      ]
+    }
+  ],
+  "glowFix": {
+    "reason": "Remove the faint straight cut at the original two-sigma SVG filter boundary. Original exports remain intact.",
+    "cache": [
+      2048,
+      2048
+    ],
+    "derived": [
+      {
+        "file": "glow-soft-01.svg",
+        "source": "img.svg",
+        "blurSigma": 120,
+        "filterPaddingSigma": 4
+      },
+      {
+        "file": "glow-soft-02.svg",
+        "source": "img1.svg",
+        "blurSigma": 60,
+        "filterPaddingSigma": 4
+      },
+      {
+        "file": "glow-soft-03.svg",
+        "source": "img2.svg",
+        "blurSigma": 20,
+        "filterPaddingSigma": 4
+      },
+      {
+        "file": "glow-soft-04.svg",
+        "source": "img3.svg",
+        "blurSigma": 12,
+        "filterPaddingSigma": 4
+      }
+    ]
+  }
+}

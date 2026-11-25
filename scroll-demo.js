@@ -114,8 +114,9 @@
       const y = clamp((event.clientY-bounds.top)/bounds.height);
       const max = Number(getComputedStyle(outer).getPropertyValue('--value-tilt-angle'));
       outer.classList.add('is-hover'); surface.classList.add('is-tilting');
-      surface.style.setProperty('--tilt-rx', `${(1-2*y)*max}deg`);
-      surface.style.setProperty('--tilt-ry', `${(2*x-1)*max}deg`);
+      const direction=root.dataset.heroEffect==='planet'?-1:1;
+      surface.style.setProperty('--tilt-rx', `${(1-2*y)*max*direction}deg`);
+      surface.style.setProperty('--tilt-ry', `${(2*x-1)*max*direction}deg`);
       surface.style.setProperty('--tilt-gx', `${x*100}%`);
       surface.style.setProperty('--tilt-gy', `${y*100}%`);
     });
@@ -134,7 +135,7 @@
     return index;
   }
   function measureOpening() {
-    if (!pinned) return;
+    if (!pinned || root.dataset.heroEffect==='planet') return;
     const start = heroTitle.getBoundingClientRect();
     const end = valuesTitle.getBoundingClientRect();
     const hero = scenes[0].getBoundingClientRect();
@@ -249,6 +250,7 @@
     units = clamp(window.scrollY / height, 0, total);
     const headerProgress = reduced.matches ? Number(window.scrollY > 0) : smooth(window.scrollY / Math.min(280, height * .32));
     header.style.setProperty('--header-progress', String(headerProgress));
+    const isPlanet=root.dataset.heroEffect==='planet';
     const openingProgress = smooth((units - .06) / 1.04);
     const introEnter = smooth((units - serviceIntro.enterStart) / (serviceIntro.enterEnd - serviceIntro.enterStart));
     const serviceProgress = serviceTransitions.map(transition => smooth((units - transition.morphStart) / (transition.morphEnd - transition.morphStart)));
@@ -262,7 +264,7 @@
       const outgoing = serviceTransitions.findIndex(transition => transition.from === i);
       const enter = i === 0 ? 1 : i === 2 ? introEnter : incoming >= 0 ? serviceProgress[incoming] : smooth((units - stops[i] + .17) / .34);
       const exit = i === scenes.length - 1 ? 1 : i === 1 ? 1 - introEnter : outgoing >= 0 ? 1 - serviceProgress[outgoing] : 1 - smooth((units - stops[i+1] + .17) / .34);
-      const opacity = enter * exit;
+      const opacity = isPlanet&&i===0 ? 1-smooth((units-.55)/.45) : isPlanet&&i===1 ? smooth((units-.45)/.45)*exit : enter*exit;
       if (opacity > bestOpacity) { bestOpacity = opacity; nextIndex = i; }
       scene.classList.toggle('is-active', !pinned || (i < 2 ? openingExit < 1 : opacity > .002));
       // Adjacent pages share one moving edge: no overlapping, ghosted copy.
@@ -276,7 +278,8 @@
         const morph = serviceProgress[outgoing];
         shift = (1-enter)*height - height*(.44*rise*(1-morph)+morph);
       }
-      scene.style.transform = pinned ? `translateY(${(i < 2 ? openingShift : shift).toFixed(2)}px)` : 'none';
+      const openingSceneShift=isPlanet ? i===0 ? -Math.min(units,1.1)*height : Math.max(0,1-units)*height+openingShift : openingShift;
+      scene.style.transform = pinned ? `translateY(${(i < 2 ? openingSceneShift : shift).toFixed(2)}px)` : 'none';
     });
     if (!pinned) nextIndex = nearestScene();
     // A target must leave inert before focus can move into it.
@@ -296,7 +299,8 @@
     const g = openingGeometry;
     openingTitle.style.transform = `translateY(${openingShift}px)`;
     openingLines.forEach((line,index)=>{
-      const l=g.lines[index];
+      const l=g.lines?.[index];
+      if (!pinned || isPlanet || !l) { line.style.transform=''; return; }
       line.style.transform=`translate(${l.startX+(l.endX-l.startX)*openingProgress}px,${l.startY+(l.endY-l.startY)*openingProgress}px) scale(${1+(g.scale-1)*openingProgress})`;
     });
     const underline=openingTitle.querySelector('.hero-underline');
@@ -306,7 +310,7 @@
     openingTitle.style.visibility = pinned && openingExit < 1 ? 'visible' : 'hidden';
     heroDetails.forEach(element => {
       element.style.opacity = pinned ? String(heroFade) : '';
-      element.style.transform = pinned ? `translateY(${-openingProgress * 36}px)` : '';
+      element.style.transform = pinned&&!isPlanet ? `translateY(${-openingProgress * 36}px)` : '';
     });
     const fireScroll = pinned ? smooth((units - .02) / .83) : 0;
     const heroOpacity = pinned ? String(1 - smooth((units - .78) / .32)) : '1';
@@ -318,11 +322,12 @@
     const unavailable = pinned && heroFade < .02;
     if (unavailable && heroActions.contains(document.activeElement)) document.getElementById('story').focus({ preventScroll: true });
     heroActions.toggleAttribute('inert', unavailable);
-    valuesDetails.forEach(element => { element.style.opacity = pinned ? String(smooth((units-.65)/.45)) : ''; });
+    const valuesFade=smooth((units-(isPlanet ? .38 : .65))/(isPlanet ? .5 : .45));
+    valuesDetails.forEach(element => { element.style.opacity = pinned ? String(valuesFade) : ''; });
     valueCards.forEach((card, i) => {
-      const entry = smooth((units - .7 - i * .055) / .5);
+      const entry = isPlanet ? smooth((units-.35-i*.08)/.85) : smooth((units-.7-i*.055)/.5);
       card.style.opacity = pinned ? String(entry) : '1';
-      card.style.transform = pinned ? `translateY(${(1 - entry) * 120}px)` : 'none';
+      card.style.transform = pinned ? `translateY(${(1-entry)*(isPlanet?Math.min(height*.62,560):120)}px)` : 'none';
     });
     // Description follows the heading on a later scroll interval; both share
     // their resting layout, while reverse scrolling retraces the same lag.

@@ -17,7 +17,7 @@ html[data-hero-effect="planet"] {
   --planet-title-leading:1.4;
   --planet-title-muted:rgba(255,255,255,.7);
   --planet-title-strong:rgba(255,255,255,1);
-  --planet-title-accent:rgba(255,102,153,1);
+  --planet-title-accent:var(--color-text-primary);
   --planet-hero-gutter:clamp(24px,6vw,144px);
 }
 html[data-hero-effect="planet"][data-mode="light"] {
@@ -32,7 +32,7 @@ html[data-hero-effect="planet"] .scene-hero { padding-inline:var(--planet-hero-g
 html[data-hero-effect="planet"] .hero-copy h1,
 html[data-hero-effect="planet"] .opening-title { line-height:var(--planet-title-leading); letter-spacing:0; color:var(--planet-title-muted); }
 html[data-hero-effect="planet"] .planet-title-strong { color:var(--planet-title-strong); }
-html[data-hero-effect="planet"] .hero-emphasis { color:transparent; background:linear-gradient(257.942deg,var(--planet-title-accent) 59.495%,var(--planet-title-strong) 79.491%); background-clip:text; -webkit-background-clip:text; }
+html[data-hero-effect="planet"] .hero-emphasis { color:var(--planet-title-strong); background:none; }
 html[data-hero-effect="planet"] .hero-copy .scene-kicker { margin-bottom:var(--planet-title-gap); color:var(--planet-muted); font-size:var(--hero-action-font-size); font-weight:600; line-height:1.6; }
 html[data-hero-effect="planet"] .hero-actions { margin-top:var(--planet-action-gap); }
 html[data-hero-effect="planet"] .hero-actions button { width:auto; min-width:0; white-space:nowrap; gap:var(--space-8); border-radius:var(--planet-button-radius); padding:0 var(--space-40); }
@@ -128,6 +128,10 @@ html[data-hero-effect="planet"] { overflow-x:clip; }
 html[data-hero-effect="planet"] body,
 html[data-hero-effect="planet"] .story-stage,
 html[data-hero-effect="planet"] .scene-hero { overflow:visible; }
+html[data-hero-effect="planet"] .hero-dots { mask-image:none; -webkit-mask-image:none; }
+html[data-hero-effect="planet"].is-pinned .scene-hero h1,
+html[data-hero-effect="planet"].is-pinned .scene-values h2 { opacity:1; }
+html[data-hero-effect="planet"] .opening-title { display:none; }
 html[data-hero-effect="planet"] .scene-hero.is-avatar-hovered { cursor:none; }
 .planet-avatar-cursor { position:fixed; top:0; left:0; z-index:90; pointer-events:none; }
 html[data-hero-effect="planet"] .hero-creator-card { gap:var(--space-8); width:192px; padding:var(--space-8) var(--space-24) var(--space-8) var(--space-8); border:0; border-radius:var(--radius-full); background:rgba(255,255,255,.24); box-shadow:inset 0 0 0 var(--border-width) rgba(255,255,255,.08); backdrop-filter:blur(20px); }
@@ -158,4 +162,83 @@ html[data-hero-effect="planet"].planet-title-entering [data-opening-line]:nth-of
 @media(prefers-reduced-motion:reduce) {
   html[data-hero-effect="planet"].planet-intro-pending .planet-title-ink { opacity:1; transform:none; }
   html[data-hero-effect="planet"].planet-title-entering .planet-title-ink { animation:none; }
+}
+
+/* Figma 189:18961 / 188:18379. Four cards settle on one shared baseline. */
+html[data-hero-effect="planet"] .scene-values {
+  --values-heading-size:40px;
+  --values-card-height:440px;
+  --values-card-radius:40px;
+  --values-card-padding:var(--space-40);
+  --values-card-title-size:32px;
+  --values-card-copy-size:18px;
+  --planet-values-top:160px;
+  --planet-values-heading-gap:20px;
+  --planet-values-grid-gap:80px;
+  --value-tilt-angle:8;
+  --tilt-glare-opacity:1;
+  padding:var(--planet-values-top) var(--gutter) var(--space-80);
+  background:var(--planet-canvas-bg);
+}
+html[data-hero-effect="planet"].is-pinned .scene-values { background:var(--planet-canvas-bg); }
+html[data-hero-effect="planet"] .scene-values::before {
+  content:''; position:absolute; z-index:0; pointer-events:none;
+  width:1384.38px; height:674px; left:calc(50% - 657.38px); top:67px;
+  background:url('assets/planet-figma/values-stars.svg') center / contain no-repeat;
+}
+html[data-hero-effect="planet"] .scene-values > * { position:relative; z-index:1; }
+html[data-hero-effect="planet"] .scene-values .section-heading { padding-inline:var(--space-24); }
+html[data-hero-effect="planet"] .scene-values .scene-kicker {
+  margin-bottom:var(--planet-values-heading-gap);
+  color:var(--color-text-fourth,rgba(255,255,255,.3));
+  font-size:24px; font-weight:900; line-height:32px;
+}
+html[data-hero-effect="planet"] .scene-values #values-title {
+  font-size:var(--values-heading-size); line-height:1.5; letter-spacing:0;
+}
+html[data-hero-effect="planet"] #values-title > .planet-only { display:block; }
+html[data-hero-effect="planet"] #values-title > .planet-original-label { display:none; }
+html[data-hero-effect="planet"] .scene-values .section-heading > p:last-child,
+html[data-hero-effect="planet"] .planet-original-graphic { display:none; }
+html[data-hero-effect="planet"] .scene-values .value-grid {
+  gap:var(--space-32); margin-top:var(--planet-values-grid-gap);
+}
+html[data-hero-effect="planet"] .value-card-surface {
+  background:var(--planet-values-card-bg,rgba(255,255,255,.04));
+  border-top:var(--border-width) solid var(--planet-line);
+  backdrop-filter:blur(var(--planet-header-blur));
+}
+html[data-hero-effect="planet"] .value-card:nth-child(even) { --planet-values-card-bg:rgba(255,255,255,.08); }
+html[data-hero-effect="planet"] .value-card h3 { font-weight:600; line-height:1.5; letter-spacing:0; }
+html[data-hero-effect="planet"] .value-card p { color:var(--planet-muted); font-weight:400; line-height:1.5; }
+html[data-hero-effect="planet"] .value-card .value-graphic { flex:0 0 72px; width:72px; height:72px; }
+html[data-hero-effect="planet"] .value-card .t-tilt-glare {
+  background:radial-gradient(ellipse at var(--tilt-gx,50%) var(--tilt-gy,50%),rgba(255,255,255,.2),rgba(255,255,255,0) 70%);
+}
+@media (max-width:1200px), (max-height:780px) {
+  html[data-hero-effect="planet"] .scene-values {
+    --planet-values-top:120px; --planet-values-grid-gap:48px;
+    --values-heading-size:32px; --values-card-height:360px;
+    --values-card-radius:32px; --values-card-padding:var(--space-24);
+    --values-card-title-size:26px; --values-card-copy-size:16px;
+  }
+  html[data-hero-effect="planet"] .scene-values .value-grid { gap:var(--space-24); }
+  html[data-hero-effect="planet"] .scene-values .scene-kicker { font-size:20px; }
+}
+@media (max-width:760px) {
+  html[data-hero-effect="planet"] .scene-values {
+    --planet-values-top:100px; --planet-values-grid-gap:40px;
+    --planet-values-heading-gap:16px; --values-heading-size:28px;
+    --values-card-height:320px; --values-card-padding:var(--space-24);
+    --values-card-title-size:24px; --values-card-copy-size:14px;
+    overflow:hidden;
+  }
+  html[data-hero-effect="planet"] .scene-values .section-heading { padding-inline:0; }
+  html[data-hero-effect="planet"] .scene-values .scene-kicker { font-size:16px; line-height:1.6; }
+  html[data-hero-effect="planet"] .scene-values .value-grid { gap:var(--space-12); }
+  html[data-hero-effect="planet"] .scene-values .value-card p { min-height:9em; }
+  html[data-hero-effect="planet"] .scene-values .value-card h3 { margin-bottom:var(--space-16); }
+}
+@media (max-width:440px) {
+  html[data-hero-effect="planet"] .scene-values { --values-card-padding:20px; --values-card-title-size:22px; }
 }
