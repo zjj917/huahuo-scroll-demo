@@ -12,7 +12,7 @@
     let returnFocus = null;
 
     function setMenu(open, restoreFocus = false) {
-      const isMobile=mobile.matches || (document.documentElement.dataset.heroEffect==='planet' && innerWidth<=1250);
+      const isMobile=mobile.matches || (document.documentElement.dataset.heroEffect==='planet' && innerWidth<=1320);
       const expanded = isMobile && open;
       nav.classList.toggle('is-open', expanded);
       toggle.setAttribute('aria-expanded', String(expanded));
@@ -54,6 +54,10 @@
       email: ['联系邮箱', '联系邮箱待补充。'],
       login: ['立即登录', '登录入口待接入。'],
       join: ['立即入驻', '入驻入口待接入。'],
+      brand: ['品牌主/代理商', '品牌主/代理商合作入口待接入。'],
+      mcn: ['MCN', 'MCN 入驻入口待接入。'],
+      guild: ['工会', '工会入驻入口待接入。'],
+      provider: ['服务商', '服务商入驻入口待接入。'],
     };
     document.querySelectorAll('.demo-header [data-contact], .hero-actions [data-contact], .tail-footer [data-contact]').forEach(button => {
       button.addEventListener('click', () => {

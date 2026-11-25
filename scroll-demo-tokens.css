@@ -116,8 +116,13 @@
   --hero-dot-planet-surface: rgba(9,8,14,1);
   --hero-dot-planet-shadow: rgba(0,0,0,.62);
   --hero-dot-planet-orbit-speed: .028;
-  --hero-dot-planet-face-count: 38;
-  --hero-dot-planet-ring-count: 5;
+  --hero-dot-planet-face-count: 108;
+  --hero-dot-planet-ring-count: 6;
+  --hero-dot-planet-orbit-radius: 1.12;
+  --hero-dot-planet-face-size: 40;
+  --hero-dot-planet-face-far-scale: .18;
+  --hero-dot-planet-hover-stop: .16;
+  --hero-dot-planet-hover-resume: .8;
   --hero-dot-planet-scroll-scale: .38;
   --hero-dot-planet-scroll-y: .28;
   --hero-dot-meteor-tail: rgba(124,132,255,1);

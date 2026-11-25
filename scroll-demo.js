@@ -92,9 +92,9 @@
     }
     requestUpdate();
   }
-  setTheme(savedTheme || (themePreference.matches ? 'dark' : 'light'));
+  setTheme(root.dataset.heroEffect==='planet' ? 'dark' : savedTheme || (themePreference.matches ? 'dark' : 'light'));
   themeButton.addEventListener('click', () => setTheme(root.dataset.mode === 'dark' ? 'light' : 'dark', true));
-  themePreference.addEventListener('change', event => { if (!savedTheme) setTheme(event.matches ? 'dark' : 'light'); });
+  themePreference.addEventListener('change', event => { if (!savedTheme && root.dataset.heroEffect!=='planet') setTheme(event.matches ? 'dark' : 'light'); });
 
   const fineHover = matchMedia('(hover: hover) and (pointer: fine)');
   const tiltResets = valueCards.map(outer => {
@@ -301,8 +301,6 @@
     });
     const underline=openingTitle.querySelector('.hero-underline');
     if(underline)underline.style.opacity=String(1-openingProgress);
-    const planetUnderline=openingTitle.querySelector('.planet-underline');
-    if(planetUnderline)planetUnderline.style.opacity=String(1-openingProgress);
     const cue=document.querySelector('.planet-scroll-cue');
     cue?.toggleAttribute('inert',pinned && openingProgress>.8);
     openingTitle.style.visibility = pinned && openingExit < 1 ? 'visible' : 'hidden';
@@ -458,7 +456,7 @@
     if(window.scrollY>24){planetIntroSequence++;root.classList.remove('planet-intro-pending','planet-title-entering');}
   },{passive:true});
   window.addEventListener('hero-effect-change',()=>{
-    if(root.dataset.heroEffect==='planet'&&!savedTheme)setTheme('dark');
+    setTheme(root.dataset.heroEffect==='planet' ? 'dark' : savedTheme || (themePreference.matches ? 'dark' : 'light'));
     configure();
     startPlanetIntro();
   });

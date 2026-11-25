@@ -1,7 +1,14 @@
-<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="878.988" height="878.988" viewBox="0 0 878.988 878.988" fill="none" xmlns="http://www.w3.org/2000/svg">
-<circle id="&#229;&#164;&#150;&#229;&#156;&#136;" opacity="0.6" cx="439.494" cy="439.494" r="438.994" stroke="url(#paint0_linear_0_160)"/>
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="886.988" height="886.988" viewBox="0 0 886.988 886.988" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="&#229;&#164;&#150;&#229;&#156;&#136;" opacity="0.6" filter="url(#filter0_f_0_260)">
+<circle cx="443.494" cy="443.494" r="438.994" stroke="url(#paint0_linear_0_260)"/>
+</g>
 <defs>
-<linearGradient id="paint0_linear_0_160" x1="322.583" y1="29.4809" x2="439.494" y2="439.824" gradientUnits="userSpaceOnUse">
+<filter id="filter0_f_0_260" x="0" y="0" width="886.988" height="886.988" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+<feFlood flood-opacity="0" result="BackgroundImageFix"/>
+<feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
+<feGaussianBlur stdDeviation="2" result="effect1_foregroundBlur_0_260"/>
+</filter>
+<linearGradient id="paint0_linear_0_260" x1="326.583" y1="33.4809" x2="443.494" y2="443.824" gradientUnits="userSpaceOnUse">
 <stop stop-color="white" stop-opacity="0"/>
 <stop offset="0.667941" stop-color="white"/>
 <stop offset="1" stop-color="white" stop-opacity="0"/>

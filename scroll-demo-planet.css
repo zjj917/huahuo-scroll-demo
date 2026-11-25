@@ -1,19 +1,23 @@
 /* Figma's 1600×900 hero. All overrides belong to the creator planet theme. */
 .planet-only { display:none; }
+.hero-actions .planet-role-action { display:none; }
 html[data-hero-effect="planet"] {
-  --display:64px;
+  --display:72px;
   --hero-dot-planet-rim:rgba(255,255,255,1);
   --hero-dot-planet-glow:rgba(219,139,255,.7);
   --planet-canvas-bg:rgba(0,0,0,1);
   --planet-line:rgba(255,255,255,.12);
   --planet-muted:rgba(255,255,255,.5);
   --planet-button-bg:rgba(255,255,255,.08);
-  --planet-hero-bottom:112px;
+  --planet-hero-bottom:128px;
   --planet-cue-bottom:40px;
   --planet-title-gap:24px;
   --planet-button-radius:20px;
   --planet-action-gap:64px;
-  --planet-title-leading:1.35;
+  --planet-title-leading:1.4;
+  --planet-title-muted:rgba(255,255,255,.7);
+  --planet-title-strong:rgba(255,255,255,1);
+  --planet-title-accent:rgba(255,102,153,1);
   --planet-hero-gutter:clamp(24px,6vw,144px);
 }
 html[data-hero-effect="planet"][data-mode="light"] {
@@ -26,28 +30,29 @@ html[data-hero-effect="planet"] .planet-only { display:inline-flex; }
 html[data-hero-effect="planet"] .planet-original-label { display:none; }
 html[data-hero-effect="planet"] .scene-hero { padding-inline:var(--planet-hero-gutter); padding-bottom:var(--planet-hero-bottom); background:var(--planet-canvas-bg); }
 html[data-hero-effect="planet"] .hero-copy h1,
-html[data-hero-effect="planet"] .opening-title { line-height:var(--planet-title-leading); letter-spacing:0; }
+html[data-hero-effect="planet"] .opening-title { line-height:var(--planet-title-leading); letter-spacing:0; color:var(--planet-title-muted); }
+html[data-hero-effect="planet"] .planet-title-strong { color:var(--planet-title-strong); }
+html[data-hero-effect="planet"] .hero-emphasis { color:transparent; background:linear-gradient(257.942deg,var(--planet-title-accent) 59.495%,var(--planet-title-strong) 79.491%); background-clip:text; -webkit-background-clip:text; }
 html[data-hero-effect="planet"] .hero-copy .scene-kicker { margin-bottom:var(--planet-title-gap); color:var(--planet-muted); font-size:var(--hero-action-font-size); font-weight:600; line-height:1.6; }
 html[data-hero-effect="planet"] .hero-actions { margin-top:var(--planet-action-gap); }
-html[data-hero-effect="planet"] .hero-actions button { width:188px; gap:var(--space-8); border-radius:var(--planet-button-radius); padding:0 var(--space-40); }
+html[data-hero-effect="planet"] .hero-actions button { width:auto; min-width:0; white-space:nowrap; gap:var(--space-8); border-radius:var(--planet-button-radius); padding:0 var(--space-40); }
+html[data-hero-effect="planet"] .hero-actions .planet-original-action { display:none; }
 html[data-hero-effect="planet"] .hero-actions .secondary-button { border:0; background:var(--planet-button-bg); }
 html[data-hero-effect="planet"] .hero-emphasis > .hero-underline { display:none; }
-html[data-hero-effect="planet"] .planet-underline { position:absolute; left:0; bottom:-.35em; width:246px; height:19px; max-width:none; }
-html[data-hero-effect="planet"] .planet-scroll-cue { position:absolute; z-index:10; bottom:var(--planet-cue-bottom); left:calc(50% - 48px); width:96px; align-items:center; flex-direction:column; gap:var(--space-8); color:var(--planet-muted); text-decoration:none; font-size:var(--navigation-font-size); font-weight:600; min-height:52px; }
+html[data-hero-effect="planet"] .planet-scroll-cue { position:absolute; z-index:10; bottom:var(--planet-cue-bottom); left:calc(50% - 48px); width:96px; align-items:center; flex-direction:column; gap:var(--space-8); color:var(--planet-muted); text-decoration:none; font-size:var(--text-sm); font-weight:400; min-height:52px; }
 html[data-hero-effect="planet"] .planet-scroll-cue:hover { color:var(--ink); }
 html[data-hero-effect="planet"] .demo-header { inset:0 0 auto; height:80px; padding:0 var(--space-40); gap:var(--space-16); border-radius:0; background:transparent; backdrop-filter:none; }
 html[data-hero-effect="planet"] .demo-header::before,
 html[data-hero-effect="planet"] .demo-header::after { display:none; }
-html[data-hero-effect="planet"] #demo-site-nav { position:absolute; left:50%; transform:translateX(-50%); margin:0; padding:var(--space-8) var(--space-16); gap:0; min-height:54px; border:1px solid var(--planet-line); border-radius:var(--radius-full); background:var(--glass); backdrop-filter:blur(20px); }
+html[data-hero-effect="planet"] #demo-site-nav { position:absolute; left:50%; transform:translateX(-50%); margin:0; padding:var(--space-8) var(--space-24); gap:var(--space-8); min-height:54px; border:1px solid var(--planet-line); border-radius:var(--radius-full); background:var(--glass); backdrop-filter:blur(20px); }
 html[data-hero-effect="planet"] #demo-site-nav a,
 html[data-hero-effect="planet"] #demo-site-nav .demo-contact-trigger { padding:0 var(--space-16); min-height:36px; font-weight:400; }
 html[data-hero-effect="planet"] .demo-actions { margin-left:auto; gap:var(--space-12); }
 html[data-hero-effect="planet"] .planet-header-join { display:inline-flex; align-items:center; justify-content:center; flex-shrink:0; white-space:nowrap; width:104px; height:36px; order:0; padding:0 var(--space-24); min-height:36px; background:transparent; border:1px solid var(--planet-header-button-border,rgba(255,255,255,.12)); border-radius:var(--radius-l); color:var(--ink); font:inherit; font-size:var(--text-sm); font-weight:600; line-height:22px; }
 html[data-hero-effect="planet"] .login-button { order:1; width:76px; height:36px; min-height:36px; padding:7px var(--space-24); border-radius:var(--radius-l); font-weight:600; font-size:var(--text-sm); line-height:22px; }
-html[data-hero-effect="planet"] .theme-toggle { order:2; }
+html[data-hero-effect="planet"] .theme-toggle { display:none; }
 html[data-hero-effect="planet"] .hero-effect-select { order:3; }
 html[data-hero-effect="planet"] .demo-menu-toggle { order:4; }
-html[data-hero-effect="planet"][data-mode="light"] .planet-underline,
 html[data-hero-effect="planet"][data-mode="light"] .hero-actions .secondary-button img,
 html[data-hero-effect="planet"][data-mode="light"] .planet-scroll-cue img { filter:brightness(.35); }
 @media(max-width:1320px) {
@@ -67,7 +72,8 @@ html[data-hero-effect="planet"][data-mode="light"] .planet-scroll-cue img { filt
   html[data-hero-effect="planet"] .planet-header-join { display:none; }
   html[data-hero-effect="planet"] .hero-copy .scene-kicker { font-size:var(--text-sm); }
   html[data-hero-effect="planet"] .hero-actions button { width:auto; padding:0 var(--space-16); }
-  html[data-hero-effect="planet"] .planet-underline { width:123px; height:9.5px; }
+  html[data-hero-effect="planet"] .hero-actions { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); width:100%; gap:var(--space-12); }
+  html[data-hero-effect="planet"] .hero-actions .planet-role-action { display:inline-flex; padding-inline:var(--space-12); font-size:var(--text-base); }
   html[data-hero-effect="planet"] .hero-effect-select { position:absolute; right:var(--space-16); top:72px; }
   html[data-hero-effect="planet"] .planet-scroll-cue { font-size:var(--text-xs); }
 }
@@ -76,23 +82,12 @@ html[data-hero-effect="planet"][data-mode="light"] .hero-actions .primary-button
 html[data-hero-effect="planet"] #demo-site-nav [aria-current="page"] { position:relative; text-decoration:none; }
 html[data-hero-effect="planet"] #demo-site-nav [aria-current="page"]::after { content:''; position:absolute; left:calc(50% - 12px); bottom:0; width:24px; height:4px; border-radius:var(--radius-xs); background:currentColor; }
 
-/* Two separate reveals preserve the exact Figma artwork while drawing each
-   pen stroke from left to right. Animate children, never the scroll layer. */
 html[data-hero-effect="planet"] {
-  --planet-pen-first-duration:280ms;
-  --planet-pen-second-duration:380ms;
-  --planet-pen-first-delay:200ms;
-  --planet-pen-second-delay:560ms;
   --planet-cue-cycle:2600ms;
   --planet-cue-drop:4px;
   --planet-cue-rebound:-1.5px;
   --planet-header-blur:20px;
 }
-html[data-hero-effect="planet"] .planet-underline img { position:absolute; inset:0; display:block; width:100%; height:100%; }
-html[data-hero-effect="planet"] .planet-underline-first { clip-path:inset(0 48% 48% 0); animation:planet-pen-first var(--planet-pen-first-duration) var(--ease-smooth-out) var(--planet-pen-first-delay) both; }
-html[data-hero-effect="planet"] .planet-underline-second { clip-path:inset(55% 0 0 0); animation:planet-pen-second var(--planet-pen-second-duration) var(--ease-smooth-out) var(--planet-pen-second-delay) both; }
-@keyframes planet-pen-first { from { clip-path:inset(0 100% 48% 0); } to { clip-path:inset(0 48% 48% 0); } }
-@keyframes planet-pen-second { from { clip-path:inset(55% 100% 0 0); } to { clip-path:inset(55% 0 0 0); } }
 html[data-hero-effect="planet"] .planet-scroll-cue > * { animation:planet-cue-nudge var(--planet-cue-cycle) ease-in-out infinite; }
 @keyframes planet-cue-nudge {
   0%,65%,100% { transform:translateY(0); }
@@ -123,20 +118,21 @@ html[data-hero-effect="planet"] #demo-site-nav { border-radius:var(--space-24); 
   html[data-hero-effect="planet"] #demo-site-nav.is-open { background:var(--page); }
 }
 @media(prefers-reduced-motion:reduce) {
-  html[data-hero-effect="planet"] .planet-underline img,
   html[data-hero-effect="planet"] .planet-scroll-cue > * { animation:none; }
   html[data-hero-effect="planet"] .demo-header { transition:none; }
 }
 
-/* Let the atmosphere extend beyond the hero's layout box. Only the browser's
-   horizontal viewport boundary clips it; the hero and stage do not. */
-html[data-hero-effect="planet"] body { overflow-x:clip; }
+/* Only the viewport constrains horizontal page width. Every atmosphere
+   ancestor remains visible in both axes, including the sticky stage. */
+html[data-hero-effect="planet"] { overflow-x:clip; }
+html[data-hero-effect="planet"] body,
 html[data-hero-effect="planet"] .story-stage,
 html[data-hero-effect="planet"] .scene-hero { overflow:visible; }
-
-/* The stage spans the viewport: constrain horizontal page overflow at that
-   outer boundary while allowing the atmosphere to spill vertically. */
-html[data-hero-effect="planet"] .story-stage { overflow-x:clip; overflow-y:visible; }
+html[data-hero-effect="planet"] .scene-hero.is-avatar-hovered { cursor:none; }
+.planet-avatar-cursor { position:fixed; top:0; left:0; z-index:90; pointer-events:none; }
+html[data-hero-effect="planet"] .hero-creator-card { gap:var(--space-8); width:192px; padding:var(--space-8) var(--space-24) var(--space-8) var(--space-8); border:0; border-radius:var(--radius-full); background:rgba(255,255,255,.24); box-shadow:inset 0 0 0 var(--border-width) rgba(255,255,255,.08); backdrop-filter:blur(20px); }
+html[data-hero-effect="planet"] .hero-creator-card img { flex-basis:40px; width:40px; height:40px; }
+html[data-hero-effect="planet"] .hero-creator-card strong { font-weight:400; }
 
 /* Refined header controls use the measured Figma button geometry. */
 html[data-hero-effect="planet"] #demo-site-nav [aria-current="page"] { font-weight:600; }
@@ -155,8 +151,6 @@ html[data-hero-effect="planet"].planet-intro-pending .planet-title-ink { opacity
 html[data-hero-effect="planet"].planet-title-entering .planet-title-ink { animation:planet-title-enter var(--planet-title-enter-duration) var(--ease-smooth-out) both; }
 html[data-hero-effect="planet"].planet-title-entering [data-opening-line]:nth-of-type(1) > .planet-title-ink { animation-delay:100ms; }
 html[data-hero-effect="planet"].planet-title-entering [data-opening-line]:nth-of-type(2) > .planet-title-ink { animation-delay:calc(100ms + var(--planet-title-enter-stagger)); }
-html[data-hero-effect="planet"].planet-title-entering .planet-underline-first { animation-delay:900ms; }
-html[data-hero-effect="planet"].planet-title-entering .planet-underline-second { animation-delay:1240ms; }
 @keyframes planet-title-enter {
   from { opacity:0; transform:translateY(var(--planet-title-enter-distance)); filter:blur(var(--planet-title-enter-blur)); }
   to { opacity:1; transform:translateY(0); filter:blur(0); }
