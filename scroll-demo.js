@@ -44,7 +44,7 @@
   const awardsStart = 18.15;
   const total = 19.65;
   // Viewport-height distances keep every pose reversible and independent of time.
-  const serviceIntro = { enterStart: 2.1, enterEnd: 2.9 };
+  const serviceIntro = { enterStart: 2.1, enterEnd: 2.9, exitOvershoot: 0 };
   const serviceTransitions = [
     { from: 2, to: 3, color: 'var(--brand)', bandStart: 3, bandEnd: 3.5, morphStart: 3.6, morphEnd: stops[3] },
     { from: 3, to: 4, color: 'var(--phase-green)', bandStart: 8.4, bandEnd: 8.9, morphStart: 9, morphEnd: stops[4] },
@@ -211,6 +211,7 @@
     root.classList.toggle('is-pinned', pinned);
     root.classList.toggle('is-linear', !pinned);
     height = window.innerHeight;
+    serviceIntro.exitOvershoot = parseFloat(getComputedStyle(root).getPropertyValue('--planet-services-inset')) || 0;
     track.style.height = pinned ? `${(total + 1) * height}px` : 'auto';
     serviceData.forEach(data => { const first = data.frames[0].offsetTop; data.offsets = data.frames.map(item => item.offsetTop - first); });
     const gutter = parseFloat(getComputedStyle(awards).paddingLeft);
@@ -276,7 +277,7 @@
     const introEnter = smooth((units - serviceIntro.enterStart) / (serviceIntro.enterEnd - serviceIntro.enterStart));
     const serviceProgress = serviceTransitions.map(transition => smooth((units - transition.morphStart) / (transition.morphEnd - transition.morphStart)));
     const openingExit = introEnter;
-    const openingShift = -openingExit * height;
+    const openingShift = -openingExit * (height + (isPlanet ? serviceIntro.exitOvershoot : 0));
     const heroFade = 1 - smooth((units - .08) / .67);
     let nextIndex = 0;
     let bestOpacity = -1;
@@ -377,13 +378,13 @@
       card.style.opacity = pinned ? String(entry) : '1';
       card.style.transform = pinned ? `translateY(${(1-entry)*(isPlanet?Math.min(height*.62,560):120)}px)` : 'none';
     });
-    // Description follows the heading on a later scroll interval; both share
-    // their resting layout, while reverse scrolling retraces the same lag.
+    // The planet design brings the complete copy group in with the white page.
+    // Other themes retain their independently trailing description.
     if (serviceIntroDescription) {
       const follow = smooth((units - 2.35) / .75);
       const leaving = serviceProgress[0];
       const lag = parseFloat(getComputedStyle(root).getPropertyValue('--service-description-lag'));
-      serviceIntroDescription.style.transform = pinned ? `translateY(${(1-follow)*lag + leaving*(1-leaving)*lag}px)` : '';
+      serviceIntroDescription.style.transform = pinned && !isPlanet ? `translateY(${(1-follow)*lag + leaving*(1-leaving)*lag}px)` : '';
     }
     serviceData.forEach(data => {
       const position = clamp((units - data.frameStart) / (data.frameEnd - data.frameStart)) * (data.frames.length - 1);

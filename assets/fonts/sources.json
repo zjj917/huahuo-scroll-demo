@@ -138,6 +138,31 @@
       "file": "MiSans-Regular.849a17e23a8dd164.10.woff2",
       "source": "https://cdn.jsdelivr.net/npm/misans@5.0.0/lib/Normal/MiSans-Regular.849a17e23a8dd164.10.woff2",
       "bytes": 34000
+    },
+    {
+      "file": "MiSans-Heavy.41a38fc5bd71da9a.3.woff2",
+      "source": "https://cdn.jsdelivr.net/npm/misans@5.0.0/lib/Normal/MiSans-Heavy.41a38fc5bd71da9a.3.woff2",
+      "bytes": 30048
+    },
+    {
+      "file": "MiSans-Heavy.795cbaa68afd70b8.5.woff2",
+      "source": "https://cdn.jsdelivr.net/npm/misans@5.0.0/lib/Normal/MiSans-Heavy.795cbaa68afd70b8.5.woff2",
+      "bytes": 31572
+    },
+    {
+      "file": "MiSans-Heavy.f6e806e88e299e0e.8.woff2",
+      "source": "https://cdn.jsdelivr.net/npm/misans@5.0.0/lib/Normal/MiSans-Heavy.f6e806e88e299e0e.8.woff2",
+      "bytes": 34308
+    },
+    {
+      "file": "MiSans-Heavy.1dce8f83b2949123.9.woff2",
+      "source": "https://cdn.jsdelivr.net/npm/misans@5.0.0/lib/Normal/MiSans-Heavy.1dce8f83b2949123.9.woff2",
+      "bytes": 33896
+    },
+    {
+      "file": "MiSans-Heavy.01aaeec0af264689.17.woff2",
+      "source": "https://cdn.jsdelivr.net/npm/misans@5.0.0/lib/Normal/MiSans-Heavy.01aaeec0af264689.17.woff2",
+      "bytes": 35840
     }
   ]
 }

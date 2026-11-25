@@ -19,6 +19,7 @@ html[data-hero-effect="planet"] {
   --planet-title-strong:rgba(255,255,255,1);
   --planet-title-accent:var(--color-text-primary);
   --planet-hero-gutter:clamp(24px,6vw,144px);
+  --planet-services-inset:var(--space-120);
 }
 html[data-hero-effect="planet"][data-mode="light"] {
   --planet-canvas-bg:rgba(246,245,250,1);
@@ -250,4 +251,39 @@ html[data-hero-effect="planet"] .value-card .t-tilt-glare {
 }
 @media (max-width:440px) {
   html[data-hero-effect="planet"] .scene-values { --values-card-padding:20px; --values-card-title-size:22px; }
+}
+
+/* Figma 193:20150 / 196:20332. A white page carries one aligned copy group. */
+html[data-hero-effect="planet"] .scene-services-intro {
+  --color-text-primary:rgba(24,25,28,1);
+  --color-text-fourth:rgba(24,25,28,.3);
+  --page:rgba(255,255,255,1);
+  --ink:var(--color-text-primary);
+  --service-intro-title-size:40px;
+  --service-intro-title-weight:900;
+  --service-intro-description-size:32px;
+  --service-intro-description-weight:900;
+  --service-intro-description-muted:var(--color-text-fourth);
+  min-height:100svh;
+  padding:var(--planet-services-inset) var(--gutter) var(--space-80);
+  background:var(--page); color:var(--ink);
+  font-family:var(--hero-font-family);
+}
+html[data-hero-effect="planet"] .services-intro-copy { width:100%; }
+html[data-hero-effect="planet"] .services-intro-copy .scene-kicker { display:none; }
+html[data-hero-effect="planet"] .services-intro-copy h2 {
+  font-size:var(--service-intro-title-size); line-height:1.5; letter-spacing:0;
+}
+html[data-hero-effect="planet"] .services-intro-copy > p:last-child {
+  max-width:none; margin-top:var(--space-16);
+  font-size:var(--service-intro-description-size); line-height:1.5;
+}
+html[data-hero-effect="planet"] .services-intro-copy > p:last-child strong { color:inherit; }
+html[data-hero-effect="planet"] .service-intro-keyword { color:var(--ink); white-space:nowrap; }
+@media (max-width:760px) {
+  html[data-hero-effect="planet"] { --planet-services-inset:var(--space-80); }
+  html[data-hero-effect="planet"] .scene-services-intro {
+    --service-intro-title-size:32px;
+    --service-intro-description-size:24px;
+  }
 }
