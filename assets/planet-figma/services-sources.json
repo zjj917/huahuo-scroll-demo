@@ -1,0 +1,62 @@
+{
+  "figmaFile": "FLuCRZBJ6U3e9PW7cwT9OZ",
+  "frames": [
+    "189:19492",
+    "189:19166"
+  ],
+  "interaction": "慢慢向上滚动，出现色块，随着色块缩小，颜色被剪切进“找UP主”文字中；继续出现四张选人模式图片。",
+  "assets": [
+    {
+      "file": "service-mode-ai.png",
+      "node": "216:58012",
+      "bytes": 1699240,
+      "sourceSize": [
+        1320,
+        1000
+      ],
+      "designSize": [
+        660,
+        500
+      ]
+    },
+    {
+      "file": "service-mode-partner.png",
+      "node": "216:58015",
+      "bytes": 1591017,
+      "sourceSize": [
+        1320,
+        1000
+      ],
+      "designSize": [
+        660,
+        500
+      ]
+    },
+    {
+      "file": "service-mode-self-serve.png",
+      "node": "216:58018",
+      "bytes": 850064,
+      "sourceSize": [
+        1320,
+        1000
+      ],
+      "designSize": [
+        660,
+        500
+      ]
+    },
+    {
+      "file": "service-mode-events.png",
+      "node": "216:58021",
+      "bytes": 1418376,
+      "sourceSize": [
+        1320,
+        1000
+      ],
+      "designSize": [
+        660,
+        500
+      ]
+    }
+  ]
+}

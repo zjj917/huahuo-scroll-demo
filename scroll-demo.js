@@ -45,6 +45,24 @@
   const total = 19.65;
   // Viewport-height distances keep every pose reversible and independent of time.
   const serviceIntro = { enterStart: 2.1, enterEnd: 2.9, exitOvershoot: 0 };
+  const planetServices = {
+    content: document.querySelector('.services-intro-content'),
+    label: document.querySelector('.planet-service-label'),
+    labelText: document.querySelector('[data-service-label-text]'),
+    baseline: document.querySelector('.planet-service-baseline'),
+    heading: document.querySelector('.planet-service-heading'),
+    gallery: document.querySelector('.planet-service-gallery'),
+    band: document.querySelector('.planet-service-band'),
+    mask: document.getElementById('planet-service-word-mask'),
+    remainder: document.querySelector('.planet-service-mask-remainder'),
+    word: document.querySelector('.planet-service-mask-word'),
+    color: document.querySelector('.planet-service-color'),
+    morphStart: 2.9, morphEnd: 3.8,
+    headingStart: 3.65, headingEnd: 4.1,
+    imagesStart: 4.05, imagesEnd: stops[3],
+    panStart: 5.15, panEnd: 8.15,
+    geometry: null,
+  };
   const serviceTransitions = [
     { from: 2, to: 3, color: 'var(--brand)', bandStart: 3, bandEnd: 3.5, morphStart: 3.6, morphEnd: stops[3] },
     { from: 3, to: 4, color: 'var(--phase-green)', bandStart: 8.4, bandEnd: 8.9, morphStart: 9, morphEnd: stops[4] },
@@ -133,7 +151,7 @@
 
   function nearestScene() {
     let index = 0;
-    scenes.forEach((scene, i) => { if (scene.getBoundingClientRect().top <= window.innerHeight * .4) index = i; });
+    scenes.forEach((scene, i) => { if (scene.getClientRects().length && scene.getBoundingClientRect().top <= window.innerHeight * .4) index = i; });
     return index;
   }
   function measureOpening() {
@@ -195,6 +213,66 @@
     rail.style.transform = railTransform;
     awards.style.transform = awardsTransform;
   }
+  function measurePlanetServices() {
+    const p = planetServices;
+    if (!pinned || root.dataset.heroEffect !== 'planet') { p.geometry = null; return; }
+    // Relative measurements exclude both the page entrance and reading offset.
+    const content = p.content.getBoundingClientRect();
+    const label = p.label.getBoundingClientRect();
+    const text = p.labelText.getBoundingClientRect();
+    const baseline = p.baseline.getBoundingClientRect();
+    const style = getComputedStyle(scenes[2]);
+    const width = p.content.clientWidth;
+    const contentHeight = p.content.offsetHeight;
+    p.geometry = {
+      width, contentHeight,
+      labelX: text.left - content.left, labelY: label.top - content.top,
+      labelWidth: text.width, labelHeight: label.height,
+      bandOffset: parseFloat(style.getPropertyValue('--planet-service-band-offset')) || 42,
+      bandHeight: parseFloat(style.getPropertyValue('--planet-service-band-height')) || 197,
+      revealDistance: parseFloat(style.getPropertyValue('--planet-service-reveal-distance')) || 72,
+      travel: Math.max(0, contentHeight - height),
+    };
+    p.band.setAttribute('viewBox', `0 0 ${width} ${contentHeight}`);
+    p.mask.setAttribute('width', String(width));
+    p.mask.setAttribute('height', String(contentHeight));
+    p.remainder.setAttribute('width', String(width));
+    p.remainder.setAttribute('height', String(contentHeight));
+    p.word.setAttribute('x', String(p.geometry.labelX));
+    p.word.setAttribute('y', String(baseline.top - content.top));
+  }
+  function renderPlanetServices(isPlanet) {
+    const p = planetServices;
+    const active = pinned && isPlanet && p.geometry;
+    const morph = active ? smooth((units-p.morphStart)/(p.morphEnd-p.morphStart)) : 1;
+    const heading = active ? smooth((units-p.headingStart)/(p.headingEnd-p.headingStart)) : 1;
+    const images = active ? smooth((units-p.imagesStart)/(p.imagesEnd-p.imagesStart)) : 1;
+    const pan = active ? smooth((units-p.panStart)/(p.panEnd-p.panStart)) : 0;
+    p.content.style.transform = active ? `translateY(${-p.geometry.travel*pan}px)` : '';
+    p.label.style.opacity = active ? String(Number(morph === 1)) : '';
+    p.heading.style.opacity = active ? String(heading) : '';
+    p.heading.style.transform = active ? `translateY(${(1-heading)*p.geometry.revealDistance}px)` : '';
+    p.gallery.style.opacity = active ? String(images) : '';
+    p.gallery.style.transform = active ? `translateY(${(1-images)*p.geometry.revealDistance}px)` : '';
+    [[p.label,morph === 1],[p.heading,heading > .002],[p.gallery,images > .002]].forEach(([element,visible]) => {
+      if (active && !visible) element.setAttribute('aria-hidden','true');
+      else element.removeAttribute('aria-hidden');
+    });
+    p.band.style.visibility = active && morph < 1 ? 'visible' : 'hidden';
+    if (!active) return;
+    const g = p.geometry;
+    const bandY = g.labelY - g.bandOffset;
+    const bounds = {
+      x: g.labelX*morph,
+      y: bandY + (g.labelY-bandY)*morph,
+      width: g.width + (g.labelWidth-g.width)*morph,
+      height: g.bandHeight + (g.labelHeight-g.bandHeight)*morph,
+    };
+    Object.entries(bounds).forEach(([key,value]) => p.color.setAttribute(key,String(value)));
+    // The broad mask clears while the glyph mask stays: color remains only in
+    // the real word contours, then the identical semantic heading takes over.
+    p.remainder.setAttribute('opacity',String(1-smooth((morph-.45)/.55)));
+  }
   function configure(preserve = true) {
     const oldPinned = pinned;
     const oldUnits = units;
@@ -218,6 +296,7 @@
     railTravel = Math.max(0, rail.scrollWidth - (window.innerWidth - 2 * gutter));
     measureOpening();
     measurePortal();
+    measurePlanetServices();
     if (pinned) {
       serviceTransitions.forEach(transition => {
         const target = transition.symbol.getBoundingClientRect();
@@ -241,9 +320,14 @@
     requestUpdate();
   }
 
-  function jumpTo(index, offset = .22) {
-    if (pinned) window.scrollTo({ top: (stops[index] + offset) * height, behavior: reduced.matches ? 'instant' : 'smooth' });
-    else scenes[index].scrollIntoView({ behavior: reduced.matches ? 'instant' : 'smooth', block: 'start' });
+  function jumpTo(index, offset = .22, instant = false) {
+    const behavior = instant || reduced.matches ? 'instant' : 'smooth';
+    if (!pinned && root.dataset.heroEffect === 'planet' && index === 3) {
+      planetServices.label.scrollIntoView({ behavior, block: 'start' });
+      return;
+    }
+    if (pinned) window.scrollTo({ top: (stops[index] + offset) * height, behavior });
+    else scenes[index].scrollIntoView({ behavior, block: 'start' });
   }
   document.querySelectorAll('[data-jump]').forEach(link => {
     const key = link.dataset.jump;
@@ -283,10 +367,12 @@
     let bestOpacity = -1;
     scenes.forEach((scene, i) => {
       const incoming = serviceTransitions.findIndex(transition => transition.to === i);
-      const outgoing = serviceTransitions.findIndex(transition => transition.from === i);
+      // In the planet theme the introduction and four images form one white
+      // reading page, replacing the original separate selection scene.
+      const outgoing = isPlanet && i === 2 ? 1 : serviceTransitions.findIndex(transition => transition.from === i);
       const enter = i === 0 ? 1 : i === 2 ? introEnter : incoming >= 0 ? serviceProgress[incoming] : smooth((units - stops[i] + .17) / .34);
       const exit = i === scenes.length - 1 ? 1 : i === 1 ? 1 - introEnter : outgoing >= 0 ? 1 - serviceProgress[outgoing] : 1 - smooth((units - stops[i+1] + .17) / .34);
-      const opacity = isPlanet&&i===0 ? 1-smooth((units-.55)/.45) : isPlanet&&i===1 ? smooth((units-.45)/.45)*exit : enter*exit;
+      const opacity = isPlanet&&i===3 ? 0 : isPlanet&&i===0 ? 1-smooth((units-.55)/.45) : isPlanet&&i===1 ? smooth((units-.45)/.45)*exit : enter*exit;
       if (opacity > bestOpacity) { bestOpacity = opacity; nextIndex = i; }
       scene.classList.toggle('is-active', !pinned || (i < 2 ? openingExit < 1 : opacity > .002));
       // Adjacent pages share one moving edge: no overlapping, ghosted copy.
@@ -386,7 +472,9 @@
       const lag = parseFloat(getComputedStyle(root).getPropertyValue('--service-description-lag'));
       serviceIntroDescription.style.transform = pinned && !isPlanet ? `translateY(${(1-follow)*lag + leaving*(1-leaving)*lag}px)` : '';
     }
+    renderPlanetServices(isPlanet);
     serviceData.forEach(data => {
+      if (isPlanet && data.index === 3) return;
       const position = clamp((units - data.frameStart) / (data.frameEnd - data.frameStart)) * (data.frames.length - 1);
       const base = Math.floor(position);
       const blend = smooth((position - base - .12) / .76);
@@ -404,6 +492,11 @@
       // Preserve all service text in the accessibility tree; only the visual track moves.
     });
     serviceTransitions.forEach((transition, index) => {
+      if (isPlanet && index === 0) {
+        transition.element.style.visibility = 'hidden';
+        transition.symbol.style.visibility = '';
+        return;
+      }
       const morphActive = pinned && units > transition.bandStart && units < transition.morphEnd;
       transition.element.style.visibility = morphActive ? 'visible' : 'hidden';
       transition.symbol.style.visibility = pinned && units < transition.morphEnd ? 'hidden' : '';
@@ -516,9 +609,15 @@
   });
   configure(false);
   startPlanetIntro();
-  if (document.fonts?.ready) document.fonts.ready.then(() => { measureOpening(); measurePortal(); requestUpdate(); });
+  if (document.fonts?.ready) document.fonts.ready.then(() => { measureOpening(); measurePortal(); measurePlanetServices(); requestUpdate(); });
   if (location.hash.startsWith('#demo-')) {
     const index = scenes.findIndex(scene => `#${scene.id}` === location.hash);
-    if (index >= 0) requestAnimationFrame(() => jumpTo(index));
+    if (root.dataset.heroEffect === 'planet' && index === 3) {
+      // The old anchor is hidden in this theme; wait for native fragment
+      // restoration to finish before routing to its new content location.
+      const restore = () => requestAnimationFrame(() => jumpTo(index,.22,true));
+      if (document.readyState === 'complete') restore();
+      else window.addEventListener('load',restore,{once:true});
+    } else if (index >= 0) requestAnimationFrame(() => jumpTo(index));
   }
 })();

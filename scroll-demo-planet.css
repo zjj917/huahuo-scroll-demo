@@ -254,6 +254,8 @@ html[data-hero-effect="planet"] .value-card .t-tilt-glare {
 }
 
 /* Figma 193:20150 / 196:20332. A white page carries one aligned copy group. */
+.services-intro-content { display:contents; }
+.planet-service-detail, .planet-service-band { display:none; }
 html[data-hero-effect="planet"] .scene-services-intro {
   --color-text-primary:rgba(24,25,28,1);
   --color-text-fourth:rgba(24,25,28,.3);
@@ -265,9 +267,13 @@ html[data-hero-effect="planet"] .scene-services-intro {
   --service-intro-description-weight:900;
   --service-intro-description-muted:var(--color-text-fourth);
   min-height:100svh;
-  padding:var(--planet-services-inset) var(--gutter) var(--space-80);
+  padding:0;
   background:var(--page); color:var(--ink);
   font-family:var(--hero-font-family);
+}
+html[data-hero-effect="planet"] .services-intro-content {
+  display:block; position:relative; width:100%;
+  padding:var(--planet-services-inset) var(--gutter);
 }
 html[data-hero-effect="planet"] .services-intro-copy { width:100%; }
 html[data-hero-effect="planet"] .services-intro-copy .scene-kicker { display:none; }
@@ -280,10 +286,54 @@ html[data-hero-effect="planet"] .services-intro-copy > p:last-child {
 }
 html[data-hero-effect="planet"] .services-intro-copy > p:last-child strong { color:inherit; }
 html[data-hero-effect="planet"] .service-intro-keyword { color:var(--ink); white-space:nowrap; }
+/* Frame-specific distances preserve the 421px label and 561px image baseline. */
+html[data-hero-effect="planet"] .scene-services-intro {
+  --planet-service-detail-gap:177px;
+  --planet-service-band-height:197px;
+  --planet-service-band-offset:42px;
+  --planet-service-label-size:var(--text-base);
+  --planet-service-heading-size:40px;
+  --planet-service-reveal-distance:72px;
+}
+html[data-hero-effect="planet"] .planet-service-detail { display:block; margin-top:var(--planet-service-detail-gap); }
+html[data-hero-effect="planet"] .planet-service-label {
+  margin:0; color:var(--brand); font-size:var(--planet-service-label-size);
+  font-weight:900; line-height:1.5; letter-spacing:0; white-space:nowrap;
+}
+.planet-service-baseline { display:inline-block; width:0; height:0; vertical-align:baseline; }
+html[data-hero-effect="planet"] .planet-service-heading {
+  margin-top:var(--space-16); font-size:var(--planet-service-heading-size);
+  font-weight:900; line-height:1.5; letter-spacing:0;
+}
+html[data-hero-effect="planet"] .planet-service-gallery {
+  display:grid; grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:var(--space-40); padding:0; margin:var(--space-40) 0 0; list-style:none;
+}
+html[data-hero-effect="planet"] .planet-service-gallery li { min-width:0; }
+html[data-hero-effect="planet"] .planet-service-gallery img {
+  display:block; width:100%; height:auto; aspect-ratio:660 / 500;
+}
+html[data-hero-effect="planet"] .scene-service-service { display:none; }
+html[data-hero-effect="planet"].is-pinned .services-intro-content { will-change:transform; }
+html[data-hero-effect="planet"].is-pinned .planet-service-band {
+  display:block; position:absolute; inset:0; width:100%; height:100%;
+  z-index:3; pointer-events:none;
+}
+html[data-hero-effect="planet"] .planet-service-color { fill:var(--brand); }
+html[data-hero-effect="planet"] .planet-service-mask-word {
+  font-family:var(--hero-font-family); font-size:var(--planet-service-label-size);
+  font-weight:900; letter-spacing:0;
+}
+@media (max-height:780px) and (min-width:761px) {
+  html[data-hero-effect="planet"] .scene-services-intro { --planet-service-detail-gap:var(--space-80); }
+}
 @media (max-width:760px) {
   html[data-hero-effect="planet"] { --planet-services-inset:var(--space-80); }
   html[data-hero-effect="planet"] .scene-services-intro {
     --service-intro-title-size:32px;
     --service-intro-description-size:24px;
+    --planet-service-detail-gap:var(--space-80);
+    --planet-service-heading-size:28px;
   }
+  html[data-hero-effect="planet"] .planet-service-gallery { grid-template-columns:minmax(0,1fr); gap:var(--space-24); margin-top:var(--space-32); }
 }

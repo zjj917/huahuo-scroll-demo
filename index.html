@@ -8,16 +8,16 @@
   <script>try{if(localStorage.getItem('huahuo-hero-effect')==='planet'){document.documentElement.dataset.heroEffect='planet';document.documentElement.classList.add('planet-intro-pending');}}catch(_){}</script>
   <title>花火 · 滚动叙事 Demo</title>
   <link rel="stylesheet" href="scroll-demo-fonts.css?v=20261125-misans-v2">
-  <link rel="stylesheet" href="scroll-demo-tokens.css?v=20261125-services-planet-v22">
+  <link rel="stylesheet" href="scroll-demo-tokens.css?v=20261125-service-images-planet-v23">
   <link rel="stylesheet" href="motion.css?v=20261120-user-underline-v3">
   <link rel="stylesheet" href="scroll-demo.css?v=20261123-values-reference-v29">
   <link rel="stylesheet" href="scroll-demo-tail.css?v=20261120-footer-clean-v6">
-  <link rel="stylesheet" href="scroll-demo-nav.css?v=20261125-services-planet-v22">
-  <link rel="stylesheet" href="scroll-demo-planet.css?v=20261125-services-planet-v22">
-  <script src="scroll-demo.js?v=20261125-services-planet-v22" defer></script>
-  <script src="scroll-demo-dots.js?v=20261125-services-planet-v22" defer></script>
+  <link rel="stylesheet" href="scroll-demo-nav.css?v=20261125-service-images-planet-v23">
+  <link rel="stylesheet" href="scroll-demo-planet.css?v=20261125-service-images-planet-v23">
+  <script src="scroll-demo.js?v=20261125-service-images-planet-v23" defer></script>
+  <script src="scroll-demo-dots.js?v=20261125-service-images-planet-v23" defer></script>
   <script src="scroll-demo-tail.js?v=20261120-footer-clean-v6" defer></script>
-  <script src="scroll-demo-nav.js?v=20261125-services-planet-v22" defer></script>
+  <script src="scroll-demo-nav.js?v=20261125-service-images-planet-v23" defer></script>
 </head>
 <body>
   <a class="skip-link" href="#story">跳到主要内容</a>
@@ -112,10 +112,29 @@
         </section>
 
         <section class="story-scene scene-services-intro" data-scene="services-intro" aria-labelledby="services-title">
-          <div class="services-intro-copy">
-            <p class="scene-kicker">花火平台能力</p>
-            <h2 id="services-title">我们的服务</h2>
-            <p>从<strong><span class="service-intro-keyword">选人</span>撮合</strong>，到<strong>订单<span class="service-intro-keyword">履约</span></strong>，再到<strong>投后<span class="service-intro-keyword">分析</span></strong>，陪伴每一次内容共创。</p>
+          <div class="services-intro-content">
+            <div class="services-intro-copy">
+              <p class="scene-kicker">花火平台能力</p>
+              <h2 id="services-title">我们的服务</h2>
+              <p>从<strong><span class="service-intro-keyword">选人</span>撮合</strong>，到<strong>订单<span class="service-intro-keyword">履约</span></strong>，再到<strong>投后<span class="service-intro-keyword">分析</span></strong>，陪伴每一次内容共创。</p>
+            </div>
+            <section class="planet-service-detail" aria-labelledby="planet-service-label">
+              <h3 class="planet-service-label" id="planet-service-label"><span data-service-label-text>找UP主</span><span class="planet-service-baseline" aria-hidden="true"></span></h3>
+              <p class="planet-service-heading">花火四大选人模式，连接品牌与合适的创作者。</p>
+              <ul class="planet-service-gallery" aria-label="四大选人模式">
+                <li><img src="assets/planet-figma/service-mode-ai.png" width="660" height="500" loading="lazy" decoding="async" alt="AI智能托管式选人：AI驱动，3分钟锁定高匹配UP主，展示选人模型分析过程。"></li>
+                <li><img src="assets/planet-figma/service-mode-partner.png" width="660" height="500" loading="lazy" decoding="async" alt="委托服务商协作模式：由服务商协助选人匹配、建联撮合、创意脚本策划、视频拍摄执行、数据监测及复盘结案。"></li>
+                <li><img src="assets/planet-figma/service-mode-self-serve.png" width="660" height="500" loading="lazy" decoding="async" alt="产品自助化模式：平台自助选人，精准触达目标人群，展示选人筛选及UP主列表。"></li>
+                <li><img src="assets/planet-figma/service-mode-events.png" width="660" height="500" loading="lazy" decoding="async" alt="花火平台节点活动/IP选人模式：跟随节点热度，优选活动UP主，展示哔选世界杯、618、开学季等节点活动。"></li>
+              </ul>
+            </section>
+            <svg class="planet-service-band" aria-hidden="true" focusable="false">
+              <defs><mask id="planet-service-word-mask" maskUnits="userSpaceOnUse" maskContentUnits="userSpaceOnUse" x="0" y="0">
+                <rect class="planet-service-mask-remainder" x="0" y="0" fill="white"/>
+                <text class="planet-service-mask-word" fill="white">找UP主</text>
+              </mask></defs>
+              <rect class="planet-service-color" mask="url(#planet-service-word-mask)"/>
+            </svg>
           </div>
         </section>
 
