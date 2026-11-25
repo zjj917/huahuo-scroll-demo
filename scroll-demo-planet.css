@@ -40,10 +40,10 @@ html[data-hero-effect="planet"] .demo-header::before,
 html[data-hero-effect="planet"] .demo-header::after { display:none; }
 html[data-hero-effect="planet"] #demo-site-nav { position:absolute; left:50%; transform:translateX(-50%); margin:0; padding:var(--space-8) var(--space-16); gap:0; min-height:54px; border:1px solid var(--planet-line); border-radius:var(--radius-full); background:var(--glass); backdrop-filter:blur(20px); }
 html[data-hero-effect="planet"] #demo-site-nav a,
-html[data-hero-effect="planet"] #demo-site-nav .demo-contact-trigger { padding:0 var(--space-12); min-height:36px; }
+html[data-hero-effect="planet"] #demo-site-nav .demo-contact-trigger { padding:0 var(--space-16); min-height:36px; font-weight:400; }
 html[data-hero-effect="planet"] .demo-actions { margin-left:auto; gap:var(--space-12); }
-html[data-hero-effect="planet"] .planet-header-join { order:0; padding:0 var(--space-24); min-height:36px; background:transparent; border:1px solid var(--planet-line); border-radius:var(--radius-l); color:var(--ink); font:inherit; font-size:var(--text-sm); font-weight:600; }
-html[data-hero-effect="planet"] .login-button { order:1; min-height:36px; }
+html[data-hero-effect="planet"] .planet-header-join { display:inline-flex; align-items:center; justify-content:center; flex-shrink:0; white-space:nowrap; width:104px; height:36px; order:0; padding:0 var(--space-24); min-height:36px; background:transparent; border:1px solid var(--planet-header-button-border,rgba(255,255,255,.12)); border-radius:var(--radius-l); color:var(--ink); font:inherit; font-size:var(--text-sm); font-weight:600; line-height:22px; }
+html[data-hero-effect="planet"] .login-button { order:1; width:76px; height:36px; min-height:36px; padding:7px var(--space-24); border-radius:var(--radius-l); font-weight:600; font-size:var(--text-sm); line-height:22px; }
 html[data-hero-effect="planet"] .theme-toggle { order:2; }
 html[data-hero-effect="planet"] .hero-effect-select { order:3; }
 html[data-hero-effect="planet"] .demo-menu-toggle { order:4; }
@@ -137,3 +137,31 @@ html[data-hero-effect="planet"] .scene-hero { overflow:visible; }
 /* The stage spans the viewport: constrain horizontal page overflow at that
    outer boundary while allowing the atmosphere to spill vertically. */
 html[data-hero-effect="planet"] .story-stage { overflow-x:clip; overflow-y:visible; }
+
+/* Refined header controls use the measured Figma button geometry. */
+html[data-hero-effect="planet"] #demo-site-nav [aria-current="page"] { font-weight:600; }
+html[data-hero-effect="planet"] .demo-header[data-surface="light"] { --planet-header-button-border:rgba(47,50,56,.12); }
+html[data-hero-effect="planet"] .planet-header-join:hover { background:var(--subtle); }
+html[data-hero-effect="planet"] .planet-header-join:active,
+html[data-hero-effect="planet"] .login-button:active { transform:translateY(1px); }
+html[data-hero-effect="planet"] {
+  --planet-title-enter-duration:760ms;
+  --planet-title-enter-distance:24px;
+  --planet-title-enter-blur:3px;
+  --planet-title-enter-stagger:150ms;
+}
+html[data-hero-effect="planet"] .planet-title-ink { display:inline-block; }
+html[data-hero-effect="planet"].planet-intro-pending .planet-title-ink { opacity:0; transform:translateY(var(--planet-title-enter-distance)); }
+html[data-hero-effect="planet"].planet-title-entering .planet-title-ink { animation:planet-title-enter var(--planet-title-enter-duration) var(--ease-smooth-out) both; }
+html[data-hero-effect="planet"].planet-title-entering [data-opening-line]:nth-of-type(1) > .planet-title-ink { animation-delay:100ms; }
+html[data-hero-effect="planet"].planet-title-entering [data-opening-line]:nth-of-type(2) > .planet-title-ink { animation-delay:calc(100ms + var(--planet-title-enter-stagger)); }
+html[data-hero-effect="planet"].planet-title-entering .planet-underline-first { animation-delay:900ms; }
+html[data-hero-effect="planet"].planet-title-entering .planet-underline-second { animation-delay:1240ms; }
+@keyframes planet-title-enter {
+  from { opacity:0; transform:translateY(var(--planet-title-enter-distance)); filter:blur(var(--planet-title-enter-blur)); }
+  to { opacity:1; transform:translateY(0); filter:blur(0); }
+}
+@media(prefers-reduced-motion:reduce) {
+  html[data-hero-effect="planet"].planet-intro-pending .planet-title-ink { opacity:1; transform:none; }
+  html[data-hero-effect="planet"].planet-title-entering .planet-title-ink { animation:none; }
+}

@@ -34,6 +34,9 @@
   let planetArtworkReady=false;
   let canvasBleed=0;
   let planetGeometry=null;
+  let planetTime=0;
+  let planetHoverIndex=-1;
+  let planetMist=null;
   let planetFaces=[];
   let planetCandidates=[];
   // Verified public accounts; representative leading creators, not a ranking.
@@ -136,7 +139,7 @@
       meteorTail: token('meteor-tail'), meteorCore: token('meteor-core'),
       planetRim:token('planet-rim'), planetGlow:token('planet-glow'),
       planetSurface:token('planet-surface'), planetShadow:token('planet-shadow'),
-      planetSpeed:Number(token('planet-orbit-speed')) || .055,
+      planetSpeed:Number(token('planet-orbit-speed')) || .028,
       planetRingCount:Number(token('planet-ring-count')) || 5,
       planetScrollScale:Number(token('planet-scroll-scale')) || .38,
       planetScrollY:Number(token('planet-scroll-y')) || .28,
@@ -576,15 +579,13 @@
       pen.save();pen.translate(x+w/2,y+h/2);pen.rotate(angle);pen.drawImage(img,-w/2,-h/2,w,h);pen.restore();
     };
     // Original Figma sphere and atmosphere assets, at their design geometry.
-    draw('img',761,61,1321,1321);draw('img1',881,181,1082,1082);
+    pen.globalAlpha=.6;draw('img',761,61,1321,1321);draw('img1',881,181,1082,1082);pen.globalAlpha=1;
     draw('img2',961,261,921,921);draw('img3',977,277,889,889);
     draw('img4',1000,300,843,843);
     draw('img5',991,291,861,861);draw('img6',998,298,847,847);
-    draw('img7',982.506,282.506,877.988,877.988,Math.PI/4);
-    draw('img8',971,271,901,901,Math.PI/2);
-    draw('img9',922.626,222.626,997.748,997.748,.55885);
-    draw('img10',890,190,1063,1063);draw('img11',848,148,1147,1147);draw('img12',788,88,1267,1267);
-    [937.809,731.648,523.246,343.975,184.873,57.143].forEach((h,i)=>draw('img'+(13+i),950.3555,721.5-h/2,942.291,h,Math.PI/6));
+    // Surface curves and outer rings are projected in 3D below rather than
+    // baked into the texture, so a scroll changes their depth and foreshortening.
+    if(!planetMist)planetMist=createPlanetMist();
     planetArtworkReady=Boolean(planetArtImages.img4);
     planetFaceShade=document.createElement('canvas');planetFaceShade.width=planetFaceShade.height=96;
     const shade=planetFaceShade.getContext('2d');shade.beginPath();shade.arc(48,48,47,0,Math.PI*2);shade.clip();
@@ -600,73 +601,133 @@
     planetFaces=Array.from({length:compact ? 17 : palette.planetCount},(_,index)=>({
       phase:(index*.61803398875%1)*Math.PI*2,
       latitude:Math.asin(-.9+1.8*(index+.5)/(compact ? 17 : palette.planetCount)),
-      lane:1+index%(compact ? 3 : 5),featuredProfile:index%featuredProfiles.length,
+      lane:1+index%(compact ? 3 : 5),index,motion:1,featuredProfile:index%featuredProfiles.length,
       scale:index%9===0 ? 1.6 : .45+(index%5)*.19,
     }));
   }
-  function planetOrbit(face) {
-    const g=planetGeometry;
-    // Share phase velocity with the light on the same latitude. Portraits
-    // disappear behind the horizon and re-enter; they never float off-surface.
-    const lane=face.lane||1;
-    const angle=face.phase+flowTime*(.16+lane*.018)+g.scroll*.15;
-    const p=planetLinePoint(lane,angle);
-    const distance=Math.hypot(p.x-g.x,p.y-g.y)/g.radius;
-    return {...p,depth:distance<.985?Math.sqrt(1-distance*distance):-1,angle};
+  function rotatePlanetVector(v) {
+    const p=planetGeometry.scroll;
+    // All surface geometry shares one three-dimensional orientation. Camera
+    // lighting stays fixed while the texture landmarks turn through depth.
+    const pitch=-.62*p,yaw=1.08*p,roll=-.38*p;
+    const y=v.y*Math.cos(pitch)-v.z*Math.sin(pitch);
+    const z=v.y*Math.sin(pitch)+v.z*Math.cos(pitch);
+    const x=v.x*Math.cos(yaw)+z*Math.sin(yaw);
+    const zz=-v.x*Math.sin(yaw)+z*Math.cos(yaw);
+    return {x:x*Math.cos(roll)-y*Math.sin(roll),y:x*Math.sin(roll)+y*Math.cos(roll),z:zz};
   }
-  function planetLinePoint(lane,angle) {
-    const g=planetGeometry;
-    const rx=g.radius*1.12,ry=g.radius*[1.115,.87,.622,.409,.22,.068][lane];
-    const x=Math.cos(angle)*rx,y=Math.sin(angle)*ry,tilt=Math.PI/6;
-    return {x:g.x+x*Math.cos(tilt)-y*Math.sin(tilt),y:g.y+x*Math.sin(tilt)+y*Math.cos(tilt)};
+  function projectPlanet(v,outer=false) {
+    const g=planetGeometry,p=rotatePlanetVector(v);
+    const perspective=outer ? 1 : 1/(1.08-p.z*.08);
+    return {x:g.x+p.x*g.radius*perspective,y:g.y+p.y*g.radius*perspective,depth:p.z};
+  }
+  function planetLinePoint(lane,angle,outer=false) {
+    const ratio=[.995,.87,.622,.409,.22,.068][lane];
+    const tilt=Math.PI/6,x=Math.cos(angle),y=Math.sin(angle)*ratio,z=Math.sin(angle)*Math.sqrt(1-ratio*ratio);
+    const r=outer?1.12:1;
+    return projectPlanet({x:(x*Math.cos(tilt)-y*Math.sin(tilt))*r,y:(x*Math.sin(tilt)+y*Math.cos(tilt))*r,z:z*r},outer);
+  }
+  function planetOrbit(face) {
+    const position=planetLinePoint(face.lane||1,face.phase);
+    return {...position,angle:face.phase};
   }
   function paintPlanetRing() {
-    // Segments fade along the Figma latitude curves to produce a travelling
-    // stream of light, without moving the sphere or detaching the avatars.
-    const count=planetGeometry.compact ? 4 : 6;
-    for(let lane=0;lane<count;lane++)for(let segment=0;segment<18;segment++) {
-      const phase=flowTime*(.16+lane*.018)+lane*1.3;
-      const a=phase-segment*.012,p=planetLinePoint(lane,a),q=planetLinePoint(lane,a-.016);
-      context.beginPath();context.moveTo(p.x,p.y);context.lineTo(q.x,q.y);
-      context.strokeStyle=segment<3 ? palette.planetRim : palette.planetGlow;
-      context.lineWidth=segment<3 ? 1.15 : .8;
-      context.globalAlpha=(1-segment/18)*.65;context.stroke();
+    const count=planetGeometry.compact?4:6;
+    // Quiet fixed curves make the roll readable. Back-facing segments disappear.
+    for(let lane=0;lane<count;lane++) {
+      context.beginPath();let connected=false;
+      for(let i=0;i<=100;i++) {
+        const p=planetLinePoint(lane,i/100*Math.PI*2);
+        if(p.depth<.02){connected=false;continue;}
+        if(connected)context.lineTo(p.x,p.y);else context.moveTo(p.x,p.y);connected=true;
+      }
+      context.strokeStyle=palette.planetRim;context.lineWidth=.55;context.globalAlpha=.13;context.stroke();
+      for(let segment=0;segment<20;segment++) {
+        const a=planetTime*(.042+lane*.003)+lane*1.17-segment*.012;
+        const p=planetLinePoint(lane,a),q=planetLinePoint(lane,a-.016);
+        if(p.depth<.02||q.depth<.02)continue;
+        context.beginPath();context.moveTo(p.x,p.y);context.lineTo(q.x,q.y);
+        context.strokeStyle=segment<2?palette.planetRim:palette.planetGlow;
+        context.lineWidth=.8;context.globalAlpha=(1-segment/20)*.34;context.stroke();
+      }
     }
   }
   function paintPlanetOuterFlow() {
     const g=planetGeometry;
-    for(let lane=0;lane<4;lane++)for(let segment=0;segment<24;segment++) {
-      const a=flowTime*(.07+lane*.012)+lane*1.55-segment*.011;
-      const r=g.radius*[1.025,1.264,1.364,1.506][lane];
-      context.beginPath();context.moveTo(g.x+Math.cos(a)*r,g.y+Math.sin(a)*r);
-      context.lineTo(g.x+Math.cos(a-.014)*r,g.y+Math.sin(a-.014)*r);
-      context.strokeStyle=segment<3?palette.planetRim:palette.planetGlow;
-      context.lineWidth=segment<3?1.1:.7;context.globalAlpha=(1-segment/24)*.4;context.stroke();
+    for(let lane=0;lane<3;lane++) {
+      const radius=[1.264,1.364,1.506][lane];
+      const point=a=>projectPlanet({x:Math.cos(a)*radius,y:Math.sin(a)*radius,z:Math.sin(a)*.12},true);
+      context.beginPath();
+      for(let i=0;i<=100;i++){const p=point(i/100*Math.PI*2);if(i)context.lineTo(p.x,p.y);else context.moveTo(p.x,p.y);}
+      context.strokeStyle=palette.planetRim;context.lineWidth=.5;context.globalAlpha=.055;context.stroke();
+      for(let segment=0;segment<24;segment++){
+        const a=planetTime*(.024+lane*.004)+lane*1.55-segment*.011,p=point(a),q=point(a-.014);
+        context.beginPath();context.moveTo(p.x,p.y);context.lineTo(q.x,q.y);
+        context.strokeStyle=palette.planetRim;context.lineWidth=.65;context.globalAlpha=(1-segment/24)*.2;context.stroke();
+      }
     }
   }
-  function paintPlanetAtmosphere() {
-    const g=planetGeometry;
-    context.save();context.globalCompositeOperation='lighter';
-    // Broad, faint strands move outward slowly. No per-frame blur filters or
-    // gradients: low-opacity layered curves keep this lighter than the rim.
-    for(let strand=0;strand<9;strand++) {
-      const p=(flowTime*.045+strand*.127)%1;
-      const start=2.7+strand*.23+flowTime*.018;
-      context.beginPath();
-      for(let i=0;i<=26;i++) {
-        const t=i/26,a=start+t*.48;
-        const radius=g.radius*(1.025+p*.42+Math.sin(t*Math.PI)*.018);
-        const x=g.x+Math.cos(a)*radius,y=g.y+Math.sin(a)*radius;
-        if(i)context.lineTo(x,y);else context.moveTo(x,y);
+  function createPlanetMist() {
+    const surface=document.createElement('canvas');surface.width=surface.height=384;
+    let gl;
+    try{gl=surface.getContext('webgl',{alpha:true,premultipliedAlpha:true,antialias:false,preserveDrawingBuffer:true});}catch(_){}
+    if(gl?.createShader) {
+      const vertex='attribute vec2 a;varying vec2 v;void main(){v=a;gl_Position=vec4(a,0.,1.);}';
+      const fragment=`precision mediump float;
+        varying vec2 v;uniform float uTime;uniform float uLight;
+        float hash(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
+        float noise(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(hash(i),hash(i+vec2(1.,0.)),f.x),mix(hash(i+vec2(0.,1.)),hash(i+vec2(1.,1.)),f.x),f.y);}
+        float fbm(vec2 p){float n=0.,a=.5;for(int i=0;i<4;i++){n+=a*noise(p);p=mat2(1.6,1.2,-1.2,1.6)*p+3.7;a*=.5;}return n;}
+        void main(){
+          vec2 p=vec2(v.x,-v.y)*1.7;float r=length(p);vec2 direction=p/max(r,.001);
+          vec2 uv=p*4.-direction*uTime*.045;
+          vec2 warp=vec2(fbm(uv+vec2(uTime*.009,1.7)),fbm(uv+vec2(2.3,-uTime*.013)));
+          float body=fbm(uv+warp*2.1);
+          float feather=smoothstep(.96,1.04,r)*(1.-smoothstep(1.12,1.68,r));
+          float light=.35+.65*smoothstep(-.2,.8,dot(direction,normalize(vec2(-.65,-.76))));
+          float density=smoothstep(.22,.72,body)*exp(-max(0.,r-1.)*5.2);
+          float alpha=feather*density*light*mix(.22,.09,uLight);
+          vec3 color=mix(vec3(.57,.35,.82),vec3(.88,.84,1.),body);
+          gl_FragColor=vec4(color*alpha,alpha);
+        }`;
+      const shader=(type,code)=>{const sh=gl.createShader(type);gl.shaderSource(sh,code);gl.compileShader(sh);if(!gl.getShaderParameter(sh,gl.COMPILE_STATUS)){gl.deleteShader(sh);return null;}return sh;};
+      const vs=shader(gl.VERTEX_SHADER,vertex),fs=shader(gl.FRAGMENT_SHADER,fragment);
+      if(vs&&fs){
+        const program=gl.createProgram();gl.attachShader(program,vs);gl.attachShader(program,fs);gl.linkProgram(program);
+        if(gl.getProgramParameter(program,gl.LINK_STATUS)){
+          gl.useProgram(program);const buffer=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,buffer);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,1,-1,-1,1,1,1]),gl.STATIC_DRAW);
+          const attr=gl.getAttribLocation(program,'a');gl.enableVertexAttribArray(attr);gl.vertexAttribPointer(attr,2,gl.FLOAT,false,0,0);
+          const time=gl.getUniformLocation(program,'uTime'),light=gl.getUniformLocation(program,'uLight');
+          let last=-1,mode=-1;
+          return {surface,render(t,l){if(Math.abs(t-last)<1/24&&l===mode)return;last=t;mode=l;gl.viewport(0,0,384,384);gl.uniform1f(time,t);gl.uniform1f(light,l);gl.drawArrays(gl.TRIANGLE_STRIP,0,4);}};
+        }
       }
-      context.strokeStyle=palette.planetRim;context.lineWidth=1.5+Math.sin(p*Math.PI)*2;
-      context.globalAlpha=Math.sin(p*Math.PI)*.035;context.stroke();
     }
+    // A new canvas also covers shader compilation failure: a WebGL canvas
+    // cannot provide a 2D context after its context type has been selected.
+    const softSurface=document.createElement('canvas');softSurface.width=softSurface.height=384;
+    const pen=softSurface.getContext('2d');
+    if(!pen)return null;
+    const glow=pen.createRadialGradient(192,192,0,192,192,190);glow.addColorStop(0,'rgba(196,158,255,.12)');glow.addColorStop(.35,'rgba(210,185,255,.07)');glow.addColorStop(1,'rgba(210,185,255,0)');pen.fillStyle=glow;pen.fillRect(0,0,384,384);
+    return {surface:softSurface,soft:true,render(){}};
+  }
+  function paintPlanetAtmosphere() {
+    if(!planetMist)return;
+    const g=planetGeometry;planetMist.render(planetTime,root.dataset.mode==='light'?1:0);
+    context.save();context.globalAlpha=1;
+    if(planetMist.soft){
+      for(let i=0;i<5;i++){
+        const a=3.3+i*.36+Math.sin(planetTime*.025+i)*.07;
+        const radius=g.radius*(1.05+.1*Math.sin(planetTime*.04+i));
+        const size=g.radius*(.45+.05*Math.sin(planetTime*.03+i));
+        context.drawImage(planetMist.surface,g.x+Math.cos(a)*radius-size,g.y+Math.sin(a)*radius-size,size*2,size*2);
+      }
+    }else context.drawImage(planetMist.surface,g.x-g.radius*1.7,g.y-g.radius*1.7,g.radius*3.4,g.radius*3.4);
     context.restore();
   }
   function paintPlanetFace(face,position,front) {
     const g=planetGeometry;
-    const depth=(position.depth+1)/2;
+    const depth=Math.max(0,position.depth);
     const size=16*face.scale*(.7+depth*.3)*Math.min(1.2,Math.max(g.compact ? .8 : .4,g.radius/420.5));
     const alpha=(.24+depth*.68)*Math.min(1,entryAmount*2)*Math.min(1,Math.max(0,position.depth)*5);
     if(position.x+size<0||position.x-size>width||position.y+size<100||position.y-size>height)return;
@@ -683,13 +744,26 @@
   function drawPlanet(elapsed,staticField,ready) {
     if(!planetGeometry)buildPlanet();
     const g=planetGeometry;
+    if(ready&&!staticField)planetTime+=elapsed;
     const scroll=Math.max(0,Math.min(1,Number(canvas.style.getPropertyValue('--fire-scroll') || 0)));
     // Derive from the resting geometry on every frame: reverse scrolling and
     // resizing recover the exact starting size instead of accumulating drift.
     g.scroll=scroll;
-    g.radius=g.baseRadius*(1-(1-palette.planetScrollScale)*scroll);
-    g.x=g.baseX+(width*.83-g.baseX)*scroll;
-    g.y=g.baseY+(height*palette.planetScrollY-g.baseY)*scroll;
+    const travel=scroll**1.15;
+    g.radius=g.baseRadius*(1-.24*travel);
+    g.x=g.baseX+width*.43*travel;
+    g.y=g.baseY-height*.78*travel;
+    let hovered=-1,hoverDistance=Infinity;
+    if(pointer.active&&!staticField&&scroll<.02)for(const candidate of planetCandidates){
+      const d=Math.hypot(pointer.x-candidate.x,pointer.y-candidate.y);
+      if(d<candidate.hitRadius+(candidate.index===planetHoverIndex?22:16)&&d<hoverDistance){hovered=candidate.index;hoverDistance=d;}
+    }
+    planetHoverIndex=hovered;
+    for(const face of planetFaces){
+      const target=face.index===hovered?0:1;
+      face.motion+=(target-face.motion)*(1-Math.exp(-elapsed/(target===0 ? .3 : .8)));
+      if(ready&&!staticField)face.phase+=elapsed*palette.planetSpeed*(.8+face.lane*.05)*face.motion;
+    }
     context.clearRect(-canvasBleed,-canvasBleed,width+canvasBleed*2,height+canvasBleed*2);planetCandidates=[];
     context.globalAlpha=1;
     // The Figma art is cached as a local asset composite; only its placement
@@ -701,7 +775,7 @@
     // Sparse stars remain quiet while thin streaks drift slowly upwards.
     const scale=width/1600;
     const decorations=[['imgVector5754',630.16,328.18,117.135,135.323,117,68],['imgVector5755',758.27,318.8,67.129,77.522,67,39],['imgVector5756',594,67,63.407,73.057,63,37],['imgVector5757',779.02,115.24,164.094,189.619,163.983,95.216],['imgVector5759',142.62,233.29,108.457,125.327,108.383,62.932],['imgVector5758',777.39,524.93,89.837,103.941,90,52]];
-    for(const [name,x,y,w,h,iw,ih] of decorations){const img=planetArtImages[name];if(img){const travel=(flowTime*6)%(height+200);let streakY=(y+h/2)*height/900-travel;if(streakY < -h*scale)streakY+=height+200;context.save();context.translate((x+w/2)*scale,streakY);context.rotate(-119.78*Math.PI/180);context.drawImage(img,-iw*scale/2,-ih*scale/2,iw*scale,ih*scale);context.restore();}}
+    for(const [name,x,y,w,h,iw,ih] of decorations){const img=planetArtImages[name];if(img){const travel=(planetTime*3)%(height+200);let streakY=(y+h/2)*height/900-travel;if(streakY < -h*scale)streakY+=height+200;context.save();context.translate((x+w/2)*scale,streakY);context.rotate(-119.78*Math.PI/180);context.drawImage(img,-iw*scale/2,-ih*scale/2,iw*scale,ih*scale);context.restore();}}
     for(const [x,y,r] of [[1278,275,3],[1116,319,3],[687,204,2],[518,140,1.5],[924,320,1.5]]){context.beginPath();context.arc(x*scale,y*height/900,r*scale,0,Math.PI*2);context.fillStyle=palette.planetRim;context.globalAlpha=.45;context.fill();}
     context.globalAlpha=1;
     paintPlanetRing();
@@ -710,7 +784,7 @@
     planetFaces.map(face=>({face,position:planetOrbit(face)})).filter(item=>item.position.depth>0).sort((a,b)=>a.position.depth-b.position.depth).forEach(item=>paintPlanetFace(item.face,item.position,true));
     context.restore();context.globalAlpha=1;
     let closest=null,distance=Infinity;
-    if(pointer.active&&!staticField)planetCandidates.forEach(face=>{const d=Math.hypot(pointer.x-face.x,pointer.y-face.y);if(d<face.hitRadius+8&&d<distance){closest=face;distance=d;}});
+    if(pointer.active&&!staticField)planetCandidates.forEach(face=>{const d=Math.hypot(pointer.x-face.x,pointer.y-face.y);if(d<face.hitRadius+(face.index===planetHoverIndex?22:16)&&d<distance){closest=face;distance=d;}});
     updateCard(Boolean(closest),closest,distance);
   }
   function clipMeteorField() {
@@ -896,7 +970,7 @@
     const x = event.clientX - bounds.left;
     const y = event.clientY - bounds.top;
     const wasActive = pointer.active;
-    pointer.active = entryFinished && width >= 900 && interactionLeft + cardWidth + 20 < width && x >= interactionLeft && x <= width && y >= 100 && y <= height && !event.target.closest('header, dialog');
+    pointer.active = entryFinished && width >= 900 && (effect==='planet' ? x>=width*.49 : interactionLeft + cardWidth + 20 < width && x>=interactionLeft) && x <= width && y >= 100 && y <= height && !event.target.closest('header, dialog');
     const interval = Math.max(16, Math.min(80, (event.timeStamp || 0) - pointer.time || 16.7)) / 1000;
     pointer.vx = pointer.active && wasActive ? Math.max(-900, Math.min(900, (x-pointer.x)/interval)) : 0;
     pointer.vy = pointer.active && wasActive ? Math.max(-900, Math.min(900, (y-pointer.y)/interval)) : 0;

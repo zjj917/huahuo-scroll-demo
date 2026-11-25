@@ -438,11 +438,32 @@
   reduced.addEventListener('change', () => configure());
   compact.addEventListener('change', () => configure());
   document.addEventListener('visibilitychange', () => { if (document.hidden) { cancelAnimationFrame(frame); frame = 0; } else requestUpdate(); });
+  let planetIntroSequence=0;
+  let planetIntroTimer=0;
+  function startPlanetIntro() {
+    const sequence=++planetIntroSequence;
+    clearTimeout(planetIntroTimer);
+    root.classList.remove('planet-title-entering','planet-intro-pending');
+    if(root.dataset.heroEffect!=='planet'||reduced.matches||window.scrollY>24)return;
+    root.classList.add('planet-intro-pending');
+    const fonts=document.fonts?.ready||Promise.resolve();
+    fonts.then(()=>requestAnimationFrame(()=>{
+      if(sequence!==planetIntroSequence||root.dataset.heroEffect!=='planet')return;
+      root.classList.remove('planet-intro-pending');
+      root.classList.add('planet-title-entering');
+      planetIntroTimer=setTimeout(()=>root.classList.remove('planet-title-entering'),1800);
+    }));
+  }
+  window.addEventListener('scroll',()=>{
+    if(window.scrollY>24){planetIntroSequence++;root.classList.remove('planet-intro-pending','planet-title-entering');}
+  },{passive:true});
   window.addEventListener('hero-effect-change',()=>{
     if(root.dataset.heroEffect==='planet'&&!savedTheme)setTheme('dark');
     configure();
+    startPlanetIntro();
   });
   configure(false);
+  startPlanetIntro();
   if (document.fonts?.ready) document.fonts.ready.then(() => { measureOpening(); measurePortal(); requestUpdate(); });
   if (location.hash.startsWith('#demo-')) {
     const index = scenes.findIndex(scene => `#${scene.id}` === location.hash);
