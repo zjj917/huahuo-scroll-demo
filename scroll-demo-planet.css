@@ -20,6 +20,7 @@ html[data-hero-effect="planet"] {
   --planet-title-accent:var(--color-text-primary);
   --planet-hero-gutter:clamp(24px,6vw,144px);
   --planet-services-inset:var(--space-120);
+  --planet-service-image-radius:var(--space-24);
   --value-tilt-angle:8;
 }
 html[data-hero-effect="planet"][data-mode="light"] {
@@ -310,9 +311,21 @@ html[data-hero-effect="planet"] .planet-service-gallery {
   gap:var(--space-40); padding:0; margin:var(--space-40) 0 0; list-style:none;
 }
 html[data-hero-effect="planet"] .planet-service-gallery li { min-width:0; touch-action:auto; }
-html[data-hero-effect="planet"] .planet-service-image.t-tilt-card { border-radius:0; overflow:visible; }
+html[data-hero-effect="planet"] .planet-service-image.t-tilt-card { border-radius:var(--planet-service-image-radius); overflow:hidden; }
 html[data-hero-effect="planet"] .planet-service-gallery img {
-  display:block; width:100%; height:auto; aspect-ratio:660 / 500;
+  display:block; width:100%; height:auto; aspect-ratio:660 / 450;
+}
+html[data-hero-effect="planet"] .service-artwork {
+  display:block; width:100%; margin:0;
+  border-radius:var(--planet-service-image-radius); overflow:hidden;
+}
+html[data-hero-effect="planet"] .service-artwork img { display:block; width:100%; height:auto; }
+html[data-hero-effect="planet"].is-pinned :is(.scene-service-delivery,.scene-service-analysis) .service-viewport {
+  height:calc(100svh - var(--scene-top) - var(--space-64)); overflow:clip;
+}
+html[data-hero-effect="planet"].is-pinned .scene-service-delivery .service-artwork {
+  width:min(100%,calc((100svh - var(--scene-top) - var(--space-80)*2)*.854));
+  margin-inline:auto;
 }
 html[data-hero-effect="planet"] .scene-service-service { display:none; }
 html[data-hero-effect="planet"].is-pinned .services-intro-content { will-change:transform; }

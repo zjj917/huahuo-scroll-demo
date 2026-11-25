@@ -1,0 +1,103 @@
+{
+  "source": "User-supplied images, in message order",
+  "date": "2026-11-25",
+  "containerRadius": 24,
+  "assets": [
+    {
+      "file": "service-mode-ai.png",
+      "section": "selection",
+      "source": "user-attachment",
+      "attachment": "codex-clipboard-2a6c5eb3-fc5d-4720-bd24-dd58990501ef.png",
+      "sourceSize": [
+        1320,
+        900
+      ],
+      "bytes": 268802,
+      "sha256": "19fe80b1cc549d23dd3b658f707c93fbc233faf91bceb25b8dfffbaee9b8a876"
+    },
+    {
+      "file": "service-mode-partner.png",
+      "section": "selection",
+      "source": "user-attachment",
+      "attachment": "codex-clipboard-5939fef4-cf6d-4a6b-8fa8-cc7b8c58950c.png",
+      "sourceSize": [
+        1320,
+        900
+      ],
+      "bytes": 201687,
+      "sha256": "0f0973bb963434146921addf76d582ebda7e91703e0376ce5e9092ccc99b8618"
+    },
+    {
+      "file": "service-mode-self-serve.png",
+      "section": "selection",
+      "source": "user-attachment",
+      "attachment": "codex-clipboard-485a7265-550f-4d95-a623-f47888ce8d6b.png",
+      "sourceSize": [
+        1320,
+        900
+      ],
+      "bytes": 269171,
+      "sha256": "1fd3d8c53fef5f138d164051ee1dd7b57790c881b2aa4191aef18a9d2ec502ee"
+    },
+    {
+      "file": "service-mode-events.png",
+      "section": "selection",
+      "source": "user-attachment",
+      "attachment": "codex-clipboard-d01667d0-3395-4a8f-a06a-1f12ee8eeddf.png",
+      "sourceSize": [
+        1320,
+        900
+      ],
+      "bytes": 268934,
+      "sha256": "4c2dcc38939b1a9872272307e6df36acda7c446daededbe98ea87104af158f78"
+    },
+    {
+      "file": "service-delivery-dispute.png",
+      "section": "delivery",
+      "source": "user-attachment",
+      "attachment": "codex-clipboard-af7bda85-277a-45ba-a35e-0b022315e72c.png",
+      "sourceSize": [
+        854,
+        1000
+      ],
+      "bytes": 288453,
+      "sha256": "91ecec28d8f315994ffc709735b48e4e4ef96566d02ac23fda7fdd5a91bc67fa"
+    },
+    {
+      "file": "service-delivery-protection.png",
+      "section": "delivery",
+      "source": "user-attachment",
+      "attachment": "codex-clipboard-d73c3d1e-7263-4c60-bbf8-a6374ef4c4ee.png",
+      "sourceSize": [
+        854,
+        1000
+      ],
+      "bytes": 222616,
+      "sha256": "b85d8fdefa168826e5952d1f6e21fb71db849c2449c3817896535c1b7ca72537"
+    },
+    {
+      "file": "service-delivery-risk.png",
+      "section": "delivery",
+      "source": "user-attachment",
+      "attachment": "codex-clipboard-e0c9e1c0-9574-4d4a-916e-cae36a410fbe.png",
+      "sourceSize": [
+        854,
+        1000
+      ],
+      "bytes": 231462,
+      "sha256": "081e1314ff8d209e9790e560a2be2626c2355a2325505503259560bb84235650"
+    },
+    {
+      "file": "service-analysis-mates.png",
+      "section": "analysis",
+      "source": "user-attachment",
+      "attachment": "codex-clipboard-633c9c2b-4ab2-46bf-b615-7198adf0c66c.png",
+      "sourceSize": [
+        2720,
+        1000
+      ],
+      "bytes": 632926,
+      "sha256": "64580b99053cdddc92816dc941149d0551dd1b5f41105858061ce7578b7125d7"
+    }
+  ]
+}

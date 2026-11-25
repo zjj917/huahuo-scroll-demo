@@ -9,54 +9,66 @@
     {
       "file": "service-mode-ai.png",
       "node": "216:58012",
-      "bytes": 1699240,
+      "bytes": 268802,
       "sourceSize": [
         1320,
-        1000
+        900
       ],
       "designSize": [
         660,
-        500
-      ]
+        450
+      ],
+      "source": "user-attachment-replacement",
+      "attachment": "codex-clipboard-2a6c5eb3-fc5d-4720-bd24-dd58990501ef.png",
+      "sha256": "19fe80b1cc549d23dd3b658f707c93fbc233faf91bceb25b8dfffbaee9b8a876"
     },
     {
       "file": "service-mode-partner.png",
       "node": "216:58015",
-      "bytes": 1591017,
+      "bytes": 201687,
       "sourceSize": [
         1320,
-        1000
+        900
       ],
       "designSize": [
         660,
-        500
-      ]
+        450
+      ],
+      "source": "user-attachment-replacement",
+      "attachment": "codex-clipboard-5939fef4-cf6d-4a6b-8fa8-cc7b8c58950c.png",
+      "sha256": "0f0973bb963434146921addf76d582ebda7e91703e0376ce5e9092ccc99b8618"
     },
     {
       "file": "service-mode-self-serve.png",
       "node": "216:58018",
-      "bytes": 850064,
+      "bytes": 269171,
       "sourceSize": [
         1320,
-        1000
+        900
       ],
       "designSize": [
         660,
-        500
-      ]
+        450
+      ],
+      "source": "user-attachment-replacement",
+      "attachment": "codex-clipboard-485a7265-550f-4d95-a623-f47888ce8d6b.png",
+      "sha256": "1fd3d8c53fef5f138d164051ee1dd7b57790c881b2aa4191aef18a9d2ec502ee"
     },
     {
       "file": "service-mode-events.png",
       "node": "216:58021",
-      "bytes": 1418376,
+      "bytes": 268934,
       "sourceSize": [
         1320,
-        1000
+        900
       ],
       "designSize": [
         660,
-        500
-      ]
+        450
+      ],
+      "source": "user-attachment-replacement",
+      "attachment": "codex-clipboard-d01667d0-3395-4a8f-a06a-1f12ee8eeddf.png",
+      "sha256": "4c2dcc38939b1a9872272307e6df36acda7c446daededbe98ea87104af158f78"
     }
   ]
 }

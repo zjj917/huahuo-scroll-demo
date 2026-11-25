@@ -613,9 +613,9 @@
   if (document.fonts?.ready) document.fonts.ready.then(() => { measureOpening(); measurePortal(); measurePlanetServices(); requestUpdate(); });
   if (location.hash.startsWith('#demo-')) {
     const index = scenes.findIndex(scene => `#${scene.id}` === location.hash);
-    if (root.dataset.heroEffect === 'planet' && index === 3) {
-      // The old anchor is hidden in this theme; wait for native fragment
-      // restoration to finish before routing to its new content location.
+    if (root.dataset.heroEffect === 'planet' && index >= 3 && index <= 5) {
+      // Wait for native fragment restoration before positioning service media.
+      // The old selection anchor is also hidden in the planet theme.
       const restore = () => requestAnimationFrame(() => jumpTo(index,.22,true));
       if (document.readyState === 'complete') restore();
       else window.addEventListener('load',restore,{once:true});
