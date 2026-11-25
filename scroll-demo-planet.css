@@ -183,7 +183,8 @@ html[data-hero-effect="planet"] .scene-values {
 html[data-hero-effect="planet"].is-pinned .scene-values { background:var(--planet-canvas-bg); }
 html[data-hero-effect="planet"] .scene-values::before {
   content:''; position:absolute; z-index:0; pointer-events:none;
-  width:1384.38px; height:674px; left:calc(50% - 657.38px); top:67px;
+  width:1384.38px; max-width:calc(100% - 80px); aspect-ratio:1384.38 / 674;
+  left:50%; top:67px; transform:translateX(calc(-50% + 34.81px));
   background:url('assets/planet-figma/values-stars.svg') center / contain no-repeat;
 }
 html[data-hero-effect="planet"] .scene-values > * { position:relative; z-index:1; }
