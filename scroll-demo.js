@@ -116,7 +116,8 @@
   themePreference.addEventListener('change', event => { if (!savedTheme && root.dataset.heroEffect!=='planet') setTheme(event.matches ? 'dark' : 'light'); });
 
   const fineHover = matchMedia('(hover: hover) and (pointer: fine)');
-  const tiltResets = valueCards.map(outer => {
+  const tiltCards = [...valueCards, ...document.querySelectorAll('.planet-service-gallery > .t-tilt')];
+  const tiltResets = tiltCards.map(outer => {
     const surface = outer.querySelector('.t-tilt-card');
     if (!surface) return () => {};
     const reset = () => {
