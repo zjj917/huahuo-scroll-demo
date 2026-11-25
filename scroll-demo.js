@@ -114,9 +114,10 @@
       const y = clamp((event.clientY-bounds.top)/bounds.height);
       const max = Number(getComputedStyle(outer).getPropertyValue('--value-tilt-angle'));
       outer.classList.add('is-hover'); surface.classList.add('is-tilting');
-      const direction=root.dataset.heroEffect==='planet'?-1:1;
-      surface.style.setProperty('--tilt-rx', `${(1-2*y)*max*direction}deg`);
-      surface.style.setProperty('--tilt-ry', `${(2*x-1)*max*direction}deg`);
+      // Positive X at the top / Y at the right push the pointer's corner
+      // toward negative Z; the opposite corner rises toward the viewer.
+      surface.style.setProperty('--tilt-rx', `${(1-2*y)*max}deg`);
+      surface.style.setProperty('--tilt-ry', `${(2*x-1)*max}deg`);
       surface.style.setProperty('--tilt-gx', `${x*100}%`);
       surface.style.setProperty('--tilt-gy', `${y*100}%`);
     });
