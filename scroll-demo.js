@@ -47,22 +47,38 @@
   const serviceIntro = { enterStart: 2.1, enterEnd: 2.9, exitOvershoot: 0 };
   const planetServices = {
     content: document.querySelector('.services-intro-content'),
-    label: document.querySelector('.planet-service-label'),
-    labelText: document.querySelector('[data-service-label-text]'),
-    baseline: document.querySelector('.planet-service-baseline'),
-    heading: document.querySelector('.planet-service-heading'),
-    gallery: document.querySelector('.planet-service-gallery'),
-    band: document.querySelector('.planet-service-band'),
-    mask: document.getElementById('planet-service-word-mask'),
-    remainder: document.querySelector('.planet-service-mask-remainder'),
-    word: document.querySelector('.planet-service-mask-word'),
-    color: document.querySelector('.planet-service-color'),
-    morphStart: 2.9, morphEnd: 3.8,
-    headingStart: 3.65, headingEnd: 4.1,
-    imagesStart: 4.05, imagesEnd: stops[3],
-    panStart: 5.15, panEnd: 8.15,
+    details: [],
     geometry: null,
   };
+  // One white reading surface and one reversible word-mask implementation
+  // serve all three services; their content and timing are the only variants.
+  const planetServiceTiming = [
+    { morph: [2.9,3.8], heading: [3.65,4.1], images: [4.05,4.8], jump: 5.02 },
+    { morph: [8.65,9.6], heading: [9.45,9.9], images: [9.85,10.65], jump: 11.55 },
+    { morph: [12.45,13.4], heading: [13.25,13.65], images: [13.5,13.9], jump: 15.1 },
+  ];
+  const planetBandTemplate = document.querySelector('.planet-service-band');
+  planetServices.details = [...document.querySelectorAll('[data-planet-service]')].map((section,index) => {
+    const band = index ? planetBandTemplate.cloneNode(true) : planetBandTemplate;
+    const mask = band.querySelector('mask');
+    const color = band.querySelector('.planet-service-color');
+    const word = band.querySelector('.planet-service-mask-word');
+    const id = index ? `planet-${section.dataset.planetService}-word-mask` : mask.id;
+    mask.id = id;
+    color.setAttribute('mask',`url(#${id})`);
+    const labelText = section.querySelector('[data-service-label-text]');
+    word.textContent = labelText.textContent;
+    if (index) planetServices.content.append(band);
+    return {
+      section, labelText, band, mask, color, word,
+      label: section.querySelector('.planet-service-label'),
+      baseline: section.querySelector('.planet-service-baseline'),
+      heading: section.querySelector('.planet-service-heading'),
+      gallery: section.querySelector('.planet-service-gallery'),
+      remainder: band.querySelector('.planet-service-mask-remainder'),
+      timing: planetServiceTiming[index], geometry: null,
+    };
+  });
   const serviceTransitions = [
     { from: 2, to: 3, color: 'var(--brand)', bandStart: 3, bandEnd: 3.5, morphStart: 3.6, morphEnd: stops[3] },
     { from: 3, to: 4, color: 'var(--phase-green)', bandStart: 8.4, bandEnd: 8.9, morphStart: 9, morphEnd: stops[4] },
@@ -219,65 +235,111 @@
     if (!pinned || root.dataset.heroEffect !== 'planet') { p.geometry = null; return; }
     // Relative measurements exclude both the page entrance and reading offset.
     const content = p.content.getBoundingClientRect();
-    const label = p.label.getBoundingClientRect();
-    const text = p.labelText.getBoundingClientRect();
-    const baseline = p.baseline.getBoundingClientRect();
     const style = getComputedStyle(scenes[2]);
     const width = p.content.clientWidth;
-    const contentHeight = p.content.offsetHeight;
+    const contentHeight = content.height;
     p.geometry = {
       width, contentHeight,
-      labelX: text.left - content.left, labelY: label.top - content.top,
-      labelWidth: text.width, labelHeight: label.height,
       bandOffset: parseFloat(style.getPropertyValue('--planet-service-band-offset')) || 42,
       bandHeight: parseFloat(style.getPropertyValue('--planet-service-band-height')) || 197,
       revealDistance: parseFloat(style.getPropertyValue('--planet-service-reveal-distance')) || 72,
-      travel: Math.max(0, contentHeight - height),
+      radius: parseFloat(style.getPropertyValue('--planet-service-image-radius')),
+      analysisOffset: parseFloat(style.getPropertyValue('--planet-analysis-entry-offset')),
     };
-    p.band.setAttribute('viewBox', `0 0 ${width} ${contentHeight}`);
-    p.mask.setAttribute('width', String(width));
-    p.mask.setAttribute('height', String(contentHeight));
-    p.remainder.setAttribute('width', String(width));
-    p.remainder.setAttribute('height', String(contentHeight));
-    p.word.setAttribute('x', String(p.geometry.labelX));
-    p.word.setAttribute('y', String(baseline.top - content.top));
+    p.details.forEach(detail => {
+      const label = detail.label.getBoundingClientRect();
+      const text = detail.labelText.getBoundingClientRect();
+      const baseline = detail.baseline.getBoundingClientRect();
+      detail.geometry = {
+        labelX: text.left-content.left, labelY: label.top-content.top,
+        labelWidth: text.width, labelHeight: label.height,
+      };
+      detail.band.style.setProperty('--planet-service-accent',getComputedStyle(detail.label).color);
+      detail.band.setAttribute('viewBox',`0 0 ${width} ${contentHeight}`);
+      [detail.mask,detail.remainder].forEach(element => {
+        element.setAttribute('width',String(width));
+        element.setAttribute('height',String(contentHeight));
+      });
+      detail.word.setAttribute('x',String(detail.geometry.labelX));
+      detail.word.setAttribute('y',String(baseline.top-content.top));
+    });
+    const [selection,delivery,analysis] = p.details;
+    const readingTop = parseFloat(style.getPropertyValue('--planet-service-reading-top'));
+    const deliveryEntry = Math.min(parseFloat(style.getPropertyValue('--planet-delivery-entry-top')),height*.445);
+    const analysisEntry = Math.min(parseFloat(style.getPropertyValue('--planet-analysis-entry-top')),height*.526);
+    const selectionPan = Math.max(0,selection.gallery.offsetTop+selection.gallery.offsetHeight+parseFloat(getComputedStyle(p.content).paddingBottom)-height);
+    const deliveryPan = delivery.geometry.labelY-readingTop;
+    const analysisPan = analysis.geometry.labelY-analysisEntry;
+    p.geometry.camera = [
+      [5.15,0], [8.15,selectionPan],
+      [9.6,delivery.geometry.labelY-deliveryEntry], [10.65,delivery.geometry.labelY-deliveryEntry],
+      [11.55,deliveryPan], [11.9,deliveryPan],
+      [13.4,analysisPan], [13.9,analysisPan],
+      [15.1,analysis.geometry.labelY-readingTop],
+    ];
+    // The image starts wider than the viewport, as in Figma 196:21020,
+    // then settles to its natural content width (196:21365).
+    p.geometry.analysisScale = Math.max(1,width*parseFloat(style.getPropertyValue('--planet-analysis-entry-width'))/analysis.gallery.offsetWidth);
   }
   function renderPlanetServices(isPlanet) {
     const p = planetServices;
     const active = pinned && isPlanet && p.geometry;
-    const morph = active ? smooth((units-p.morphStart)/(p.morphEnd-p.morphStart)) : 1;
-    const heading = active ? smooth((units-p.headingStart)/(p.headingEnd-p.headingStart)) : 1;
-    const images = active ? smooth((units-p.imagesStart)/(p.imagesEnd-p.imagesStart)) : 1;
-    const pan = active ? smooth((units-p.panStart)/(p.panEnd-p.panStart)) : 0;
-    p.content.style.transform = active ? `translateY(${-p.geometry.travel*pan}px)` : '';
-    p.label.style.opacity = active ? String(Number(morph === 1)) : '';
-    p.heading.style.opacity = active ? String(heading) : '';
-    p.heading.style.transform = active ? `translateY(${(1-heading)*p.geometry.revealDistance}px)` : '';
-    p.gallery.style.opacity = active ? String(images) : '';
-    p.gallery.style.transform = active ? `translateY(${(1-images)*p.geometry.revealDistance}px)` : '';
-    [[p.label,morph === 1],[p.heading,heading > .002],[p.gallery,images > .002]].forEach(([element,visible]) => {
-      if (active && !visible) element.setAttribute('aria-hidden','true');
-      else element.removeAttribute('aria-hidden');
+    let camera = 0;
+    if (active) {
+      const keys = p.geometry.camera;
+      camera = keys[keys.length-1][1];
+      for (let index=1;index<keys.length;index++) {
+        const [end,endY] = keys[index];
+        if (units > end) continue;
+        const [start,startY] = keys[index-1];
+        camera = startY+(endY-startY)*smooth((units-start)/(end-start));
+        break;
+      }
+    }
+    p.content.style.transform = active ? `translateY(${-camera}px)` : '';
+    p.details.forEach((detail,index) => {
+      const progress = range => active ? smooth((units-range[0])/(range[1]-range[0])) : 1;
+      const morph = progress(detail.timing.morph);
+      const heading = progress(detail.timing.heading);
+      const images = progress(detail.timing.images);
+      const settled = active ? smooth((units-13.9)/1.2) : 1;
+      const scale = active && index === 2 ? 1+(p.geometry.analysisScale-1)*(1-settled) : 1;
+      const extra = active && index === 2 ? p.geometry.analysisOffset*(1-settled) : 0;
+      detail.label.style.opacity = active ? String(Number(morph === 1)) : '';
+      detail.heading.style.opacity = active ? String(heading) : '';
+      detail.heading.style.transform = active ? `translateY(${(1-heading)*p.geometry.revealDistance}px)` : '';
+      detail.gallery.style.opacity = active ? String(images) : '';
+      detail.gallery.style.transform = active ? `translateY(${(1-images)*p.geometry.revealDistance+extra}px) scale(${scale})` : '';
+      detail.gallery.style.borderRadius = active && index === 2 ? `${p.geometry.radius/scale}px` : '';
+      [[detail.label,morph === 1],[detail.heading,heading > .002],[detail.gallery,images > .002]].forEach(([element,visible]) => {
+        if (active && !visible) element.setAttribute('aria-hidden','true');
+        else element.removeAttribute('aria-hidden');
+      });
+      detail.band.style.visibility = active && morph < 1 ? 'visible' : 'hidden';
+      if (!active) return;
+      const g = { ...p.geometry, ...detail.geometry };
+      const bandY = g.labelY-g.bandOffset;
+      const bounds = {
+        x: g.labelX*morph,
+        y: bandY+(g.labelY-bandY)*morph,
+        width: g.width+(g.labelWidth-g.width)*morph,
+        height: g.bandHeight+(g.labelHeight-g.bandHeight)*morph,
+      };
+      Object.entries(bounds).forEach(([key,value]) => detail.color.setAttribute(key,String(value)));
+      // The broad mask clears while real glyphs remain, then the identical
+      // semantic heading takes over without a visual jump.
+      detail.remainder.setAttribute('opacity',String(1-smooth((morph-.45)/.55)));
     });
-    p.band.style.visibility = active && morph < 1 ? 'visible' : 'hidden';
-    if (!active) return;
-    const g = p.geometry;
-    const bandY = g.labelY - g.bandOffset;
-    const bounds = {
-      x: g.labelX*morph,
-      y: bandY + (g.labelY-bandY)*morph,
-      width: g.width + (g.labelWidth-g.width)*morph,
-      height: g.bandHeight + (g.labelHeight-g.bandHeight)*morph,
-    };
-    Object.entries(bounds).forEach(([key,value]) => p.color.setAttribute(key,String(value)));
-    // The broad mask clears while the glyph mask stays: color remains only in
-    // the real word contours, then the identical semantic heading takes over.
-    p.remainder.setAttribute('opacity',String(1-smooth((morph-.45)/.55)));
   }
   function configure(preserve = true) {
     const oldPinned = pinned;
     const oldUnits = units;
     const oldIndex = oldPinned ? currentIndex : nearestScene();
+    const oldService = root.dataset.heroEffect === 'planet' && oldIndex === 2
+      ? [...planetServices.details].reverse().find(detail => oldPinned
+        ? oldUnits >= detail.timing.morph[1]
+        : detail.label.getBoundingClientRect().top <= window.innerHeight*.4)
+      : null;
     const inTail = document.getElementById('tail-industries')?.getBoundingClientRect().top < window.innerHeight * .4;
     let tailAnchor = document.getElementById('tail-industries');
     if (inTail) {
@@ -314,8 +376,10 @@
     if (preserve) {
       let top = window.scrollY;
       if (inTail) top = tailAnchor.getBoundingClientRect().top + window.scrollY - tailOffset;
-      else if (pinned) top = (oldPinned ? oldUnits : stops[oldIndex] + .22) * height;
-      else if (oldPinned) top = scenes[oldIndex].offsetTop - 96;
+      else if (pinned) top = (oldPinned ? oldUnits : oldService ? oldService.timing.jump : stops[oldIndex] + .22) * height;
+      else if (oldPinned) top = oldService
+        ? window.scrollY+oldService.label.getBoundingClientRect().top-parseFloat(getComputedStyle(oldService.label).scrollMarginTop)
+        : scenes[oldIndex].offsetTop-96;
       window.scrollTo({ top: Math.max(0, top), behavior: 'instant' });
     }
     requestUpdate();
@@ -323,8 +387,10 @@
 
   function jumpTo(index, offset = .22, instant = false) {
     const behavior = instant || reduced.matches ? 'instant' : 'smooth';
-    if (!pinned && root.dataset.heroEffect === 'planet' && index === 3) {
-      planetServices.label.scrollIntoView({ behavior, block: 'start' });
+    if (root.dataset.heroEffect === 'planet' && index >= 3 && index <= 5) {
+      const detail = planetServices.details[index-3];
+      if (pinned) window.scrollTo({ top: detail.timing.jump*height, behavior });
+      else detail.label.scrollIntoView({ behavior, block: 'start' });
       return;
     }
     if (pinned) window.scrollTo({ top: (stops[index] + offset) * height, behavior });
@@ -368,12 +434,13 @@
     let bestOpacity = -1;
     scenes.forEach((scene, i) => {
       const incoming = serviceTransitions.findIndex(transition => transition.to === i);
-      // In the planet theme the introduction and four images form one white
-      // reading page, replacing the original separate selection scene.
-      const outgoing = isPlanet && i === 2 ? 1 : serviceTransitions.findIndex(transition => transition.from === i);
+      // The planet theme carries selection, delivery and analysis on one
+      // white page. Its outgoing edge is shared with the cases entrance.
+      const outgoing = isPlanet && i === 2 ? -1 : serviceTransitions.findIndex(transition => transition.from === i);
       const enter = i === 0 ? 1 : i === 2 ? introEnter : incoming >= 0 ? serviceProgress[incoming] : smooth((units - stops[i] + .17) / .34);
-      const exit = i === scenes.length - 1 ? 1 : i === 1 ? 1 - introEnter : outgoing >= 0 ? 1 - serviceProgress[outgoing] : 1 - smooth((units - stops[i+1] + .17) / .34);
-      const opacity = isPlanet&&i===3 ? 0 : isPlanet&&i===0 ? 1-smooth((units-.55)/.45) : isPlanet&&i===1 ? smooth((units-.45)/.45)*exit : enter*exit;
+      const nextStop = isPlanet && i === 2 ? stops[6] : stops[i+1];
+      const exit = i === scenes.length - 1 ? 1 : i === 1 ? 1 - introEnter : outgoing >= 0 ? 1 - serviceProgress[outgoing] : 1 - smooth((units - nextStop + .17) / .34);
+      const opacity = isPlanet&&i>=3&&i<=5 ? 0 : isPlanet&&i===0 ? 1-smooth((units-.55)/.45) : isPlanet&&i===1 ? smooth((units-.45)/.45)*exit : enter*exit;
       if (opacity > bestOpacity) { bestOpacity = opacity; nextIndex = i; }
       scene.classList.toggle('is-active', !pinned || (i < 2 ? openingExit < 1 : opacity > .002));
       // Adjacent pages share one moving edge: no overlapping, ghosted copy.
@@ -399,7 +466,7 @@
     }
     currentIndex = nextIndex;
     scenes.forEach((scene, index) => {
-      const available = !pinned || index === currentIndex;
+      const available = (!pinned || index === currentIndex) && !(isPlanet && index >= 3 && index <= 5);
       scene.classList.toggle('is-current', available);
       scene.toggleAttribute('inert', !available);
       if (available) scene.removeAttribute('aria-hidden'); else scene.setAttribute('aria-hidden','true');
@@ -475,7 +542,7 @@
     }
     renderPlanetServices(isPlanet);
     serviceData.forEach(data => {
-      if (isPlanet && data.index === 3) return;
+      if (isPlanet) return;
       const position = clamp((units - data.frameStart) / (data.frameEnd - data.frameStart)) * (data.frames.length - 1);
       const base = Math.floor(position);
       const blend = smooth((position - base - .12) / .76);
@@ -493,7 +560,7 @@
       // Preserve all service text in the accessibility tree; only the visual track moves.
     });
     serviceTransitions.forEach((transition, index) => {
-      if (isPlanet && index === 0) {
+      if (isPlanet) {
         transition.element.style.visibility = 'hidden';
         transition.symbol.style.visibility = '';
         return;

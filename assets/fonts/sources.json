@@ -163,6 +163,12 @@
       "file": "MiSans-Heavy.01aaeec0af264689.17.woff2",
       "source": "https://cdn.jsdelivr.net/npm/misans@5.0.0/lib/Normal/MiSans-Heavy.01aaeec0af264689.17.woff2",
       "bytes": 35840
+    },
+    {
+      "file": "MiSans-Heavy.5412a4670cb3e8d2.11.woff2",
+      "source": "https://cdn.jsdelivr.net/npm/misans@5.0.0/lib/Normal/MiSans-Heavy.5412a4670cb3e8d2.11.woff2",
+      "bytes": 35456,
+      "sha256": "5412a4670cb3e8d21b683117641005ea4c08267ba4cbe3794aa4b50adea27237"
     }
   ]
 }

@@ -290,16 +290,28 @@ html[data-hero-effect="planet"] .service-intro-keyword { color:var(--ink); white
 /* Frame-specific distances preserve the 421px label and 561px image baseline. */
 html[data-hero-effect="planet"] .scene-services-intro {
   --planet-service-detail-gap:177px;
+  --planet-service-section-gap:calc(var(--space-120) + var(--space-64));
   --planet-service-band-height:197px;
   --planet-service-band-offset:42px;
   --planet-service-label-size:var(--text-base);
   --planet-service-heading-size:40px;
   --planet-service-reveal-distance:72px;
+  --planet-service-reading-top:134px;
+  --planet-delivery-entry-top:400px;
+  --planet-analysis-entry-top:473px;
+  --planet-analysis-entry-width:1.77;
+  --planet-analysis-entry-offset:var(--space-40);
+  --planet-analysis-accent:rgba(52,102,255,1);
+  --color-text-highlight-brand2:rgba(0,174,236,1);
 }
 html[data-hero-effect="planet"] .planet-service-detail { display:block; margin-top:var(--planet-service-detail-gap); }
+html[data-hero-effect="planet"] .planet-service-detail ~ .planet-service-detail { margin-top:var(--planet-service-section-gap); }
+html[data-hero-effect="planet"] .planet-service-delivery { --planet-service-accent:var(--color-text-highlight-brand2); }
+html[data-hero-effect="planet"] .planet-service-analysis { --planet-service-accent:var(--planet-analysis-accent); }
 html[data-hero-effect="planet"] .planet-service-label {
-  margin:0; color:var(--brand); font-size:var(--planet-service-label-size);
+  margin:0; color:var(--planet-service-accent,var(--brand)); font-size:var(--planet-service-label-size);
   font-weight:900; line-height:1.5; letter-spacing:0; white-space:nowrap;
+  scroll-margin-top:var(--scene-top);
 }
 .planet-service-baseline { display:inline-block; width:0; height:0; vertical-align:baseline; }
 html[data-hero-effect="planet"] .planet-service-heading {
@@ -311,10 +323,12 @@ html[data-hero-effect="planet"] .planet-service-gallery {
   gap:var(--space-40); padding:0; margin:var(--space-40) 0 0; list-style:none;
 }
 html[data-hero-effect="planet"] .planet-service-gallery li { min-width:0; touch-action:auto; }
-html[data-hero-effect="planet"] .planet-service-image.t-tilt-card { border-radius:var(--planet-service-image-radius); overflow:hidden; }
+html[data-hero-effect="planet"] :is(.planet-service-image,.planet-analysis-image) { border-radius:var(--planet-service-image-radius); overflow:hidden; }
 html[data-hero-effect="planet"] .planet-service-gallery img {
-  display:block; width:100%; height:auto; aspect-ratio:660 / 450;
+  display:block; width:100%; height:auto;
 }
+html[data-hero-effect="planet"] .planet-service-delivery .planet-service-gallery { grid-template-columns:repeat(3,minmax(0,1fr)); }
+html[data-hero-effect="planet"] .planet-analysis-image { display:block; margin-top:calc(var(--space-40) - var(--space-4)); transform-origin:50% 0; }
 html[data-hero-effect="planet"] .service-artwork {
   display:block; width:100%; margin:0;
   border-radius:var(--planet-service-image-radius); overflow:hidden;
@@ -327,13 +341,13 @@ html[data-hero-effect="planet"].is-pinned .scene-service-delivery .service-artwo
   width:min(100%,calc((100svh - var(--scene-top) - var(--space-80)*2)*.854));
   margin-inline:auto;
 }
-html[data-hero-effect="planet"] .scene-service-service { display:none; }
+html[data-hero-effect="planet"] :is(.scene-service-service,.scene-service-delivery,.scene-service-analysis) { display:none; }
 html[data-hero-effect="planet"].is-pinned .services-intro-content { will-change:transform; }
 html[data-hero-effect="planet"].is-pinned .planet-service-band {
   display:block; position:absolute; inset:0; width:100%; height:100%;
   z-index:3; pointer-events:none;
 }
-html[data-hero-effect="planet"] .planet-service-color { fill:var(--brand); }
+html[data-hero-effect="planet"] .planet-service-color { fill:var(--planet-service-accent,var(--brand)); }
 html[data-hero-effect="planet"] .planet-service-mask-word {
   font-family:var(--hero-font-family); font-size:var(--planet-service-label-size);
   font-weight:900; letter-spacing:0;
@@ -349,7 +363,7 @@ html[data-hero-effect="planet"] .planet-service-mask-word {
     --planet-service-detail-gap:var(--space-80);
     --planet-service-heading-size:28px;
   }
-  html[data-hero-effect="planet"] .planet-service-gallery { grid-template-columns:minmax(0,1fr); gap:var(--space-24); margin-top:var(--space-32); }
+  html[data-hero-effect="planet"] :is(.planet-service-gallery,.planet-service-delivery .planet-service-gallery) { grid-template-columns:minmax(0,1fr); gap:var(--space-24); margin-top:var(--space-32); }
 }
 @media (hover:none), (pointer:coarse) {
   html[data-hero-effect="planet"] .planet-service-image.t-tilt-card { transform:none; }

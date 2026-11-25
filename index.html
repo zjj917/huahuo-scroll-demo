@@ -7,17 +7,17 @@
   <meta name="color-scheme" content="light dark">
   <script>try{if(localStorage.getItem('huahuo-hero-effect')==='planet'){document.documentElement.dataset.heroEffect='planet';document.documentElement.classList.add('planet-intro-pending');}}catch(_){}</script>
   <title>花火 · 滚动叙事 Demo</title>
-  <link rel="stylesheet" href="scroll-demo-fonts.css?v=20261125-misans-v2">
-  <link rel="stylesheet" href="scroll-demo-tokens.css?v=20261125-service-materials-planet-v25">
+  <link rel="stylesheet" href="scroll-demo-fonts.css?v=20261125-misans-v3">
+  <link rel="stylesheet" href="scroll-demo-tokens.css?v=20261125-service-flow-planet-v26">
   <link rel="stylesheet" href="motion.css?v=20261120-user-underline-v3">
   <link rel="stylesheet" href="scroll-demo.css?v=20261123-values-reference-v29">
   <link rel="stylesheet" href="scroll-demo-tail.css?v=20261120-footer-clean-v6">
-  <link rel="stylesheet" href="scroll-demo-nav.css?v=20261125-service-materials-planet-v25">
-  <link rel="stylesheet" href="scroll-demo-planet.css?v=20261125-service-materials-planet-v25">
-  <script src="scroll-demo.js?v=20261125-service-materials-planet-v25" defer></script>
-  <script src="scroll-demo-dots.js?v=20261125-service-materials-planet-v25" defer></script>
+  <link rel="stylesheet" href="scroll-demo-nav.css?v=20261125-service-flow-planet-v26">
+  <link rel="stylesheet" href="scroll-demo-planet.css?v=20261125-service-flow-planet-v26">
+  <script src="scroll-demo.js?v=20261125-service-flow-planet-v26" defer></script>
+  <script src="scroll-demo-dots.js?v=20261125-service-flow-planet-v26" defer></script>
   <script src="scroll-demo-tail.js?v=20261120-footer-clean-v6" defer></script>
-  <script src="scroll-demo-nav.js?v=20261125-service-materials-planet-v25" defer></script>
+  <script src="scroll-demo-nav.js?v=20261125-service-flow-planet-v26" defer></script>
 </head>
 <body>
   <a class="skip-link" href="#story">跳到主要内容</a>
@@ -118,7 +118,7 @@
               <h2 id="services-title">我们的服务</h2>
               <p>从<strong><span class="service-intro-keyword">选人</span>撮合</strong>，到<strong>订单<span class="service-intro-keyword">履约</span></strong>，再到<strong>投后<span class="service-intro-keyword">分析</span></strong>，陪伴每一次内容共创。</p>
             </div>
-            <section class="planet-service-detail" aria-labelledby="planet-service-label">
+            <section class="planet-service-detail" data-planet-service="selection" aria-labelledby="planet-service-label">
               <h3 class="planet-service-label" id="planet-service-label"><span data-service-label-text>找UP主</span><span class="planet-service-baseline" aria-hidden="true"></span></h3>
               <p class="planet-service-heading">花火四大选人模式，连接品牌与合适的创作者。</p>
               <ul class="planet-service-gallery" aria-label="四大选人模式">
@@ -135,6 +135,22 @@
               </mask></defs>
               <rect class="planet-service-color" mask="url(#planet-service-word-mask)"/>
             </svg>
+            <section class="planet-service-detail planet-service-delivery" data-planet-service="delivery" aria-labelledby="planet-delivery-label">
+              <h3 class="planet-service-label" id="planet-delivery-label"><span data-service-label-text>合作履约</span><span class="planet-service-baseline" aria-hidden="true"></span></h3>
+              <p class="planet-service-heading">三项平台保障，陪伴每一次内容合作。</p>
+              <ul class="planet-service-gallery" aria-label="三项平台保障">
+                <li><div class="planet-service-image"><img src="assets/planet-figma/service-delivery-dispute.png?v=20261125-service-materials-v25" width="854" height="1000" loading="lazy" decoding="async" alt="纠纷自助解决：支持交易双方协商提前终止合作，并将订单金额退款给客户或结算给UP主。"></div></li>
+                <li><div class="planet-service-image"><img src="assets/planet-figma/service-delivery-protection.png?v=20261125-service-materials-v25" width="854" height="1000" loading="lazy" decoding="async" alt="稿件保护：设置视频稿件保留时长，删除稿件需品牌主确认，终稿编辑在订单上留痕，可查看编辑历史。"></div></li>
+                <li><div class="planet-service-image"><img src="assets/planet-figma/service-delivery-risk.png?v=20261125-service-materials-v25" width="854" height="1000" loading="lazy" decoding="async" alt="风险管理：同步UP主封禁、注销和限流状态；异常账号无法下单，合作中注销或封禁自动终止订单并全额退款。"></div></li>
+              </ul>
+            </section>
+            <section class="planet-service-detail planet-service-analysis" data-planet-service="analysis" aria-labelledby="planet-analysis-label">
+              <h3 class="planet-service-label" id="planet-analysis-label"><span data-service-label-text>投后数据</span><span class="planet-service-baseline" aria-hidden="true"></span></h3>
+              <p class="planet-service-heading">MATES人群资产模型，让品牌人群资产清晰可量化。</p>
+              <figure class="planet-service-gallery planet-analysis-image">
+                <img src="assets/planet-figma/service-analysis-mates.png?v=20261125-service-materials-v25" width="2720" height="1000" loading="lazy" decoding="async" alt="品牌MATES人群资产模型：内容触点全收录，认识、兴趣、信任、认同与转化逐层沉淀，连接用户关键行为和品牌诊断、投前策略、投放监测、投后度量。">
+              </figure>
+            </section>
           </div>
         </section>
 
