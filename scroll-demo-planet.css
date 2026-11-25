@@ -293,6 +293,7 @@ html[data-hero-effect="planet"] .scene-services-intro {
   --planet-service-section-gap:calc(var(--space-120) + var(--space-64));
   --planet-service-band-height:197px;
   --planet-service-band-offset:42px;
+  --planet-service-word-fill:.8;
   --planet-service-label-size:var(--text-base);
   --planet-service-heading-size:40px;
   --planet-service-reveal-distance:72px;

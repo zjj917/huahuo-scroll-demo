@@ -10,7 +10,10 @@
   --brand-ink: var(--color-brand-ink);
   --panel: var(--color-placeholder);
   --glass: var(--color-header);
-  --gutter: clamp(24px, 7.5vw, 144px);
+  --content-max-width: 1360px;
+  --page-inline-space: clamp(24px, 7.5vw, 144px);
+  --content-center-inset: max(0px, calc((100vw - var(--content-max-width)) / 2));
+  --gutter: max(var(--page-inline-space), var(--content-center-inset));
   --scene-top: clamp(112px, 16vh, 180px);
   --display: 80px;
   --headline: clamp(36px, 3.8vw, 64px);
@@ -83,7 +86,7 @@ html.is-pinned .story-scene { position: absolute; inset: 0; min-height: 0; opaci
 html.is-pinned .story-scene.is-active { visibility: visible; }
 html.is-pinned .story-scene.is-current { pointer-events: auto; }
 .scene-kicker { font-size: 14px; color: var(--muted); margin-bottom: 20px; }
-.scene-hero { display: flex; align-items: flex-end; padding-bottom: var(--hero-copy-bottom); overflow: clip; }
+.scene-hero { --gutter: var(--page-inline-space); display: flex; align-items: flex-end; padding-bottom: var(--hero-copy-bottom); overflow: clip; }
 .hero-dots { position: absolute; inset: 0; z-index: 0; width: 100%; height: 100%; pointer-events: none; mask-image: radial-gradient(ellipse at 55% 48%, #000 30%, rgba(0,0,0,.65) 70%, transparent 100%); }
 .hero-creator-card { position: absolute; left: 0; top: 0; z-index: 3; display: flex; align-items: center; gap: var(--space-12); width: 200px; max-width: calc(100% - var(--space-32)); padding: var(--space-12); pointer-events: none; background: var(--page); border: var(--border-width) solid var(--line); border-radius: var(--radius-l); box-shadow: var(--shadow); }
 .hero-creator-card img { display: block; flex: 0 0 44px; width: 44px; height: 44px; object-fit: cover; border-radius: var(--radius-full); }
@@ -164,6 +167,7 @@ html.is-pinned .service-morph { display: block; }
 .portal-heading { font-size: var(--headline); font-weight: 600; line-height: 1.25; letter-spacing: -.06em; }
 .portal-subtitle { position: relative; width: max-content; max-width: 100%; margin-top: 20px; font-size: clamp(18px,1.65vw,24px); line-height: 1.5; color: var(--muted); transform-origin: 0 0; }
 .case-awards { --case-awards-top: max(clamp(300px,39vh,450px),calc(var(--case-copy-bottom,0px) + var(--space-32))); position: absolute; inset: 0; z-index: 3; display: flex; flex-direction: column; justify-content: flex-start; overflow: clip; padding: var(--case-awards-top) 0 64px var(--gutter); opacity: 0; pointer-events: none; }
+html.is-pinned .case-awards { clip-path: inset(0 var(--gutter)); }
 .portal-summary { display: flex; align-items: center; justify-content: space-between; gap: var(--space-24); margin-top: var(--space-24); }
 .portal-summary .portal-subtitle { margin-top: 0; }
 .case-controls { display: flex; flex: none; gap: var(--space-12); pointer-events: auto; }
@@ -201,7 +205,7 @@ html.is-linear .scene-cases-intro .case-film { display: none; }
 html.is-linear .portal-copy { position: relative; inset: auto; padding: var(--scene-top) var(--gutter) var(--space-32); opacity: 1 !important; transform: none !important; }
 html.is-linear .case-awards { position: relative; inset: auto; padding: 0 0 var(--space-64) var(--gutter); opacity: 1 !important; transform: none !important; }
 @media (max-width:1100px) {
-  :root { --gutter: 40px; --display: 52px; --headline: 40px; }
+  :root { --page-inline-space: 40px; --display: 52px; --headline: 40px; }
   .demo-header { gap: 20px; --header-inset: var(--gutter); --header-padding-collapsed: 20px; }
   .demo-nav { gap: 18px; }
   .demo-brand-bilibili { font-size: 15px; }
@@ -219,7 +223,7 @@ html.is-linear .case-awards { position: relative; inset: auto; padding: 0 0 var(
   .services-intro-copy > p:last-child { max-width: 340px; font-size: 16px; }
 }
 @media (max-width:760px) {
-  :root { --content-title-size: var(--content-title-mobile-size); --gutter: 24px; --scene-top: 112px; --display: clamp(31px,8vw,52px); --headline: clamp(30px,7vw,44px); --card-radius: 22px; --service-frame-gap: 54px; }
+  :root { --content-title-size: var(--content-title-mobile-size); --page-inline-space: 24px; --scene-top: 112px; --display: clamp(31px,8vw,52px); --headline: clamp(30px,7vw,44px); --card-radius: 22px; --service-frame-gap: 54px; }
   html { scroll-padding-top: 100px; }
   .demo-header { --header-inset: 14px; --header-top: 14px; --header-height-expanded: 88px; --header-height-collapsed: 60px; --header-padding-expanded: 24px; --header-padding-collapsed: 14px; gap: 12px; }
   .demo-brand { gap: 5px; }

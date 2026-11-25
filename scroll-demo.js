@@ -242,6 +242,7 @@
       width, contentHeight,
       bandOffset: parseFloat(style.getPropertyValue('--planet-service-band-offset')) || 42,
       bandHeight: parseFloat(style.getPropertyValue('--planet-service-band-height')) || 197,
+      wordFill: Number(style.getPropertyValue('--planet-service-word-fill')),
       revealDistance: parseFloat(style.getPropertyValue('--planet-service-reveal-distance')) || 72,
       radius: parseFloat(style.getPropertyValue('--planet-service-image-radius')),
       analysisOffset: parseFloat(style.getPropertyValue('--planet-analysis-entry-offset')),
@@ -253,6 +254,7 @@
       detail.geometry = {
         labelX: text.left-content.left, labelY: label.top-content.top,
         labelWidth: text.width, labelHeight: label.height,
+        baselineY: baseline.top-content.top,
       };
       detail.band.style.setProperty('--planet-service-accent',getComputedStyle(detail.label).color);
       detail.band.setAttribute('viewBox',`0 0 ${width} ${contentHeight}`);
@@ -260,8 +262,13 @@
         element.setAttribute('width',String(width));
         element.setAttribute('height',String(contentHeight));
       });
-      detail.word.setAttribute('x',String(detail.geometry.labelX));
-      detail.word.setAttribute('y',String(baseline.top-content.top));
+      // Measure real glyphs at their final font size. The same mask scales
+      // from a large word down to the semantic label's exact baseline.
+      detail.word.removeAttribute('transform');
+      detail.word.setAttribute('x','0');
+      detail.word.setAttribute('y','0');
+      const glyph = detail.word.getBBox();
+      detail.geometry.glyph = { x:glyph.x, y:glyph.y, width:glyph.width, height:glyph.height };
     });
     const [selection,delivery,analysis] = p.details;
     const readingTop = parseFloat(style.getPropertyValue('--planet-service-reading-top'));
@@ -315,20 +322,29 @@
         if (active && !visible) element.setAttribute('aria-hidden','true');
         else element.removeAttribute('aria-hidden');
       });
-      detail.band.style.visibility = active && morph < 1 ? 'visible' : 'hidden';
+      const entryStart = detail.timing.morph[0]-.45;
+      detail.band.style.visibility = active && units >= entryStart && morph < 1 ? 'visible' : 'hidden';
       if (!active) return;
       const g = { ...p.geometry, ...detail.geometry };
       const bandY = g.labelY-g.bandOffset;
-      const bounds = {
-        x: g.labelX*morph,
-        y: bandY+(g.labelY-bandY)*morph,
-        width: g.width+(g.labelWidth-g.width)*morph,
-        height: g.bandHeight+(g.labelHeight-g.bandHeight)*morph,
-      };
-      Object.entries(bounds).forEach(([key,value]) => detail.color.setAttribute(key,String(value)));
-      // The broad mask clears while real glyphs remain, then the identical
-      // semantic heading takes over without a visual jump.
-      detail.remainder.setAttribute('opacity',String(1-smooth((morph-.45)/.55)));
+      const rise = smooth((units-entryStart)/.45);
+      const pageShift = height*(1-smooth((units-serviceIntro.enterStart)/(serviceIntro.enterEnd-serviceIntro.enterStart)));
+      const blockY = (camera+height-pageShift)*(1-rise)+bandY*rise;
+      // The surface stays broad. Only the glyph mask shrinks: first a solid
+      // band rises, its surroundings clear, then large colored letters land.
+      const raw = clamp((units-detail.timing.morph[0])/(detail.timing.morph[1]-detail.timing.morph[0]));
+      const cut = smooth((raw-.12)/.2);
+      const shrink = smooth((raw-.32)/.68);
+      const glyph = g.glyph;
+      const largeScale = Math.max(1,Math.min((g.width-2*g.labelX)/Math.max(1,glyph.width),g.bandHeight*g.wordFill/Math.max(1,glyph.height)));
+      const wordScale = Math.exp(Math.log(largeScale)*(1-shrink));
+      const largeX = (g.width-glyph.width*largeScale)/2-glyph.x*largeScale;
+      const largeY = blockY+(g.bandHeight-glyph.height*largeScale)/2-glyph.y*largeScale;
+      const wordX = largeX+(g.labelX-largeX)*shrink;
+      const wordY = largeY+(g.baselineY-largeY)*shrink;
+      detail.word.setAttribute('transform',`translate(${wordX} ${wordY}) scale(${wordScale})`);
+      Object.entries({x:0,y:blockY,width:g.width,height:g.bandHeight}).forEach(([key,value]) => detail.color.setAttribute(key,String(value)));
+      detail.remainder.setAttribute('opacity',String(1-cut));
     });
   }
   function configure(preserve = true) {
