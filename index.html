@@ -1,10 +1,11 @@
 <!doctype html>
-<html lang="zh-CN" data-mode="light" data-hero-effect="meteor" class="is-linear">
+<html lang="zh-CN" data-mode="light" data-hero-effect="meteor" class="is-linear" data-theme-home="index.html">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="花火官网动态交互 Demo：按滚动顺序展示品牌主张、合作服务、案例与合作指南。">
   <meta name="color-scheme" content="light dark">
+  <script src="scroll-demo-theme-router.js?v=20261126-planet2-v1"></script>
   <script>try{if(localStorage.getItem('huahuo-hero-effect')==='planet'){document.documentElement.dataset.heroEffect='planet';document.documentElement.classList.add('planet-intro-pending');}}catch(_){}</script>
   <title>花火 · 滚动叙事 Demo</title>
   <link rel="stylesheet" href="scroll-demo-fonts.css?v=20261125-misans-v3">
@@ -39,7 +40,7 @@
         <span aria-hidden="true">◐</span><span class="sr-only">切换暗色主题</span>
       </button>
       <button class="login-button" type="button" data-contact="login" aria-haspopup="dialog" aria-controls="demo-contact-dialog"><span class="planet-original-label">立即登录</span><span class="planet-only">登录</span></button>
-      <select class="hero-effect-select" data-hero-effect-select aria-label="首屏视觉效果"><option value="meteor">流星汇聚</option><option value="cinema">粒子汇聚</option><option value="planet">创作者星球</option></select>
+      <select class="hero-effect-select" data-hero-effect-select aria-label="首屏视觉效果"><option value="meteor">流星汇聚</option><option value="cinema">粒子汇聚</option><option value="planet">创作者星球</option><option value="planet2">创作者星球2</option></select>
       <button class="demo-menu-toggle" type="button" data-menu-toggle aria-label="展开导航菜单" aria-controls="demo-site-nav" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h14M5 16h14"/></svg></button>
     </div>
   </header>
