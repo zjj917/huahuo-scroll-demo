@@ -62,13 +62,15 @@
   const avatarAssets = manifest.assets.filter(a => /^imgUp\d*$/.test(a.constant));
   const faces = avatarAssets.map((asset, index) => {
     const source = asset.uses[0].layer;
-    const x=source.x+source.width/2, y=source.y+source.height/2;
+    const y=source.y+source.height/2;
     const originalTheta=Math.acos(clamp((geometry.cy-y)/geometry.b,-1,1));
-    const side=x<geometry.cx ? -1 : 1;
-    const lane=geometry.a.reduce((best,a,i) =>
-      Math.abs(geometry.cx+side*a*Math.sin(originalTheta)-x)<
-      Math.abs(point(best,side,originalTheta).x-x) ? i : best,0);
-    const theta=originalTheta%loopEnd;
+    // Spread instances across twelve meridian branches and keep equal phase
+    // spacing within each branch. A stable offset avoids horizontal rows.
+    const stream=index%12;
+    const lane=Math.floor(stream/2), side=stream%2 ? 1 : -1;
+    const slot=Math.floor(index/12);
+    const count=Math.floor((avatarAssets.length-1-stream)/12)+1;
+    const theta=.07+((slot/count+stream*.137)%1)*.86;
     const factor=clamp(source.width/faceSize(originalTheta,1),.65,1.3);
     const profile=profiles[index%profiles.length];
     const button=document.createElement('button');
@@ -118,21 +120,31 @@
       ...Array.from({length:29},(_,i)=>`img${i+5}`),
       'imgEllipse23644','imgEllipse23629','imgEllipse23645','imgEllipse23647',
       'imgEllipse23630','imgStar1','imgStar2','imgStar6','img34'];
-    // Decode in parallel, paint in authored order. Serial requests leave the
-    // first visit waiting for dozens of network round trips on GitHub Pages.
+    // Fetch small original SVG bytes in parallel, then decode and paint one
+    // layer at a time. Holding dozens of large filtered SVG image surfaces
+    // simultaneously can exhaust WebKit's image decoder on the first visit.
     const drawingAssets=names.map(name=>assets.get(name)).filter(Boolean);
-    const decoded=new Map();
+    const downloaded=new Map();
     let nextAsset=0;
-    await Promise.all(Array.from({length:6},async()=>{
+    await Promise.all(Array.from({length:4},async()=>{
       while(nextAsset<drawingAssets.length) {
         const asset=drawingAssets[nextAsset++];
-        const image=await loadImage(asset.path);
-        decoded.set(asset.path,image);
+        let response;
+        for(let attempt=0;attempt<2;attempt++) {
+          response=await fetch(asset.path);
+          if(response.ok)break;
+        }
+        if(!response?.ok)throw new Error(`Artwork request failed: ${asset.path}`);
+        downloaded.set(asset.path,await response.blob());
       }
     }));
     if(current!==rebuildSequence) return;
     for(const asset of drawingAssets) {
-      const image=decoded.get(asset.path);
+      const objectUrl=URL.createObjectURL(downloaded.get(asset.path));
+      let image;
+      try { image=await loadImage(objectUrl); }
+      finally { URL.revokeObjectURL(objectUrl); }
+      if(current!==rebuildSequence)return;
       for(const use of asset.uses) {
         const n=use.layer;
         if(!n?.effectiveVisible) continue;
@@ -185,9 +197,9 @@
           if(b>loopEnd) continue;
           const p=point(lane,side,a),q=point(lane,side,b);
           ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(q.x,q.y);
-          ctx.strokeStyle=step<2?'rgba(255,241,247,1)':ink;
+          ctx.strokeStyle=ink;
           ctx.globalAlpha=(1-step/24)**1.6*smooth(theta/.035)*.88;
-          ctx.lineWidth=(step<3?2.2:1.6);ctx.stroke();
+          ctx.lineWidth=(step<3?1.9:1.5);ctx.stroke();
         }
       }
     }
@@ -259,6 +271,25 @@
       event.preventDefault();candidates[next]?.button.focus({preventScroll:true});
     });
   });
+  function resolveCrowding(items,held,elapsed,animate,gap) {
+    const ranked=items.filter(face=>face.inView).sort((a,b)=>
+      Number(b===held)-Number(a===held)||b.position.depth-a.position.depth||a.index-b.index);
+    const occupied=[];
+    items.filter(face=>!face.inView).forEach(face=>{face.crowdAlpha=0;face.crowdTarget=false;face.clearFor=0;});
+    for(const face of ranked) {
+      const fresh=face.crowdAlpha===undefined;
+      const margin=gap+(face.crowdTarget?12:22);
+      const blocked=occupied.some(other=>Math.hypot(face.position.x-other.position.x,face.position.y-other.position.y)<(face.size+other.size)/2+margin);
+      face.clearFor=blocked?0:(face.clearFor||0)+elapsed;
+      const target=face===held||(!blocked&&(fresh||!animate||face.crowdTarget||face.clearFor>=.12));
+      face.crowdTarget=target;
+      if(fresh||!animate)face.crowdAlpha=Number(target);
+      else face.crowdAlpha+=(Number(target)-face.crowdAlpha)*(1-Math.exp(-elapsed/(target ? .22 : .07)));
+      // Reserve fading portraits too, so another face cannot appear through
+      // them. The wider recovery threshold and clear interval prevent chatter.
+      if(target||face.crowdAlpha>.04)occupied.push(face);
+    }
+  }
   function draw(now) {
     frame=0;
     if(document.hidden||!visible) {last=0;return;}
@@ -273,26 +304,32 @@
     if(backdrop)ctx.drawImage(backdrop,0,0,width,height);
     ctx.restore();drawFlows(pose);
     layer.style.opacity=canvas.style.opacity||'1';
-    let firstVisible=null;
+    const held=focused||pinned||active;
     faces.forEach(face=>{
-      const stopped=face===active||face===focused||face===pinned;
+      const stopped=face===held;
       if(animate&&!stopped)face.theta=advance(face.theta,elapsed,face.speed);
       const p=screenPoint(point(face.lane,face.side,face.theta),pose);
       face.position=p;
-      const size=faceSize(face.theta,face.factor)*Math.max(.7,scale)*pose.shrink;
-      face.size=size;
-      const alpha=smooth(face.theta/.035);
-      const shown=p.x+size/2>0&&p.x-size/2<width&&p.y+size/2>100&&p.y-size/2<height&&alpha>.02;
-      face.visible=shown;
-      face.button.hidden=!shown;
+      face.size=faceSize(face.theta,face.factor)*Math.max(.7,scale)*pose.shrink;
+      face.inView=p.x+face.size/2>0&&p.x-face.size/2<width&&p.y+face.size/2>100&&p.y-face.size/2<height&&smooth(face.theta/.035)>.02;
+    });
+    resolveCrowding(faces,held,elapsed,animate,width<=760?8:10);
+    let firstVisible=null;
+    faces.forEach(face=>{
+      const p=face.position,size=face.size;
+      const alpha=smooth(face.theta/.035)*face.crowdAlpha;
+      face.visible=face.inView&&alpha>.35&&face.crowdTarget;
+      face.button.hidden=!face.inView||alpha<.02;
+      face.button.style.pointerEvents=face.visible?'auto':'none';
+      face.button.setAttribute('aria-hidden',String(!face.visible));
       face.button.style.width=`${size}px`;face.button.style.height=`${size}px`;
       face.button.style.transform=`translate(${p.x-size/2}px,${p.y-size/2}px)`;
       face.button.style.opacity=String(alpha);
-      face.button.style.zIndex=String(stopped?1000:Math.round(p.depth*100));
+      face.button.style.zIndex=String(face===held?1000:Math.round(p.depth*100));
       face.button.dataset.theta=face.theta.toFixed(6);
       face.button.dataset.lane=String(face.lane);
-      if(shown&&!firstVisible)firstVisible=face;
-      face.button.tabIndex=face===focused?0:-1;
+      if(face.visible&&!firstVisible)firstVisible=face;
+      face.button.tabIndex=face.visible&&face===focused?0:-1;
     });
     if(!focused&&firstVisible)firstVisible.button.tabIndex=0;
     if(pose.scroll>.05)release({schedule:false});
