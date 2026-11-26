@@ -10,7 +10,7 @@
   const header = document.querySelector('[data-header]');
   const themeButton = document.querySelector('[data-theme-toggle]');
   const reduced = matchMedia('(prefers-reduced-motion: reduce)');
-  const compact = matchMedia('(max-width:760px), (max-height:620px)');
+  const compact = matchMedia('(max-width:1100px), (max-height:620px)');
   const themePreference = matchMedia('(prefers-color-scheme: dark)');
   const rail = document.querySelector('[data-case-rail]');
   const awards = document.querySelector('[data-case-awards]');
@@ -23,6 +23,7 @@
   const portalCopy = document.querySelector('.portal-copy');
   const serviceIntroDescription = document.querySelector('.services-intro-copy > p:last-child');
   const valueCards = [...document.querySelectorAll('.value-card')];
+  const valueGrid = document.querySelector('[data-values]');
   const heroTitle = document.getElementById('hero-title');
   const valuesTitle = document.getElementById('values-title');
   const planetTitleTarget = document.querySelector('[data-planet-title-target]');
@@ -56,7 +57,7 @@
   // One white reading surface and one reversible word-mask implementation
   // serve all three services; their content and timing are the only variants.
   const planetServiceTiming = [
-    { morph: [2.9,3.8], heading: [3.65,4.1], images: [4.05,4.8], jump: 5.02 },
+    { morph: [3.95,4.85], heading: [4.7,5.15], images: [5.1,5.85], jump: 6.05 },
     { morph: [8.65,9.6], heading: [9.45,9.9], images: [9.85,10.65], jump: 11.55 },
     { morph: [12.45,13.4], heading: [13.25,13.65], images: [13.5,13.9], jump: 15.1 },
   ];
@@ -107,6 +108,8 @@
   let height = window.innerHeight;
   let railTravel = 0;
   let openingGeometry = { startX: 0, startY: 0, endX: 0, endY: 0, scale: 1 };
+  let openingCards = [];
+  let pendingServiceFocus = null;
   let portalGeometry = null;
   const serviceData = scenes.map((scene, index) => {
     scene.id = `demo-${scene.dataset.scene}`;
@@ -176,6 +179,9 @@
   }
   function measureOpening() {
     if (!pinned) return;
+    // The endpoint is the authored layout, independent of the current scrub.
+    valuesDetails.forEach(element => { element.style.transform = ''; });
+    valueCards.forEach(card=>{card.style.height='';card.style.setProperty('--planet2-card-scatter','0');});
     const start = heroTitle.getBoundingClientRect();
     const end = valuesTitle.getBoundingClientRect();
     const hero = scenes[0].getBoundingClientRect();
@@ -202,6 +208,8 @@
         })
       };
       openingTitle.style.width=`${heroTitle.offsetWidth}px`;
+      openingCards=valueCards.map(card=>({x:valueGrid.offsetLeft+card.offsetLeft,
+        y:valueGrid.offsetTop+card.offsetTop,width:card.offsetWidth,height:card.offsetHeight}));
       return;
     }
     // Subtract the scene bounds so a resize during scrub cannot capture its
@@ -217,6 +225,78 @@
       })
     };
     openingTitle.style.width = `${heroTitle.offsetWidth}px`;
+  }
+  function renderPlanet2Opening() {
+    if(root.dataset.heroVariant!=='planet2')return;
+    const grow=pinned?smooth((units-.04)/.76):0;
+    const spread=pinned?smooth((units-.8)/.65):0;
+    const scatter=pinned?smooth((units-1.85)/.51):0;
+    const leave=pinned?smooth((units-2.36)/.54):0;
+    const titleLift=54*height/900*grow*(1-spread);
+    const titleExit=387*height/900*scatter;
+    const titleLanded=spread===1;
+    heroDots.style.opacity=String(1-.9*grow-.05*spread);
+    heroDots.style.setProperty('--fire-scroll',String(grow));
+    heroDots.style.setProperty('--planet2-sphere-spread',String(spread));
+    heroDots.dispatchEvent(new Event('hero-progress'));
+    root.classList.toggle('planet2-title-scrubbing',pinned&&units>.04);
+    openingTitle.style.visibility=pinned&&units>.04&&!titleLanded?'visible':'hidden';
+    openingTitle.style.transform='none';
+    openingTitle.style.opacity=String(1-.5*spread);
+    openingLines.forEach((line,index)=>{
+      const l=openingGeometry.lines?.[index];
+      if(!pinned||!l)return;
+      const scale=1+(openingGeometry.scale-1)*spread;
+      line.style.transform=`translate(${l.startX+(l.endX-l.startX)*spread}px,${l.startY+(l.endY-l.startY)*spread-titleLift}px) scale(${scale})`;
+    });
+    heroDetails.forEach(element=>{
+      const cue=element.classList.contains('planet-scroll-cue');
+      const kicker=element.classList.contains('scene-kicker');
+      const alpha=cue?1-smooth((units-.04)/.3):(1-(kicker ? .3 : .8)*grow)*(1-spread);
+      element.style.opacity=pinned?String(alpha):'';
+      element.style.transform=pinned?`translateY(${-54*height/900*grow}px)`:'';
+    });
+    heroActions.toggleAttribute('inert',pinned&&units>.15);
+    valuesDetails.forEach(element=>{
+      element.style.opacity=pinned?String(Number(titleLanded)):'';
+      element.style.transform=pinned?`translateY(${-titleExit-height*leave}px)`:'';
+    });
+    const statement=pinned?smooth((units-.98)/.47):1;
+    valuesTitle.style.opacity=String(statement);
+    valuesTitle.style.transform=pinned?`translateY(${(1-statement)*24-titleExit-height*leave}px)`:'';
+    if(!pinned){
+      valueCards.forEach(card=>{card.style.height='';card.style.removeProperty('--planet2-card-scatter');card.style.removeProperty('--planet2-value-rgb');});
+      return;
+    }
+    // Centers are from the stacked and scattered Figma storyboards. Only the
+    // article moves; its inner surface retains the existing hover treatment.
+    const stackX=[493.676,707.146,915.906,1129.036];
+    const stackAngle=[-10,-2.46,10,2.37];
+    const scatterX=[179,593,1007,1421],scatterY=[237,181,181,237];
+    const scatterAngle=[-8,-4,4,8];
+    const appear=smooth((units-.18)/.62);
+    valueCards.forEach((card,index)=>{
+      const g=openingCards[index];
+      if(!g)return;
+      const stackLeft=stackX[index]*stage.clientWidth/1600-g.width/2;
+      const stackTop=height*634.25/900+(1-appear)*height*.42;
+      const left=stackLeft+(g.x-stackLeft)*spread;
+      const top=stackTop+(g.y-stackTop)*spread;
+      const endLeft=scatterX[index]*stage.clientWidth/1600-g.width/2;
+      const cardHeight=g.height+(Math.max(g.height,440*stage.clientWidth/1600)-g.height)*scatter;
+      const endTop=scatterY[index]*height/900-cardHeight/2;
+      const x=left+(endLeft-left)*scatter-g.x;
+      const y=top+(endTop-top)*scatter-g.y-height*leave;
+      const angle=stackAngle[index]*(1-spread)*(1-scatter)+scatterAngle[index]*scatter;
+      const alpha=[.5,.9,.5,.9][index];
+      card.style.height=`${cardHeight}px`;
+      card.style.setProperty('--planet2-card-scatter',String(scatter));
+      const shade=31-11*scatter;
+      card.style.setProperty('--planet2-value-rgb',`${shade},${shade},${shade}`);
+      card.style.setProperty('--planet2-value-alpha',String(alpha+(.72-alpha)*spread+(.9-.72)*scatter));
+      card.style.opacity=String(smooth((units-.18)/.22));
+      card.style.transform=`translate(${x}px,${y}px) rotate(${angle}deg)`;
+    });
   }
   function measurePortal() {
     if (!pinned) return;
@@ -283,10 +363,11 @@
     const deliveryEntry = Math.min(parseFloat(style.getPropertyValue('--planet-delivery-entry-top')),height*.445);
     const analysisEntry = Math.min(parseFloat(style.getPropertyValue('--planet-analysis-entry-top')),height*.526);
     const selectionPan = Math.max(0,selection.gallery.offsetTop+selection.gallery.offsetHeight+parseFloat(getComputedStyle(p.content).paddingBottom)-height);
+    const selectionEntry = selection.geometry.labelY-readingTop;
     const deliveryPan = delivery.geometry.labelY-readingTop;
     const analysisPan = analysis.geometry.labelY-analysisEntry;
     p.geometry.camera = [
-      [5.15,0], [8.15,selectionPan],
+      [3.5,0], [4.8,selectionEntry], [6.05,selectionEntry], [8.15,selectionPan],
       [9.6,delivery.geometry.labelY-deliveryEntry], [10.65,delivery.geometry.labelY-deliveryEntry],
       [11.55,deliveryPan], [11.9,deliveryPan],
       [13.4,analysisPan], [13.9,analysisPan],
@@ -429,6 +510,18 @@
       else jumpTo(scenes.findIndex(scene => scene.dataset.scene === key), key === 'hero' ? 0 : .22);
     });
   });
+  document.querySelectorAll('[data-planet2-service-jump]').forEach(button=>{
+    button.addEventListener('click',()=>{
+      const index=planetServices.details.findIndex(detail=>detail.section.dataset.planetService===button.dataset.planet2ServiceJump);
+      if(index<0)return;
+      pendingServiceFocus=planetServices.details[index];
+      jumpTo(index+3);
+    });
+  });
+  // Manual input cancels a queued focus transfer during smooth navigation.
+  ['wheel','touchstart','pointerdown','keydown'].forEach(name=>{
+    window.addEventListener(name,()=>{pendingServiceFocus=null;},{passive:true});
+  });
   serviceData.forEach(data => data.buttons.forEach((button, index) => {
     button.addEventListener('click', () => {
       if (!pinned) { data.frames[index].scrollIntoView({ behavior: reduced.matches ? 'instant' : 'smooth', block: 'start' }); return; }
@@ -478,7 +571,7 @@
         const morph = serviceProgress[outgoing];
         shift = (1-enter)*height - height*(.44*rise*(1-morph)+morph);
       }
-      scene.style.transform = pinned ? `translateY(${(i < 2 ? openingShift : shift).toFixed(2)}px)` : 'none';
+      scene.style.transform = pinned ? `translateY(${(i < 2 && root.dataset.heroVariant==='planet2' ? 0 : i < 2 ? openingShift : shift).toFixed(2)}px)` : 'none';
     });
     if (!pinned) nextIndex = nearestScene();
     // A target must leave inert before focus can move into it.
@@ -566,6 +659,7 @@
       card.style.opacity = pinned ? String(entry) : '1';
       card.style.transform = pinned ? `translateY(${(1-entry)*(isPlanet?Math.min(height*.62,560):120)}px)` : 'none';
     });
+    renderPlanet2Opening();
     // The planet design brings the complete copy group in with the white page.
     // Other themes retain their independently trailing description.
     if (serviceIntroDescription) {
@@ -575,6 +669,15 @@
       serviceIntroDescription.style.transform = pinned && !isPlanet ? `translateY(${(1-follow)*lag + leaving*(1-leaving)*lag}px)` : '';
     }
     renderPlanetServices(isPlanet);
+    const focusVisible=pendingServiceFocus && (pinned ? Math.abs(units-pendingServiceFocus.timing.jump)<.06
+      : pendingServiceFocus.label.getBoundingClientRect().top>=0 && pendingServiceFocus.label.getBoundingClientRect().top<height*.65);
+    if(pendingServiceFocus && focusVisible
+      && !scenes[2].hasAttribute('inert') && pendingServiceFocus.label.getAttribute('aria-hidden')!=='true') {
+      const label=pendingServiceFocus.label;
+      pendingServiceFocus=null;
+      label.tabIndex=-1;
+      label.focus({preventScroll:true});
+    }
     serviceData.forEach(data => {
       if (isPlanet) return;
       const position = clamp((units - data.frameStart) / (data.frameEnd - data.frameStart)) * (data.frames.length - 1);

@@ -111,7 +111,9 @@
   async function buildBackdrop() {
     const current=++rebuildSequence;
     const cache=document.createElement('canvas');
-    cache.width=Math.round(width*ratio); cache.height=Math.round(height*ratio);
+    // The sphere rises beyond the original viewport during the opening scrub.
+    // Cache its lower surface too so the translated artwork never ends mid-page.
+    cache.width=Math.round(width*ratio); cache.height=Math.round(height*1.9*ratio);
     const pen=cache.getContext('2d');
     pen.scale(ratio,ratio); pen.translate(offsetX,offsetY); pen.scale(scale,scale);
     // Ordered exactly as the Figma stack: four light surfaces, sphere, 23 halo
@@ -177,7 +179,8 @@
   }
   function currentPose() {
     const scroll=Number(canvas.style.getPropertyValue('--fire-scroll')||0);
-    return {scroll,shrink:1-scroll*.08,shift:-height*.25*scroll};
+    const spread=Number(canvas.style.getPropertyValue('--planet2-sphere-spread')||0);
+    return {scroll,shrink:1+scroll*.18,shift:-height*(.455*scroll+.222222*spread)};
   }
   function screenPoint(p,pose) {
     const x=offsetX+p.x*scale, y=offsetY+p.y*scale;
@@ -297,11 +300,11 @@
     const elapsed=last?Math.min(.04,(now-last)/1000):0;
     last=now;
     const pose=currentPose();
-    const animate=ready&&introDone&&!reduce.matches;
+    const animate=ready&&introDone&&!reduce.matches&&pose.scroll<1;
     if(animate)flowTime+=elapsed;
     ctx.clearRect(0,0,width,height);
     ctx.save();ctx.translate(width/2,pose.shift);ctx.scale(pose.shrink,pose.shrink);ctx.translate(-width/2,0);
-    if(backdrop)ctx.drawImage(backdrop,0,0,width,height);
+    if(backdrop)ctx.drawImage(backdrop,0,0,backdrop.width/ratio,backdrop.height/ratio);
     ctx.restore();drawFlows(pose);
     layer.style.opacity=canvas.style.opacity||'1';
     const held=focused||pinned||active;
@@ -318,7 +321,7 @@
     faces.forEach(face=>{
       const p=face.position,size=face.size;
       const alpha=smooth(face.theta/.035)*face.crowdAlpha;
-      face.visible=face.inView&&alpha>.35&&face.crowdTarget;
+      face.visible=face.inView&&alpha>.35&&face.crowdTarget&&pose.scroll<.05;
       face.button.hidden=!face.inView||alpha<.02;
       face.button.style.pointerEvents=face.visible?'auto':'none';
       face.button.setAttribute('aria-hidden',String(!face.visible));

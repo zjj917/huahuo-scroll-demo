@@ -1,0 +1,79 @@
+/* Figma 223:22421, 224:25274 and 223:23295. Authored storyboard values
+   are local tokens; shared type, spacing and color tokens remain reusable. */
+html[data-hero-variant="planet2"] {
+  --planet2-values-inset:7.5vw;
+  --planet2-values-top:16svh;
+  --planet2-values-heading-size:clamp(36px,3.5vw,56px);
+  --planet2-values-kicker-size:clamp(20px,1.5vw,24px);
+  --planet2-values-heading-gap:20px;
+  --planet2-value-gap:clamp(24px,2.5vw,40px);
+  --planet2-value-radius:var(--space-40);
+  --planet2-value-icon-size:56px;
+  --planet2-value-pad-x:clamp(24px,2.5vw,40px);
+  --planet2-value-pad-y:clamp(40px,4vw,64px);
+  --planet2-value-inner-gap:clamp(40px,4vw,64px);
+  --planet2-value-title-size:clamp(24px,2vw,32px);
+  --planet2-value-copy-size:clamp(14px,1vw,16px);
+  --planet2-value-copy-leading:1.75;
+  --planet2-value-blur:60px;
+  --planet2-value-rgb:31,31,31;
+}
+html[data-hero-variant="planet2"] .scene-values {
+  padding:var(--planet2-values-top) var(--planet2-values-inset) var(--space-80);
+  background:transparent;
+  overflow:clip;
+  font-family:var(--planet2-font-family);
+}
+html[data-hero-variant="planet2"] .scene-values::before { display:none; }
+html[data-hero-variant="planet2"] .scene-values .section-heading { padding:0; text-align:center; }
+html[data-hero-variant="planet2"] .scene-values .scene-kicker {
+  margin:0 0 var(--planet2-values-heading-gap); font-size:var(--planet2-values-kicker-size);
+  line-height:32px; font-weight:400; color:var(--planet2-muted);
+}
+html[data-hero-variant="planet2"] .scene-values #values-title {
+  font-size:var(--planet2-values-heading-size); line-height:1.5; font-weight:400;
+  color:var(--planet2-white);
+}
+html[data-hero-variant="planet2"] .scene-values .value-grid {
+  gap:var(--planet2-value-gap); margin-top:var(--space-80); align-items:stretch;
+}
+html[data-hero-variant="planet2"].is-pinned .scene-values .value-grid {
+  position:absolute; left:var(--planet2-values-inset); right:var(--planet2-values-inset);
+  top:40svh; width:auto; margin:0;
+}
+html[data-hero-variant="planet2"] .scene-values .value-card {
+  min-height:0; border-radius:var(--planet2-value-radius); transform-origin:50% 50%;
+}
+html[data-hero-variant="planet2"] .scene-values .value-card-surface {
+  min-height:0;
+  padding:calc(var(--planet2-value-pad-y) + (var(--space-40) - var(--planet2-value-pad-y))*var(--planet2-card-scatter,0)) var(--planet2-value-pad-x);
+  gap:var(--planet2-value-inner-gap); justify-content:flex-start;
+  background:rgba(var(--planet2-value-rgb),var(--planet2-value-alpha,.72));
+  border:0; border-radius:var(--planet2-value-radius);
+  backdrop-filter:blur(var(--planet2-value-blur));
+  -webkit-backdrop-filter:blur(var(--planet2-value-blur));
+}
+html[data-hero-variant="planet2"] .scene-values .value-card .value-graphic {
+  flex:0 0 var(--planet2-value-icon-size); width:var(--planet2-value-icon-size);
+  height:var(--planet2-value-icon-size);
+}
+html[data-hero-variant="planet2"] .scene-values .value-card h3 {
+  margin:0 0 var(--space-24); font-size:var(--planet2-value-title-size); line-height:1.5;
+}
+html[data-hero-variant="planet2"] .scene-values .value-card p {
+  min-height:0; font-size:var(--planet2-value-copy-size);
+  line-height:var(--planet2-value-copy-leading); color:var(--planet2-muted);
+}
+html[data-hero-variant="planet2"].is-linear .scene-values { background:var(--planet-canvas-bg); }
+@media (max-width:1100px), (max-height:620px) {
+  html[data-hero-variant="planet2"] .scene-values .value-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  html[data-hero-variant="planet2"] { --planet2-value-pad-y:var(--space-32); --planet2-value-inner-gap:var(--space-40); }
+}
+@media (max-width:560px) {
+  html[data-hero-variant="planet2"] {
+    --planet2-values-inset:var(--space-24); --planet2-values-top:var(--space-96);
+    --planet2-values-heading-size:28px; --planet2-values-kicker-size:var(--text-base);
+    --planet2-value-radius:var(--space-32);
+  }
+  html[data-hero-variant="planet2"] .scene-values .value-grid { grid-template-columns:minmax(0,1fr); margin-top:var(--space-40); }
+}
