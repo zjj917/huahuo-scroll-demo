@@ -1,5 +1,6 @@
-/* Creator Planet 2 · Figma 223:23900.
-   The 1600 × 900 frame supplies the local geometry tokens below. */
+/* Creator Planet 2 · service overview and reversible image stack.
+   Local geometry follows Figma's 1600 × 900 service frames. */
+html[data-hero-variant="planet2"] .services-intro-content { margin:0; padding:0; }
 html[data-hero-variant="planet2"] .planet2-service-overview {
   --planet2-service-title-size:40px;
   --planet2-service-kicker-size:20px;
@@ -9,21 +10,25 @@ html[data-hero-variant="planet2"] .planet2-service-overview {
   --planet2-service-surface:rgba(255,255,255,1);
   --planet2-service-hover:rgba(47,50,56,.06);
   --planet2-service-pressed:rgba(47,50,56,.12);
-  --planet2-service-image-mask:rgba(0,0,0,.08);
+  --planet2-service-image-mask:rgba(0,0,0,1);
   --planet2-service-top:clamp(var(--space-120),19.555556svh,176px);
   --planet2-service-image-radius:var(--space-32);
-  --planet2-service-back-top:44px;
   --planet2-service-nav-target:44px;
   --planet2-service-nav-gap:33px;
+  --planet2-service-line-width:370px;
+  --planet2-service-line-native-width:85px;
+  --planet2-service-line-native-scale:4.3529411765;
+  --planet2-service-card-aspect:1320 / 840;
+  --planet2-service-back-top:44px;
   box-sizing:border-box;
   position:relative;
   display:grid;
   grid-template-columns:minmax(0,391fr) minmax(0,899fr);
   column-gap:5.147059%;
   align-items:start;
-  width:calc(100% + var(--gutter)*2);
+  width:100%;
   min-height:100svh;
-  margin:calc(-1*var(--planet-services-inset)) calc(-1*var(--gutter)) 0;
+  margin:0;
   padding:var(--planet2-service-top) var(--gutter) calc(var(--space-64)*2);
   background:var(--planet2-service-surface);
   color:var(--planet2-service-ink);
@@ -31,125 +36,115 @@ html[data-hero-variant="planet2"] .planet2-service-overview {
 }
 html[data-hero-variant="planet2"] .planet2-service-overview-copy { min-width:0; }
 html[data-hero-variant="planet2"] .planet2-service-overview-kicker {
-  margin:0 0 var(--space-12);
-  color:var(--planet2-service-muted);
-  font-size:var(--planet2-service-kicker-size);
-  font-weight:400;
-  line-height:1.5;
+  margin:0 0 var(--space-12); color:var(--planet2-service-muted);
+  font-size:var(--planet2-service-kicker-size); font-weight:400; line-height:1.5;
 }
-html[data-hero-variant="planet2"] .planet2-service-overview h2 {
-  margin:0;
-  color:var(--planet2-service-ink);
-  font-size:var(--planet2-service-title-size);
-  font-weight:400;
-  line-height:1.5;
-  letter-spacing:0;
-  overflow-wrap:anywhere;
+html[data-hero-variant="planet2"] .scene-services-intro .planet2-service-overview h2 {
+  margin:0; color:var(--planet2-service-ink);
+  font-size:var(--planet2-service-title-size); font-weight:400;
+  line-height:1.5; letter-spacing:0; overflow-wrap:anywhere;
 }
 html[data-hero-variant="planet2"] .planet2-service-overview-nav {
-  display:flex;
-  flex-direction:column;
-  align-items:stretch;
+  display:flex; flex-direction:column; align-items:stretch;
   gap:var(--planet2-service-nav-gap);
   margin-top:calc(var(--space-96) - var(--space-4));
 }
 html[data-hero-variant="planet2"] .planet2-service-overview-nav button {
-  display:flex;
-  align-items:center;
-  gap:var(--space-16);
-  width:100%;
-  min-height:var(--planet2-service-nav-target);
-  padding:var(--space-4) 0;
-  border:0;
-  border-radius:var(--radius-m);
-  background:transparent;
-  color:var(--planet2-service-muted);
-  text-align:left;
-  font-family:inherit;
-  font-size:var(--planet2-service-nav-size);
-  font-weight:400;
-  line-height:1.5;
-  cursor:pointer;
+  --planet2-service-progress:0;
+  position:relative; display:flex; align-items:center; gap:var(--space-16);
+  width:100%; min-height:var(--planet2-service-nav-target);
+  padding:var(--space-4) 0; border:0; border-radius:var(--radius-m);
+  background:transparent; color:var(--planet2-service-muted); text-align:left;
+  font-family:inherit; font-size:var(--planet2-service-nav-size);
+  font-weight:400; line-height:1.5; cursor:pointer;
   transition:color var(--duration-fast),background var(--duration-fast);
 }
-html[data-hero-variant="planet2"] .planet2-service-overview-nav button > span:first-child {
-  flex:none;
-  font-variant-numeric:tabular-nums;
-}
-html[data-hero-variant="planet2"] .planet2-service-overview-nav button > span:last-child {
-  min-width:0;
-  overflow-wrap:anywhere;
-}
+html[data-hero-variant="planet2"] .planet2-service-overview-nav button > span:first-child { flex:none; font-variant-numeric:tabular-nums; }
+html[data-hero-variant="planet2"] .planet2-service-overview-nav button > span:nth-child(2) { min-width:0; overflow-wrap:anywhere; }
 html[data-hero-variant="planet2"] .planet2-service-overview-nav button[aria-current="step"] { color:var(--planet2-service-ink); }
-html[data-hero-variant="planet2"] .planet2-service-overview-nav button:hover {
-  color:var(--planet2-service-ink);
-  background:var(--planet2-service-hover);
-}
+html[data-hero-variant="planet2"] .planet2-service-overview-nav button:hover { color:var(--planet2-service-ink); background:var(--planet2-service-hover); }
 html[data-hero-variant="planet2"] .planet2-service-overview-nav button:active { background:var(--planet2-service-pressed); }
 html[data-hero-variant="planet2"] .planet2-service-overview-nav button:focus-visible {
-  outline:var(--space-2) solid var(--brand);
-  outline-offset:var(--space-4);
-  color:var(--planet2-service-ink);
+  outline:var(--space-2) solid var(--brand); outline-offset:var(--space-4); color:var(--planet2-service-ink);
+}
+html[data-hero-variant="planet2"] .planet2-service-progress {
+  position:absolute; top:calc(100% + var(--space-12)); left:0;
+  width:min(100%,var(--planet2-service-line-width)); height:var(--space-4);
+  overflow:hidden; pointer-events:none; opacity:0;
+  transform:scaleX(var(--planet2-service-progress)); transform-origin:left center;
+}
+html[data-hero-variant="planet2"] .planet2-service-overview-nav button[aria-current="step"] .planet2-service-progress { opacity:1; }
+html[data-hero-variant="planet2"] .planet2-service-progress img {
+  display:block; width:var(--planet2-service-line-native-width); height:var(--space-4); max-width:none;
+  transform:scaleX(var(--planet2-service-line-native-scale)); transform-origin:left center;
 }
 html[data-hero-variant="planet2"] .planet2-service-overview-art {
-  position:relative;
-  min-width:0;
-  margin:0;
-  padding-bottom:var(--space-24);
-  isolation:isolate;
+  position:relative; min-width:0; width:100%; margin:0; isolation:isolate;
 }
-html[data-hero-variant="planet2"] .planet2-service-overview-back {
-  position:absolute;
-  z-index:-1;
-  top:var(--planet2-service-back-top);
-  left:var(--space-16);
-  right:var(--space-16);
-  overflow:hidden;
-  aspect-ratio:867 / 552;
-  border-radius:var(--planet2-service-image-radius);
+html[data-hero-variant="planet2"] .planet2-service-topic,
+html[data-hero-variant="planet2"] .planet2-service-stack { min-width:0; }
+html[data-hero-variant="planet2"] .planet2-service-card {
+  position:relative; width:100%; min-width:0; margin:0;
+  border-radius:var(--planet2-service-image-radius); overflow:hidden; transform-origin:top center;
 }
-html[data-hero-variant="planet2"] .planet2-service-overview-back::after {
-  content:"";
-  position:absolute;
-  inset:0;
-  background:var(--planet2-service-image-mask);
-  pointer-events:none;
+html[data-hero-variant="planet2"] .planet2-service-card > img {
+  display:block; width:100%; height:auto; border-radius:inherit;
 }
-html[data-hero-variant="planet2"] .planet2-service-overview-art img {
-  display:block;
-  width:100%;
-  height:auto;
-  border-radius:var(--planet2-service-image-radius);
+html[data-hero-variant="planet2"] .planet2-service-card-shade {
+  position:absolute; inset:0; border-radius:inherit; background:var(--planet2-service-image-mask);
+  opacity:0; pointer-events:none;
 }
-html[data-hero-variant="planet2"] .planet2-service-overview-back img { height:100%; object-fit:cover; }
-html[data-hero-variant="planet2"] .planet2-service-overview-front { aspect-ratio:1320 / 840; object-fit:cover; }
+html[data-hero-variant="planet2"].is-pinned .planet2-service-overview-art {
+  aspect-ratio:var(--planet2-service-card-aspect);
+  max-width:calc((100svh - var(--planet2-service-top) - var(--space-64))*1320/840);
+}
+html[data-hero-variant="planet2"].is-pinned .planet2-service-topic {
+  position:absolute; inset:0; opacity:0; visibility:hidden; pointer-events:none;
+}
+html[data-hero-variant="planet2"].is-pinned .planet2-service-topic:first-child { opacity:1; visibility:visible; }
+html[data-hero-variant="planet2"].is-pinned .planet2-service-stack { position:absolute; inset:0; }
+html[data-hero-variant="planet2"].is-pinned .planet2-service-card {
+  position:absolute; top:0; left:0; aspect-ratio:var(--planet2-service-card-aspect); will-change:transform,opacity;
+}
+html[data-hero-variant="planet2"].is-pinned .planet2-service-card > img {
+  height:100%; object-fit:contain; object-position:center top;
+}
+html[data-hero-variant="planet2"].is-pinned [data-planet2-service-topic="analysis"] .planet2-service-card { aspect-ratio:2720 / 1360; }
+/* Reduced-motion and compact layouts expose every image in reading order. */
+html[data-hero-variant="planet2"].is-linear .planet2-service-topic,
+html[data-hero-variant="planet2"].is-linear .planet2-service-stack,
+html[data-hero-variant="planet2"].is-linear .planet2-service-card {
+  position:relative; inset:auto; opacity:1 !important; visibility:visible !important;
+  transform:none !important; pointer-events:auto;
+}
+html[data-hero-variant="planet2"].is-linear .planet2-service-topic + .planet2-service-topic { margin-top:var(--space-64); }
+html[data-hero-variant="planet2"].is-linear .planet2-service-topic > .sr-only {
+  position:static; width:auto; height:auto; margin:0 0 var(--space-24); padding:0;
+  overflow:visible; clip:auto; clip-path:none; white-space:normal;
+  color:var(--planet2-service-ink); font-size:var(--planet2-service-nav-size); font-weight:400;
+  line-height:1.5; scroll-margin-top:var(--space-96);
+}
+html[data-hero-variant="planet2"].is-linear .planet2-service-card + .planet2-service-card { margin-top:var(--space-24); }
+html[data-hero-variant="planet2"].is-linear .planet2-service-card-shade,
+html[data-hero-variant="planet2"].is-linear .planet2-service-progress { display:none; }
 @media (min-width:761px) and (max-width:1200px) {
   html[data-hero-variant="planet2"] .planet2-service-overview {
-    --planet2-service-title-size:32px;
-    --planet2-service-nav-size:20px;
-    --planet2-service-kicker-size:18px;
-    --planet2-service-nav-gap:var(--space-16);
+    --planet2-service-title-size:32px; --planet2-service-nav-size:20px;
+    --planet2-service-kicker-size:18px; --planet2-service-nav-gap:var(--space-24);
   }
   html[data-hero-variant="planet2"] .planet2-service-overview-nav { margin-top:var(--space-48); }
 }
 @media (max-width:760px) {
   html[data-hero-variant="planet2"] .planet2-service-overview {
-    --planet2-service-title-size:28px;
-    --planet2-service-kicker-size:var(--text-base);
-    --planet2-service-nav-size:var(--text-base);
-    --planet2-service-nav-gap:var(--space-8);
-    --planet2-service-back-top:var(--space-24);
+    --planet2-service-title-size:28px; --planet2-service-kicker-size:var(--text-base);
+    --planet2-service-nav-size:var(--text-base); --planet2-service-nav-gap:var(--space-8);
     --planet2-service-image-radius:var(--space-24);
-    display:flex;
-    flex-direction:column;
-    gap:var(--space-40);
-    min-height:100svh;
-    padding:var(--space-80) var(--gutter);
+    display:flex; flex-direction:column; gap:var(--space-40);
+    min-height:100svh; padding:var(--space-80) var(--gutter);
   }
   html[data-hero-variant="planet2"] .planet2-service-overview-copy { width:100%; }
   html[data-hero-variant="planet2"] .planet2-service-overview-nav { margin-top:var(--space-32); }
-  html[data-hero-variant="planet2"] .planet2-service-overview-art { width:100%; padding-bottom:var(--space-16); }
-  html[data-hero-variant="planet2"] .planet2-service-overview-back { left:var(--space-8); right:var(--space-8); }
+  html[data-hero-variant="planet2"] .planet2-service-overview-art { width:100%; }
 }
 @media (prefers-reduced-motion:reduce) {
   html[data-hero-variant="planet2"] .planet2-service-overview-nav button { transition:none; }
