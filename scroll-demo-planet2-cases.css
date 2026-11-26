@@ -1,0 +1,102 @@
+/* Planet 2 case storyboards: Figma 242:27197 → 242:27433 at 1600 × 900.
+   The local geometry tokens preserve that composition; shared tokens supply
+   spacing, focus, controls and the compact reading layout. */
+html[data-hero-variant="planet2"] .scene-cases-intro {
+  --planet2-case-surface:rgba(0,0,0,1);
+  --planet2-case-ink:rgba(255,255,255,1);
+  --planet2-case-muted:rgba(255,255,255,.3);
+  --planet2-case-title-size:48px;
+  --planet2-case-kicker-size:24px;
+  --planet2-case-copy-top:11.547526svh;
+  --planet2-case-media-top:31.991971svh;
+  --planet2-case-media-width:59.5vw;
+  --planet2-case-media-ratio:952 / 535;
+  --planet2-case-media-radius:var(--space-32);
+  background:var(--planet2-case-surface);
+  color:var(--planet2-case-ink);
+  font-family:var(--planet2-font-family);
+}
+html[data-hero-variant="planet2"] .portal-copy {
+  top:var(--planet2-case-copy-top);
+  padding:0;
+}
+html[data-hero-variant="planet2"] .portal-kicker {
+  width:max-content;
+  max-width:100%;
+  margin:0 0 var(--space-16);
+  color:var(--planet2-case-muted);
+  font-size:var(--planet2-case-kicker-size);
+  font-weight:400;
+  line-height:1.5;
+}
+html[data-hero-variant="planet2"] .portal-heading {
+  width:max-content;
+  max-width:100%;
+  margin:0;
+  font-size:var(--planet2-case-title-size);
+  font-weight:400;
+  line-height:1.5;
+  letter-spacing:0;
+  color:var(--planet2-case-ink);
+}
+html[data-hero-variant="planet2"] .portal-subtitle { color:var(--muted); }
+html[data-hero-variant="planet2"] .planet2-case-media-target {
+  position:absolute;
+  top:var(--planet2-case-media-top);
+  left:50%;
+  width:min(var(--planet2-case-media-width),calc((100svh - var(--planet2-case-media-top) - var(--space-64))*952/535));
+  aspect-ratio:var(--planet2-case-media-ratio);
+  border-radius:var(--planet2-case-media-radius);
+  visibility:hidden;
+  pointer-events:none;
+  transform:translateX(-50%);
+}
+html[data-hero-variant="planet2"] .case-film { margin:0; }
+html[data-hero-variant="planet2"] .case-film img { object-position:center; }
+html[data-hero-variant="planet2"].is-pinned .portal-kicker,
+html[data-hero-variant="planet2"].is-pinned .portal-heading,
+html[data-hero-variant="planet2"].is-pinned .case-film { will-change:transform; }
+html[data-hero-variant="planet2"].is-linear .planet2-case-media-target { display:none; }
+html[data-hero-variant="planet2"].is-linear .portal-copy {
+  inset:auto;
+  padding:var(--space-80) var(--gutter) var(--space-48);
+  text-align:center;
+}
+html[data-hero-variant="planet2"].is-linear .portal-kicker,
+html[data-hero-variant="planet2"].is-linear .portal-heading {
+  margin-inline:auto;
+  transform:none !important;
+}
+html[data-hero-variant="planet2"].is-linear .case-film {
+  display:block;
+  position:relative;
+  inset:auto;
+  width:calc(100% - 2*var(--gutter));
+  max-width:952px;
+  height:auto;
+  aspect-ratio:var(--planet2-case-media-ratio);
+  margin:0 auto var(--space-64);
+  border-radius:var(--planet2-case-media-radius);
+  flex:none;
+}
+html[data-hero-variant="planet2"].is-linear .case-film img { position:absolute; inset:0; }
+/* The media follows its heading in the natural reading order. */
+html[data-hero-variant="planet2"].is-linear .scene-cases-intro { display:flex; flex-direction:column; }
+html[data-hero-variant="planet2"].is-linear .portal-copy { order:0; }
+html[data-hero-variant="planet2"].is-linear .case-film { order:1; }
+html[data-hero-variant="planet2"].is-linear .case-awards { order:2; }
+html[data-hero-variant="planet2"].is-linear .portal-summary { display:none; }
+@media (max-width:1200px) {
+  html[data-hero-variant="planet2"] .scene-cases-intro { --planet2-case-title-size:40px; }
+}
+@media (max-width:760px) {
+  html[data-hero-variant="planet2"] .scene-cases-intro {
+    --planet2-case-title-size:28px;
+    --planet2-case-kicker-size:var(--text-base);
+    --planet2-case-media-radius:var(--space-24);
+  }
+}
+@media (prefers-reduced-motion:reduce) {
+  html[data-hero-variant="planet2"] .case-film,
+  html[data-hero-variant="planet2"] .portal-copy { will-change:auto; }
+}

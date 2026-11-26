@@ -21,6 +21,8 @@
   const portalKicker = document.querySelector('.portal-kicker');
   const portalHeading = document.getElementById('cases-intro-title');
   const portalCopy = document.querySelector('.portal-copy');
+  const portalSummary = document.querySelector('.portal-summary');
+  const caseMediaTarget = document.querySelector('.planet2-case-media-target');
   const serviceIntroDescription = document.querySelector('.services-intro-copy > p:last-child');
   const valueCards = [...document.querySelectorAll('.value-card')];
   const valueGrid = document.querySelector('[data-values]');
@@ -45,8 +47,12 @@
   const openingLines=[...openingTitle.querySelectorAll('[data-opening-line]')];
   stage.append(openingTitle);
   const stops = [0, 1.1, 2.5, 4.8, 10.2, 14.3, 15.5];
-  const awardsStart = 18.15;
-  const total = 19.65;
+  const caseTiming = {
+    enter:[15.15,16.15], center:[16.15,17.55],
+    awards:[17.95,18.45], reading:17.75, railDuration:1.15,
+  };
+  const awardsStart = caseTiming.awards[1];
+  const total = 20.05;
   // Viewport-height distances keep every pose reversible and independent of time.
   const serviceIntro = { enterStart: 2.1, enterEnd: 2.9, exitOvershoot: 0 };
   const planetServices = {
@@ -301,6 +307,19 @@
       coverWidth: cover.width, coverHeight: cover.height,
       radius: parseFloat(getComputedStyle(firstCover).borderRadius) || 0,
     };
+    const target = caseMediaTarget.getBoundingClientRect();
+    const copyStyle = getComputedStyle(portalCopy);
+    const targetStyle = getComputedStyle(caseMediaTarget);
+    portalGeometry.center = {
+      x:target.left-scene.left, y:target.top-scene.top,
+      width:target.width, height:target.height,
+      radius:parseFloat(targetStyle.borderRadius),
+    };
+    portalGeometry.copy = {
+      top:parseFloat(copyStyle.top),
+      kickerX:(portalCopy.clientWidth-portalKicker.offsetWidth)/2,
+      headingX:(portalCopy.clientWidth-portalHeading.offsetWidth)/2,
+    };
     rail.style.transform = railTransform;
     awards.style.transform = awardsTransform;
   }
@@ -389,7 +408,9 @@
     // Read the actual scroll position so the second configure cannot restore
     // the stale units from before the breakpoint change.
     const oldUnits = oldPinned ? window.scrollY/height : units;
-    const oldIndex = oldPinned ? currentIndex : nearestScene();
+    // A viewport resize reflows the natural layout before this handler runs.
+    // Keep the last rendered case anchor instead of sampling its new position.
+    const oldIndex = oldPinned || currentIndex === 6 ? currentIndex : nearestScene();
     const oldService = root.dataset.heroEffect === 'planet' && oldIndex === 2
       ? [...planetServices.details].reverse().find(detail => oldPinned
         ? oldUnits >= detail.timing.start
@@ -434,7 +455,7 @@
     if (preserve) {
       let top = window.scrollY;
       if (inTail) top = tailAnchor.getBoundingClientRect().top + window.scrollY - tailOffset;
-      else if (pinned) top = (oldPinned ? oldUnits : oldService ? oldCardStop : stops[oldIndex] + .22) * height;
+      else if (pinned) top = (oldPinned ? oldUnits : oldService ? oldCardStop : oldIndex === 6 ? caseTiming.reading : stops[oldIndex] + .22) * height;
       else if (oldPinned) top = oldService
         ? window.scrollY+(oldReadingCard||oldService.section).getBoundingClientRect().top-96
         : scenes[oldIndex].offsetTop-96;
@@ -445,6 +466,10 @@
 
   function jumpTo(index, offset = .22, instant = false) {
     const behavior = instant || reduced.matches ? 'instant' : 'smooth';
+    if (pinned && index === 6 && offset === .22) {
+      window.scrollTo({top:caseTiming.reading*height,behavior});
+      return;
+    }
     if (root.dataset.heroEffect === 'planet' && index >= 3 && index <= 5) {
       const detail = planetServices.details[index-3];
       if (pinned) window.scrollTo({ top: detail.timing.jump*height, behavior });
@@ -478,9 +503,9 @@
     });
   }));
   document.querySelectorAll('[data-case-direction]').forEach(button => button.addEventListener('click', () => {
-    const fraction = clamp((units - awardsStart - .15) / 1.15);
+    const fraction = clamp((units - awardsStart - .15) / caseTiming.railDuration);
     const target = clamp(fraction + Number(button.dataset.caseDirection) * .5);
-    jumpTo(6, awardsStart + .15 + target * 1.15 - stops[6]);
+    jumpTo(6, awardsStart + .15 + target * caseTiming.railDuration - stops[6]);
   }));
 
   function render() {
@@ -495,6 +520,10 @@
     const openingExit = introEnter;
     const openingShift = -openingExit * (height + (isPlanet ? serviceIntro.exitOvershoot : 0));
     const heroFade = 1 - smooth((units - .08) / .67);
+    // The white page and black case page share a single moving edge.
+    // A full viewport of travel preserves the analysis reading hold and the
+    // partially visible service/case composition in the first storyboard.
+    const caseEnter = clamp((units-caseTiming.enter[0])/(caseTiming.enter[1]-caseTiming.enter[0]));
     let nextIndex = 0;
     let bestOpacity = -1;
     scenes.forEach((scene, i) => {
@@ -502,9 +531,9 @@
       // The planet theme carries selection, delivery and analysis on one
       // white page. Its outgoing edge is shared with the cases entrance.
       const outgoing = isPlanet && i === 2 ? -1 : serviceTransitions.findIndex(transition => transition.from === i);
-      const enter = i === 0 ? 1 : i === 2 ? introEnter : incoming >= 0 ? serviceProgress[incoming] : smooth((units - stops[i] + .17) / .34);
+      const enter = i === 0 ? 1 : i === 2 ? introEnter : i === 6 ? caseEnter : incoming >= 0 ? serviceProgress[incoming] : smooth((units - stops[i] + .17) / .34);
       const nextStop = isPlanet && i === 2 ? stops[6] : stops[i+1];
-      const exit = i === scenes.length - 1 ? 1 : i === 1 ? 1 - introEnter : outgoing >= 0 ? 1 - serviceProgress[outgoing] : 1 - smooth((units - nextStop + .17) / .34);
+      const exit = i === scenes.length - 1 ? 1 : isPlanet && i === 2 ? 1-caseEnter : i === 1 ? 1 - introEnter : outgoing >= 0 ? 1 - serviceProgress[outgoing] : 1 - smooth((units - nextStop + .17) / .34);
       const opacity = isPlanet&&i>=3&&i<=5 ? 0 : isPlanet&&i===0 ? 1-smooth((units-.55)/.45) : isPlanet&&i===1 ? smooth((units-.45)/.45)*exit : enter*exit;
       if (opacity > bestOpacity) { bestOpacity = opacity; nextIndex = i; }
       scene.classList.toggle('is-active', !pinned || (i < 2 ? openingExit < 1 : opacity > .002));
@@ -659,34 +688,51 @@
       transition.surface.style.clipPath = `inset(${y}px ${target.viewportWidth-x-width}px ${height-y-blockHeight}px ${x}px round ${target.radius*morph}px)`;
       transition.icon.style.transform = `translate(${x+(width-iconWidth)/2}px,${y+(blockHeight-iconHeight)/2}px) scale(${iconWidth/48},${iconHeight/48})`;
     });
-    const portal = units - stops[6];
-    const shrink = smooth((portal - .65) / 1.8);
-    const copyReveal = pinned ? smooth((portal - 1.25) / .95) : 1;
-    portalCopy.style.opacity = String(copyReveal);
-    portalCopy.style.transform = pinned ? `translateY(${(1-copyReveal) * 72}px)` : '';
-    caseControls.toggleAttribute('inert', pinned && shrink < 1);
-    const awardsReveal = pinned ? smooth((portal - 1.65) / .8) : 1;
+    const center = smooth((units-caseTiming.center[0])/(caseTiming.center[1]-caseTiming.center[0]));
+    const handoff = smooth((units-caseTiming.awards[0])/(caseTiming.awards[1]-caseTiming.awards[0]));
+    portalCopy.style.opacity = '1';
+    portalSummary.style.opacity = pinned ? String(handoff) : '';
+    portalSummary.style.visibility = pinned && handoff < .01 ? 'hidden' : '';
+    caseControls.toggleAttribute('inert', pinned && handoff < 1);
+    const awardsReveal = pinned ? handoff : 1;
     awards.style.opacity = String(awardsReveal);
     awards.style.transform = 'none';
-    awards.toggleAttribute('inert', pinned && shrink < 1);
-    if (pinned && shrink < 1) awards.setAttribute('aria-hidden', 'true');
+    awards.style.visibility = pinned && handoff === 0 ? 'hidden' : '';
+    awards.toggleAttribute('inert', pinned && handoff < 1);
+    if (pinned && handoff < 1) awards.setAttribute('aria-hidden', 'true');
     else awards.removeAttribute('aria-hidden');
     if (pinned && portalGeometry) {
       const p = portalGeometry;
-      film.style.left = `${p.x * shrink}px`;
-      film.style.top = `${p.y * shrink}px`;
-      film.style.width = `${p.width + (p.coverWidth-p.width) * shrink}px`;
-      film.style.height = `${p.height + (p.coverHeight-p.height) * shrink}px`;
-      film.style.borderRadius = `${p.radius * shrink}px`;
+      const c = p.center;
+      const mix = (from,to,t) => from+(to-from)*t;
+      const startWidth = p.width*1.2;
+      const startHeight = startWidth*1080/1920;
+      const x = mix(-p.width*.1,c.x,center);
+      const y = mix(p.height*344/900,c.y,center);
+      const width = mix(startWidth,c.width,center);
+      const filmHeight = mix(startHeight,c.height,center);
+      const radius = mix(16,c.radius,center);
+      film.style.left = `${mix(x,p.x,handoff)}px`;
+      film.style.top = `${mix(y,p.y,handoff)}px`;
+      film.style.width = `${mix(width,p.coverWidth,handoff)}px`;
+      film.style.height = `${mix(filmHeight,p.coverHeight,handoff)}px`;
+      film.style.borderRadius = `${mix(radius,p.radius,handoff)}px`;
+      portalCopy.style.transform = `translateY(${(p.height*160/900-p.copy.top)*(1-center)}px)`;
+      const align = center*(1-handoff);
+      portalKicker.style.transform = `translateX(${p.copy.kickerX*align}px)`;
+      portalHeading.style.transform = `translateX(${p.copy.headingX*align}px)`;
       // At the exact endpoint the matching image inside the rail takes over.
-      film.style.visibility = shrink < 1 ? 'visible' : 'hidden';
+      film.style.visibility = handoff < 1 ? 'visible' : 'hidden';
+      film.toggleAttribute('aria-hidden',handoff===1);
     } else {
       ['left','top','width','height','borderRadius','visibility'].forEach(key => { film.style[key] = ''; });
+      [portalCopy,portalKicker,portalHeading].forEach(element=>{element.style.transform='';});
+      film.removeAttribute('aria-hidden');
     }
     syncPlanetHeader();
     header.classList.remove('is-submerged');
     root.classList.remove('is-portal');
-    const railProgress = clamp((units - awardsStart - .15) / 1.15);
+    const railProgress = clamp((units - awardsStart - .15) / caseTiming.railDuration);
     rail.style.transform = pinned ? `translateX(${-railTravel*railProgress}px)` : 'none';
     document.querySelector('[data-case-direction="-1"]').disabled = railProgress <= .01;
     document.querySelector('[data-case-direction="1"]').disabled = railProgress >= .99;
@@ -737,13 +783,13 @@
   if (document.fonts?.ready) document.fonts.ready.then(() => { measureOpening(); measurePortal(); measurePlanetServices(); requestUpdate(); });
   if (location.hash.startsWith('#demo-')) {
     const index = scenes.findIndex(scene => `#${scene.id}` === location.hash);
-    if (root.dataset.heroEffect === 'planet' && index >= 3 && index <= 5) {
-      // Wait for native fragment restoration before positioning service media.
-      // The old selection anchor is also hidden in the planet theme.
+    if (index >= 0) {
+      // Restore after the browser's native fragment scroll. Hidden, transformed
+      // scenes have no useful native anchor position during initial layout.
       const restore = () => requestAnimationFrame(() => jumpTo(index,.22,true));
       if (document.readyState === 'complete') restore();
       else window.addEventListener('load',restore,{once:true});
-    } else if (index >= 0) requestAnimationFrame(() => jumpTo(index));
+    }
   }
 })();
 
