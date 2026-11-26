@@ -118,10 +118,21 @@
       ...Array.from({length:29},(_,i)=>`img${i+5}`),
       'imgEllipse23644','imgEllipse23629','imgEllipse23645','imgEllipse23647',
       'imgEllipse23630','imgStar1','imgStar2','imgStar6','img34'];
-    for(const name of names) {
-      const asset=assets.get(name); if(!asset) continue;
-      const image=await loadImage(asset.path);
-      if(current!==rebuildSequence) return;
+    // Decode in parallel, paint in authored order. Serial requests leave the
+    // first visit waiting for dozens of network round trips on GitHub Pages.
+    const drawingAssets=names.map(name=>assets.get(name)).filter(Boolean);
+    const decoded=new Map();
+    let nextAsset=0;
+    await Promise.all(Array.from({length:6},async()=>{
+      while(nextAsset<drawingAssets.length) {
+        const asset=drawingAssets[nextAsset++];
+        const image=await loadImage(asset.path);
+        decoded.set(asset.path,image);
+      }
+    }));
+    if(current!==rebuildSequence) return;
+    for(const asset of drawingAssets) {
+      const image=decoded.get(asset.path);
       for(const use of asset.uses) {
         const n=use.layer;
         if(!n?.effectiveVisible) continue;
