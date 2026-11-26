@@ -91,6 +91,7 @@
   let rebuildSequence=0, visible=true, backdropTask=null;
   let pointer={x:0,y:0};
   let ink='rgba(255,102,153,1)';
+  let flowTransparent='rgba(255,102,153,0)',flowWidth=1,flowOpacity=.88;
 
   const loadImage = src => new Promise((resolve,reject) => {
     const image=new Image();
@@ -173,7 +174,11 @@
     loopEnd=Math.max(.95,Math.acos(clamp((geometry.cy-resetY)/geometry.b,-1,1))+.025);
     canvas.width=Math.round(width*ratio); canvas.height=Math.round(height*ratio);
     ctx.setTransform(ratio,0,0,ratio,0,0);
-    ink=getComputedStyle(root).getPropertyValue('--brand').trim()||ink;
+    const style=getComputedStyle(root);
+    ink=style.getPropertyValue('--brand').trim()||ink;
+    flowTransparent=style.getPropertyValue('--planet2-flow-transparent').trim()||flowTransparent;
+    flowWidth=parseFloat(style.getPropertyValue('--planet2-flow-width'))||1;
+    flowOpacity=Number(style.getPropertyValue('--planet2-flow-opacity'))||.88;
     resizePending=false;
     if(rebuild)rebuildBackdrop().catch(showAssetError);
   }
@@ -195,15 +200,23 @@
     for(let lane=0;lane<6;lane++) for(const side of [-1,1]) {
       for(let packet=0;packet<2;packet++) {
         const theta=advance(.12+packet*.46+lane*.071,flowTime,.075);
-        for(let step=0;step<24;step++) {
-          const a=theta+step*.005, b=a+.007;
-          if(b>loopEnd) continue;
-          const p=point(lane,side,a),q=point(lane,side,b);
-          ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(q.x,q.y);
-          ctx.strokeStyle=ink;
-          ctx.globalAlpha=(1-step/24)**1.6*smooth(theta/.035)*.88;
-          ctx.lineWidth=(step<3?1.9:1.5);ctx.stroke();
+        const end=Math.min(theta+.12,loopEnd);
+        const startPoint=point(lane,side,theta),endPoint=point(lane,side,end);
+        // One continuous stroke avoids overlap between separately painted
+        // segments. Both ends fade to transparent around a pink midpoint.
+        const gradient=ctx.createLinearGradient(startPoint.x,startPoint.y,endPoint.x,endPoint.y);
+        gradient.addColorStop(0,flowTransparent);
+        gradient.addColorStop(.5,ink);
+        gradient.addColorStop(1,flowTransparent);
+        ctx.beginPath();ctx.moveTo(startPoint.x,startPoint.y);
+        for(let step=1;step<=36;step++) {
+          const p=point(lane,side,theta+(end-theta)*step/36);
+          ctx.lineTo(p.x,p.y);
         }
+        ctx.strokeStyle=gradient;
+        ctx.globalAlpha=smooth(theta/.035)*flowOpacity;
+        ctx.lineWidth=flowWidth;
+        ctx.stroke();
       }
     }
     ctx.restore();

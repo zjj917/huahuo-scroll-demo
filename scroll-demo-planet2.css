@@ -1369,7 +1369,7 @@ html[data-hero-variant="planet2"] {
   --planet2-button-hover:rgba(255,255,255,.24);
   --planet2-button-pressed:rgba(255,255,255,.12);
   --planet2-on-primary:rgba(13,13,15,1);
-  --planet2-card-bg:rgba(255,255,255,.24);
+  --planet2-card-bg:rgba(61,61,61,.64);
   --planet2-card-border:rgba(255,255,255,.08);
   --planet2-card-width:192px;
   --planet2-card-height:58px;
@@ -1378,6 +1378,9 @@ html[data-hero-variant="planet2"] {
   --planet2-card-name-leading:22px;
   --planet2-card-detail-leading:20px;
   --planet2-glass-blur:20px;
+  --planet2-flow-width:1px;
+  --planet2-flow-transparent:rgba(255,102,153,0);
+  --planet2-flow-opacity:.88;
   --planet2-overlay-layer:80;
   --planet2-cue-bottom:42px;
   --planet2-cursor-width:69.7982px;
